@@ -85,7 +85,7 @@ function startQuiz() {
 
 function showQuestion() {
     resetState();
-    feedbackImage.src = "girl-neutral.png";
+    feedbackImage.src = "aw/1.png";
 
     // aktualny obiekt pytania
     const currentQuestion = questions[currentQuestionIndex];
@@ -125,10 +125,10 @@ function selectAnswer(e) {
     if (isCorrect) {
         selectedBtn.classList.add("correct");
         score++;
-        feedbackImage.src = "girl-like.png";
+        feedbackImage.src = "aw/1-like.png";
     } else {
         selectedBtn.classList.add("incorrect");
-        feedbackImage.src = "girl-neutral.png";
+        feedbackImage.src = "aw/1.png";
     }
 
     Array.from(answerButtons.children).forEach(button => {
