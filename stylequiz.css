@@ -11,7 +11,7 @@ box-sizing: border-box;
 body {
   /* ścieżka do Twojego pliku – może być względna lub absolutna */
   background-color: rgb(16, 55, 42); /* fallbackowy kolor, w razie gdy obrazek się nie załaduje */
-  background-image: url('tloquiz.jpg');
+  /*background-image: url('tloquiz.jpg');*/
   background-size: cover;        /* wypełnia cały ekran, zachowując proporcje */
   background-position: center;   /* pionowo i poziomo wycentrowane */
   background-repeat: no-repeat;  /* nie powtarza obrazka */
@@ -24,15 +24,15 @@ body {
 .app {
     background: #fff;
     width: 90%;
-    max-width: 600px;
-    margin: 100px auto 0;
+    max-width: 800px;
+    margin: 10px auto 0;
     border-radius: 10px;
     padding: 30px; /* Fixed spacing issue: removed the space between '30' and 'px' */
 }
 
 .app h1{
 
-    font-size: 25px;
+    font-size: 20px;
     color: #eb9b9b;
     font-weight: 600;
     border-bottom: 1px solid #ad5c5c;   
@@ -81,7 +81,7 @@ body {
     cursor: pointer;
     width: 50%;
     padding: 10px;
-    margin: 20px auto; 
+    margin: 10px auto; 
     border-radius: 45px;
     display: none; /* zaczynamy ze schowanym*/
     text-align: center; 
