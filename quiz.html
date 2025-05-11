@@ -2,11 +2,28 @@
 <html>
 <head>
 <title>QUIZ MUZEUM</title>
+<div class="player-info">
+    <img id="player-avatar" src="" alt="Avatar" style="width: 100px; border-radius: 50%;">
+    <p id="player-name"></p>
+    <p id="player-score">Punkty: 0</p>
+</div>
+
 <link rel="stylesheet"  href="stylequiz.css">
 </head>
 <body>
 <div class ="app"> 
-    <img id="feedback-image" src="girl-neutral.jpg" alt="Girl Feedback" style="width: 250px; display: block; margin: 0 auto 20px;" />
+    <img id="feedback-image" src="" alt="User Avatar" style="width: 250px; display: block; margin: 0 auto 20px;" />
+    <script>
+        // Load the selected avatar from localStorage and set it as the feedback image
+        window.onload = function() {
+            const savedAvatar = localStorage.getItem('selectedAvatar');
+            if (savedAvatar) {
+                document.getElementById('feedback-image').src = savedAvatar;
+            }
+        };
+    </script>
+
+    
     <h1>QUIZ MUZEUM</h1>
     <h1><div class="progress-container">
         <div class="progress-bar" id="progress-bar"></div>

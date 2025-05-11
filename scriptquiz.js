@@ -1,3 +1,8 @@
+
+
+
+
+
 const questions = [
     {
         question: "Kim był August Emil Fieldorf 'Nil'?",
@@ -55,16 +60,28 @@ const questions = [
     }
 ];
 
+let currentQuestionIndex = 0;
+
+let quizEnded = false;
+
 const progressBar = document.getElementById('progress-bar');
 const questionElement = document.getElementById('question');
 const answerButtons = document.getElementById('answer-buttons');
 const nextButton = document.getElementById('next-btn');
 const feedbackImage = document.getElementById('feedback-image');
 
+// Player display
+const playerAvatar = document.getElementById('player-avatar');
+const playerNameElement = document.getElementById('player-name');
+const playerScoreElement = document.getElementById('player-score');
 
-let currentQuestionIndex = 0;
-let score = 0;
-let quizEnded = false;
+// Load user data
+let userName = localStorage.getItem('userName') || 'Gracz';
+let userAvatar = localStorage.getItem('selectedAvatar') || 'aw/1.png';
+let userPoints = /*parseInt(localStorage.getItem('userPoints')) ||*/ 0;
+
+
+
 
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
@@ -85,7 +102,8 @@ function startQuiz() {
 
 function showQuestion() {
     resetState();
-    feedbackImage.src = "aw/1.png";
+    
+    feedbackImage.src = userAvatar;
 
     // aktualny obiekt pytania
     const currentQuestion = questions[currentQuestionIndex];
@@ -116,7 +134,11 @@ function resetState() {
     while (answerButtons.firstChild) {
         answerButtons.removeChild(answerButtons.firstChild);
     }
+
+    
+
 }
+
 
 function selectAnswer(e) {
     const selectedBtn = e.target;
@@ -125,11 +147,12 @@ function selectAnswer(e) {
     if (isCorrect) {
         selectedBtn.classList.add("correct");
         score++;
-        feedbackImage.src = "aw/1-like.png";
+        feedbackImage.src = userAvatar.replace('.png', '-like.png');
     } else {
         selectedBtn.classList.add("incorrect");
-        feedbackImage.src = "aw/1.png";
+        feedbackImage.src = userAvatar;
     }
+    
 
     Array.from(answerButtons.children).forEach(button => {
         if (button.dataset.correct === "true") {
@@ -140,7 +163,6 @@ function selectAnswer(e) {
 
     nextButton.style.display = 'block';
 }
-
 
 function showScore() {
     resetState();
@@ -158,6 +180,8 @@ function handleNextButton() {
     } else {
         showScore();
     }
+    
+    feedbackImage.src = userAvatar;
 }
 
 nextButton.addEventListener("click", () => {
@@ -166,6 +190,8 @@ nextButton.addEventListener("click", () => {
     } else {
         handleNextButton();
     }
+    
+    feedbackImage.src = userAvatar;
 });
 
 startQuiz();
