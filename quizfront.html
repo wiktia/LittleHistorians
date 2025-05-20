@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Responsywny layout</title>
+<style>
+  /* Tło strony - zdjęcie dopasowane do ekranu */
+  body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Inter', sans-serif;
+    background-image: url("obrazkikinga/kartkapapieru.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  /* Kontener główny, centruje zawartość */
+  .container {
+    max-width: 400px;
+    width: 90vw;
+    height: 90vh;
+    margin: auto;
+    position: relative;
+    background: rgba(45, 27, 14, 0.85); /* półprzezroczyste tło dla lepszej czytelności */
+    border-radius: 10px;
+    border: 1px solid black;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    box-sizing: border-box;
+  }
+
+  /* Awatar */
+  .avatar {
+    width: 40vw;
+    max-width: 150px;
+    aspect-ratio: 1 / 1; /* kwadrat */
+    background: #2D1B0E;
+    border: 1px solid black;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 12px;
+  }
+
+  /* Pytanie */
+  .question {
+    color: white;
+    font-weight: 700;
+    font-size: 1rem;
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  /* Odpowiedzi - przyciski */
+  .answer {
+    width: 70vw;
+    max-width: 250px;
+    height: 2rem;
+    background: #FDF7E3;
+    border-radius: 10px;
+    border: 1px solid black;
+    color: #2D1B0E;
+    font-weight: 700;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0.4rem 0;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  /* Górny pasek */
+  .top-bar {
+    width: 80vw;
+    max-width: 332px;
+    height: 2rem;
+    background: #7B4B2A;
+    border-radius: 10px;
+    border: 1px solid white;
+    margin-bottom: 1rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .top-bar-inner {
+    width: 70vw;
+    max-width: 280px;
+    height: 2rem;
+    background: #2D1B0E;
+    border-radius: 10px;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  /* Responsywność dla większych ekranów (desktop) */
+  @media (min-width: 768px) {
+    .container {
+      max-width: 500px;
+      height: 700px;
+      padding: 2rem;
+    }
+    .answer {
+      height: 2.5rem;
+      font-size: 14px;
+      max-width: 300px;
+    }
+    .avatar {
+      max-width: 200px;
+      font-size: 14px;
+    }
+    .question {
+      font-size: 1.2rem;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="top-bar">
+      <div class="top-bar-inner"></div>
+    </div>
+
+    <div class="avatar">awatar</div>
+
+    <div class="question">Pytanie</div>
+
+    <div class="answer">odpowiedz 1</div>
+    <div class="answer">odpowiedz 2</div>
+    <div class="answer">odpowiedz 3</div>
+    <div class="answer">odpowiedz 4</div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz AK</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Merriweather, serif;
+      background-image: url("obrazkikinga/kartkapapieru.jpg");
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
+    .container {
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: rgba(255, 255, 255, 0.7);
+      border-radius: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 5vw;
+      color: #2D1B0E;
+    }
+
+    .avatars {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .avatars img {
+      width: 45%;
+      border-radius: 20px;
+      border: 1px solid black;
+    }
+
+    .input-box {
+      margin-top: 20px;
+      background-color: rgba(123, 75, 42, 0.8);
+      border-radius: 30px;
+      padding: 10px;
+      border: 1px solid black;
+      text-align: center;
+      color: #2D1B0E;
+      font-weight: 700;
+    }
+
+    .gender-icons {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .gender-icons img {
+      width: 12vw;
+      max-width: 40px;
+    }
+
+    @media (min-width: 768px) {
+      h1 {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="gender-icons">
+      <img src="obrazkikinga/male.png" alt="Mężczyzna">
+      <img src="obrazkikinga/female.png" alt="Kobieta">
+    </div>
+
+    <h1>Wybierz swój awatar</h1>
+
+    <div class="avatars">
+      <img src="obrazkikinga/23.png" alt="Avatar 1">
+      <img src="obrazkikinga/21.png" alt="Avatar 2">
+      <img src="obrazkikinga/19.png" alt="Avatar 3">
+      <img src="obrazkikinga/17.png" alt="Avatar 4">
+      <img src="obrazkikinga/15.png" alt="Avatar 5">
+      <img src="obrazkikinga/13.png" alt="Avatar 6">
+    </div>
+
+    <div class="input-box">Podaj swoje imię</div>
+  </div>
+
+</body>
+</html>
