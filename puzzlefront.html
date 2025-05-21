@@ -5,19 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Responsywne PUZZLE 3x3</title>
 <style>
-  body, html {
-    margin: 0; padding: 0; height: 100%;
-    background-image: url("obrazkikinga/kartkapapieru.jpg");
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    font-family: Merriweather, serif;
-    color: #2D1B0E;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-  }
+    body {
+      margin: 0;
+      padding: 0;
+      background-image: url("obrazkikinga/puzzletlo.png"), url("obrazkikinga/kartkapapieru.jpg");
+      background-size: cover, cover;
+      background-repeat: no-repeat, no-repeat;
+      background-position: center, center;
+      font-family: Merriweather, serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
 
   .container {
     position: relative;
@@ -104,6 +104,9 @@
     }
     .moves {
       font-size: 24px;
+    }
+    .background {
+      background-repeat: no-repeat;
     }
   }
 </style>
