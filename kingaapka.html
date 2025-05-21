@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-image: url("obrazkikinga/kartkapapieru.jpg");
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+      font-family: Merriweather, serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      position: relative;
+      width: 90vw;
+      max-width: 400px;
+      aspect-ratio: 3/5; /* proporcje jak telefon */
+    }
+
+    .bg {
+      position: absolute;
+      width: 95%;
+      height: 82%;
+      top: 18%;
+      left: 2.5%;
+      background: #7B4B2A;
+      opacity: 0.7;
+      border-radius: 1000px;
+    }
+
+    .button {
+      position: absolute;
+      bottom: 5%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 70%;
+      height: 50px;
+      background: #29562B;
+      border-radius: 10px;
+      border: 2px solid black;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #FDF7E3;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    .content-box {
+      position: absolute;
+      top: 35%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 70%;
+      aspect-ratio: 1/1;
+      background: #FDF7E3;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 1rem;
+      box-sizing: border-box;
+    }
+
+    .content-box h1 {
+      font-size: 1.5rem;
+      color: #2D1B0E;
+      margin: 0;
+    }
+
+    .content-box p {
+      font-size: 0.9rem;
+      font-weight: bold;
+      color: #2D1B0E;
+      margin: 1rem 0 0 0;
+    }
+
+    .hand {
+      position: absolute;
+      width: 20%;
+      height: auto;
+      top: 33%;
+    }
+
+    .hand.left {
+      left: 28%;
+    }
+
+    .hand.right {
+      right: 28%;
+    }
+
+    .soldier {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 90%;
+      transform: translateX(-50%);
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="bg"></div>
+    <div class="button">Rozpocznij Quiz!</div>
+    <div class="content-box">
+      <h1>Rozpocznij Quiz!</h1>
+      <p>Witajcie w .....</p>
+    </div>
+    <img src="obrazkikinga/reka1.png" class="hand left" />
+    <img src="obrazkikinga/reka2.png" class="hand right" />
+    <img src="obrazkikinga/zolnierzfinal.png" class="soldier" />
+  </div>
+
+</body>
+</html>

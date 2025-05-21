@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Responsywne PUZZLE 3x3</title>
+<style>
+  body, html {
+    margin: 0; padding: 0; height: 100%;
+    background-image: url("obrazkikinga/kartkapapieru.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    font-family: Merriweather, serif;
+    color: #2D1B0E;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  .container {
+    position: relative;
+    width: 90vw;
+    max-width: 400px;
+    aspect-ratio: 1 / 1.3; /* dostosowujemy proporcje do Twojego projektu */
+  }
+
+  /* Plansza (biały kwadrat) */
+  .board {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1; /* kwadrat */
+    background: white;
+    border: 1px solid black;
+    box-shadow: 0 4px 4px rgba(0,0,0,0.25);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 1px; /* przerwy między elementami, imitujące linie */
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  /* Każda komórka planszy */
+  .cell {
+    background: #FDF7E3;
+    border: 1px solid black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 700;
+    font-size: 1.5vw;
+    user-select: none;
+  }
+
+  /* Nagłówek PUZZLE */
+  .title {
+    font-size: 8vw;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 1rem;
+    color: #2D1B0E;
+    font-family: Merriweather, serif;
+  }
+
+  /* Przycisk Tasuj puzzle */
+  .shuffle-button {
+    margin-top: 1rem;
+    background: #2D1B0E;
+    color: #FDF7E3;
+    padding: 0.8rem 2rem;
+    border-radius: 10px;
+    border: none;
+    font-size: 4vw;
+    font-weight: 700;
+    cursor: pointer;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    user-select: none;
+  }
+
+  /* Ruchy */
+  .moves {
+    margin-top: 1rem;
+    font-weight: 700;
+    font-size: 5vw;
+    text-align: center;
+    color: black;
+  }
+
+  /* Dla większych ekranów */
+  @media (min-width: 768px) {
+    .title {
+      font-size: 48px;
+    }
+    .cell {
+      font-size: 18px;
+    }
+    .shuffle-button {
+      font-size: 20px;
+      padding: 12px 40px;
+    }
+    .moves {
+      font-size: 24px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="title">PUZZLE</div>
+
+  <div class="board">
+    <!-- 9 komórek -->
+    <div class="cell">1</div>
+    <div class="cell">2</div>
+    <div class="cell">3</div>
+    <div class="cell">4</div>
+    <div class="cell">5</div>
+    <div class="cell">6</div>
+    <div class="cell">7</div>
+    <div class="cell">8</div>
+    <div class="cell">9</div>
+  </div>
+
+  <button class="shuffle-button">Tasuj puzzle</button>
+  <div class="moves">Ruchy = </div>
+</div>
+
+</body>
+</html>
+
