@@ -13,34 +13,65 @@
       background-size: cover;
       background-repeat: no-repeat;
       background-position: center;
+      min-height: 100vh;
+      overflow: hidden; 
     }
 
     .container {
-      max-width: 400px;
+      max-width: 90vw;
       margin: 0 auto;
-      padding: 20px;
+      padding: 10px 20px;
       background-color: rgba(255, 255, 255, 0.7);
       border-radius: 20px;
+      min-height: 100vh; 
+      display: flex; 
+      flex-direction: column; 
+      justify-content: flex-start;
+      overflow-y: auto; /* tylko wewnątrz kontenera jeśli potrzeba */
+      box-sizing: border-box;
     }
 
     h1 {
       text-align: center;
       font-size: 5vw;
       color: #2D1B0E;
+      margin: 0 0 10px 0;
+      padding-top: 0;
+      
     }
 
     .avatars {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
-    }
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* domyślnie: 2 kolumny */
+  gap: 15px;
+}
 
-    .avatars img {
-      width: 45%;
-      border-radius: 20px;
-      border: 1px solid black;
-    }
+.avatars img {
+  width: 100%;
+  border-radius: 20px;
+  border: 1px solid black;
+}
+
+/* Laptop: powiększamy siatkę i awatary */
+@media (min-width: 768px) {
+  h1 {
+    font-size: 2rem;
+  }
+
+  .avatars {
+    grid-template-columns: repeat(3, 1fr); /* 3 kolumny */
+  }
+
+  .avatars img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .container {
+    max-width: 700px; /* zwiększamy szerokość kontenera */
+    padding: 40px;
+  }
+}
 
     .input-box {
       margin-top: 20px;
@@ -63,6 +94,11 @@
     .gender-icons img {
       width: 12vw;
       max-width: 40px;
+      background-color: #7B4B2A; /* brązowy kolor */
+      border-radius: 50%;
+      padding: 10px;
+      border: 2px solid #5A3A1B; /* ciemniejszy brąz na obwódce */
+      box-sizing: border-box;
     }
 
     @media (min-width: 768px) {
@@ -70,17 +106,42 @@
         font-size: 2rem;
       }
     }
+
+    .name-label {
+        display:block;
+      font-weight: 700;
+      color: #2D1B0E;
+      text-align: center;
+      margin-top: 40px;
+      margin-bottom: 10px;
+      font-size: 1.5rem;
+    }
+
+    .input-box {
+      background-color: rgba(123, 75, 42, 0.8);
+      border-radius: 30px;
+      padding: 10px;
+      border: 1px solid black;
+      text-align: center;
+      color: #FDF7E3;
+      font-weight: 700;
+      max-width: 300px;
+      margin: 0 auto 30px;
+    }
   </style>
 </head>
 <body>
 
+
   <div class="container">
+
+    <h1>Wybierz swój awatar</h1>
+
     <div class="gender-icons">
       <img src="obrazkikinga/male.png" alt="Mężczyzna">
       <img src="obrazkikinga/female.png" alt="Kobieta">
     </div>
 
-    <h1>Wybierz swój awatar</h1>
 
     <div class="avatars">
       <img src="obrazkikinga/23.png" alt="Avatar 1">
@@ -91,7 +152,10 @@
       <img src="obrazkikinga/13.png" alt="Avatar 6">
     </div>
 
-    <div class="input-box">Podaj swoje imię</div>
+    
+    <label for="name" class="name-label">Podaj swoje imię</label>
+    <input type="text" id="name" name="name" class="input-box" />
+
   </div>
 
 </body>
