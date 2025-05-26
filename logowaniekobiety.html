@@ -9,7 +9,7 @@
       margin: 0;
       padding: 0;
       font-family: Merriweather, serif;
-      background-image: url("obrazkikinga/kartkapapieru.jpg");
+      background-image: url("obrazki/kartkapapieru.jpg");
       background-size: cover;
       background-repeat: no-repeat;
       background-position: center;
@@ -27,7 +27,7 @@
       display: flex; 
       flex-direction: column; 
       justify-content: flex-start;
-      overflow-y: auto; /* tylko wewnątrz kontenera jeśli potrzeba */
+      overflow-y: auto; 
       box-sizing: border-box;
     }
 
@@ -42,7 +42,7 @@
 
     .avatars {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* domyślnie: 2 kolumny */
+  grid-template-columns: repeat(2, 1fr); 
   gap: 15px;
 }
 
@@ -52,14 +52,14 @@
   border: 1px solid black;
 }
 
-/* Laptop: powiększamy siatkę i awatary */
+
 @media (min-width: 768px) {
   h1 {
     font-size: 2rem;
   }
 
   .avatars {
-    grid-template-columns: repeat(3, 1fr); /* 3 kolumny */
+    grid-template-columns: repeat(3, 1fr); 
   }
 
   .avatars img {
@@ -68,7 +68,7 @@
   }
 
   .container {
-    max-width: 700px; /* zwiększamy szerokość kontenera */
+    max-width: 700px; 
     padding: 40px;
   }
 }
@@ -94,10 +94,10 @@
     .gender-icons img {
       width: 12vw;
       max-width: 35px;
-      background-color: #7B4B2A; /* brązowy kolor */
+      background-color: #7B4B2A;
       border-radius: 50%;
       padding: 2px;
-      border: 2px solid #5A3A1B; /* ciemniejszy brąz na obwódce */
+      border: 2px solid #5A3A1B;
       box-sizing: border-box;
     }
 
@@ -138,18 +138,18 @@
     <h1>Wybierz swój awatar</h1>
 
     <div class="gender-icons">
-      <img src="obrazkikinga/male.png" alt="Mężczyzna">
-      <img src="obrazkikinga/female.png" alt="Kobieta">
+      <img src="obrazki/male.png" alt="Mężczyzna">
+      <img src="obrazki/female.png" alt="Kobieta">
     </div>
 
 
     <div class="avatars">
-      <img src="obrazkikinga\1.png" alt="Avatar 1">
-      <img src="obrazkikinga\3.png" alt="Avatar 2">
-      <img src="obrazkikinga/5.png" alt="Avatar 3">
-      <img src="obrazkikinga/7.png" alt="Avatar 4">
-      <img src="obrazkikinga/9.png" alt="Avatar 5">
-      <img src="obrazkikinga/11.png" alt="Avatar 6">
+      <img src="obrazki/1.png" alt="Avatar 1">
+      <img src="obrazki/3.png" alt="Avatar 2">
+      <img src="obrazki/5.png" alt="Avatar 3">
+      <img src="obrazki/7.png" alt="Avatar 4">
+      <img src="obrazki/9.png" alt="Avatar 5">
+      <img src="obrazki/11.png" alt="Avatar 6">
     </div>
 
     
