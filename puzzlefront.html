@@ -5,44 +5,43 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Responsywne PUZZLE 3x3</title>
 <style>
-  body, html {
-    margin: 0; padding: 0; height: 100%;
-    background-image: url("obrazkikinga/kartkapapieru.jpg");
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    font-family: Merriweather, serif;
-    color: #2D1B0E;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-  }
+    body {
+      margin: 0;
+      padding: 0;
+      background-image: url("obrazki/puzzletlo.png"), url("obrazki/kartkapapieru.jpg");
+      background-size: cover, cover;
+      background-repeat: no-repeat, no-repeat;
+      background-position: center, center;
+      font-family: Merriweather, serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
 
   .container {
     position: relative;
     width: 90vw;
     max-width: 400px;
-    aspect-ratio: 1 / 1.3; /* dostosowujemy proporcje do Twojego projektu */
+    aspect-ratio: 1 / 1.3; 
   }
 
-  /* Plansza (biały kwadrat) */
   .board {
     position: relative;
     width: 100%;
-    aspect-ratio: 1 / 1; /* kwadrat */
+    aspect-ratio: 1 / 1; 
     background: white;
     border: 1px solid black;
     box-shadow: 0 4px 4px rgba(0,0,0,0.25);
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(3, 1fr);
-    gap: 1px; /* przerwy między elementami, imitujące linie */
+    gap: 1px; 
     border-radius: 4px;
     overflow: hidden;
   }
 
-  /* Każda komórka planszy */
+
   .cell {
     background: #FDF7E3;
     border: 1px solid black;
@@ -54,7 +53,7 @@
     user-select: none;
   }
 
-  /* Nagłówek PUZZLE */
+
   .title {
     font-size: 8vw;
     font-weight: 700;
@@ -64,7 +63,7 @@
     font-family: Merriweather, serif;
   }
 
-  /* Przycisk Tasuj puzzle */
+
   .shuffle-button {
     margin-top: 1rem;
     background: #2D1B0E;
@@ -81,6 +80,20 @@
     user-select: none;
   }
 
+  .avatar img {
+    position: center;
+    max-width: 40%;
+    height: auto;
+    border-radius: 20px;
+    border: 1px solid black;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    display: block;
+
+  }
+
   /* Ruchy */
   .moves {
     margin-top: 1rem;
@@ -90,7 +103,7 @@
     color: black;
   }
 
-  /* Dla większych ekranów */
+
   @media (min-width: 768px) {
     .title {
       font-size: 48px;
@@ -105,13 +118,22 @@
     .moves {
       font-size: 24px;
     }
+    .background {
+      background-repeat: no-repeat;
+    }
   }
 </style>
 </head>
 <body>
 
 <div class="container">
-  <div class="title">PUZZLE</div>
+
+
+
+  <div class="avatar img">
+    <img src="obrazki/15.png" alt="Avatar 1">
+
+  </div>
 
   <div class="board">
     <!-- 9 komórek -->
@@ -126,10 +148,12 @@
     <div class="cell">9</div>
   </div>
 
-  <button class="shuffle-button">Tasuj puzzle</button>
-  <div class="moves">Ruchy = </div>
+  <button class="shuffle-button">Przejdź dalej!</button>
+  
 </div>
 
 </body>
 </html>
+
+
 

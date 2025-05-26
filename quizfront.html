@@ -3,142 +3,196 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Responsywny layout</title>
+<title>Quiz Muzealny</title>
+<<<<<<< HEAD
+
+=======
+>>>>>>> b088dd0cf675be2e683d54d963a5068f8aa65f99
 <style>
-  /* Tło strony - zdjęcie dopasowane do ekranu */
-  body, html {
+  body {
     margin: 0;
     padding: 0;
     height: 100%;
-    font-family: 'Inter', sans-serif;
-    background-image: url("obrazkikinga/kartkapapieru.jpg");
+    font-family: Merriweather, serif;
+    background-image: url("obrazki/kartkapapieru.jpg");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    position: relative;
   }
 
-  /* Kontener główny, centruje zawartość */
+<<<<<<< HEAD
+
+=======
+>>>>>>> b088dd0cf675be2e683d54d963a5068f8aa65f99
+  .progress-bar-section { 
+    width: 80%; 
+    height: 25px; 
+    background: #2A1D16; 
+    border-radius: 20px; 
+    border: 2px solid #1E1410; 
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    overflow: hidden; 
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+    z-index: 10;
+  }
+
+  .progress-bar-fill { 
+    width: 20%; 
+    height: 100%; 
+    background: #795548; 
+    border-radius: 18px; 
+    transition: width 0.3s ease-in-out;
+  }
+
   .container {
     max-width: 400px;
     width: 90vw;
-    height: 90vh;
-    margin: auto;
     position: relative;
-    background: rgba(45, 27, 14, 0.85); /* półprzezroczyste tło dla lepszej czytelności */
-    border-radius: 10px;
-    border: 1px solid black;
+    background: rgba(58, 46, 41, 0.9); 
+    border-radius: 25px; 
+    border: 1px solid #1E1410; 
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 1rem;
+    padding-top: 50px; 
     box-sizing: border-box;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    max-width: 600px;
+    width: 95vw;
+    padding: 40px;
+    margin-top: 80px; 
   }
 
-  /* Awatar */
-  .avatar {
-    width: 40vw;
-    max-width: 150px;
-    aspect-ratio: 1 / 1; /* kwadrat */
-    background: #2D1B0E;
-    border: 1px solid black;
-    margin-bottom: 1rem;
+  .avatar img{
+    width: 120px; 
+    height: 120px; 
+    background: #3A2E29; 
+    border: 3px solid #1E1410; 
+    border-radius: 10px; 
+    margin-top: 5px; 
+    margin-bottom: 20px; 
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: #E0D8C0; 
     font-weight: 700;
-    font-size: 12px;
+    font-size: 1.1rem; 
+    position: relative; 
+    z-index: 1;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    scale: 1.3;
+
   }
 
-  /* Pytanie */
   .question {
-    color: white;
+    justify-items: center;
+
+    color: #FDF7E3; 
     font-weight: 700;
-    font-size: 1rem;
+    font-size: 1.3rem; 
+    font-family: 'Merriweather', serif;
     text-align: center;
-    margin-bottom: 2rem;
+    margin-bottom: 25px; 
+    line-height: 1.4;
   }
 
-  /* Odpowiedzi - przyciski */
-  .answer {
-    width: 70vw;
-    max-width: 250px;
-    height: 2rem;
-    background: #FDF7E3;
-    border-radius: 10px;
-    border: 1px solid black;
-    color: #2D1B0E;
+  .answers-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px; 
+  }
+
+  .answer-btn { 
+    width: 85%; 
+    max-width: 300px; 
+    padding: 15px; 
+    background: #FDF7E3; 
+    border-radius: 20px; 
+    border: none; 
+    color: #3A2E29; 
     font-weight: 700;
-    font-size: 12px;
+    font-size: 1.1rem; 
+    font-family: 'Merriweather', serif;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0.4rem 0;
     cursor: pointer;
-    user-select: none;
+    user-select: none; 
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
   }
-
-  /* Górny pasek */
-  .top-bar {
-    width: 80vw;
-    max-width: 332px;
-    height: 2rem;
-    background: #7B4B2A;
-    border-radius: 10px;
-    border: 1px solid white;
-    margin-bottom: 1rem;
-    position: relative;
-    overflow: hidden;
+  .answer-btn:hover {
+    background-color: #E0D8C0;
   }
+  
 
-  .top-bar-inner {
-    width: 70vw;
-    max-width: 280px;
-    height: 2rem;
-    background: #2D1B0E;
-    border-radius: 10px;
-    position: absolute;
-    top: 0;
-    left: 0;
-  }
-
-  /* Responsywność dla większych ekranów (desktop) */
   @media (min-width: 768px) {
+
     .container {
-      max-width: 500px;
-      height: 700px;
-      padding: 2rem;
+      max-width: 1000px; 
+      padding: 60px 130px;
+      padding-top: 5px; 
+      scale: 1.2;
+      top: 50px;
     }
-    .answer {
-      height: 2.5rem;
-      font-size: 14px;
-      max-width: 300px;
+    .progress-bar-section {
+      height: 30px;
     }
     .avatar {
-      max-width: 200px;
-      font-size: 14px;
+      width: 150px;
+      height: 150px;
+      font-size: 1.3rem;
+      margin-top: -120px; 
+      margin-bottom: 30px;
     }
     .question {
+      font-size: 1.6rem;
+      margin-bottom: 30px;
+    }
+    .answers-container { 
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px; 
+      width: 100%; 
+      justify-items: center; 
+    }
+    .answer-btn {
       font-size: 1.2rem;
+      padding: 18px;
+      max-width: none; 
+      justify-self: center; 
     }
   }
 </style>
 </head>
 <body>
 
+  <div class="progress-bar-section"> 
+    <div class="progress-bar-fill" style="width: 20%;"></div> 
+  </div>
+
   <div class="container">
-    <div class="top-bar">
-      <div class="top-bar-inner"></div>
-    </div>
+ <div class="avatar img">
+    <img src="obrazki/1.png" alt="Avatar 1">
 
-    <div class="avatar">awatar</div>
-
+  </div>
     <div class="question">Pytanie</div>
-
-    <div class="answer">odpowiedz 1</div>
-    <div class="answer">odpowiedz 2</div>
-    <div class="answer">odpowiedz 3</div>
-    <div class="answer">odpowiedz 4</div>
+    <div class="answers-container">
+      <button class="answer-btn">odpowiedz 1</button> 
+      <button class="answer-btn">odpowiedz 2</button>
+      <button class="answer-btn">odpowiedz 3</button>
+      <button class="answer-btn">odpowiedz 4</button>
+    </div>
   </div>
 
 </body>
