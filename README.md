@@ -1,1 +1,1 @@
-read me file
+The Quiz was created in collaboration with the Museum of the Home Army in Kraków. It will be a dedicated web app designed for an exhibition about the museum's patron. Children will be able to test their knowledge by solving various types of riddles — including quizzes, puzzles, image-to-description matching, date-guessing challenges, and more. STILL IN PROGRESS.
