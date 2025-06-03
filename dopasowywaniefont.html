@@ -2,85 +2,130 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Dopasowywanie odznaczeń</title>
   <style>
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.03);
+      }
+    }
+
     body {
+      margin: 0;
+      padding: 20px;
       font-family: 'Merriweather', serif;
       background: #d3c5aa url('obrazki/kartkapapieru.jpg') no-repeat center center fixed;
       background-size: cover;
-      margin: 0;
-      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      animation: fadeInUp 1s ease-out;
       box-sizing: border-box;
     }
 
-    h1 {
-      text-align: center;
-      font-size: 2rem;
-      margin-bottom: 20px;
-    }
-
     .container {
+      width: 90vw;
       max-width: 1200px;
-      height: 650px;
-      margin: 0 auto;
       background-color: rgba(253, 247, 227, 0.9);
       border-radius: 15px;
-      padding: 15px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      padding: 20px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.25);
+      box-sizing: border-box;
+      animation: fadeInUp 1.2s ease-in-out;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 25px;
       position: relative;
+      min-height: 650px;
+    }
+
+    h1 {
+      font-size: 4vw;
+      text-align: center;
+      margin: 0;
+      color: #5a3e1a;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+      animation: fadeInUp 1.4s ease-in-out;
+      user-select: none;
     }
 
     .ellipse-bg {
       position: absolute;
-      top: 35%;
+      top: 40%;
       left: 50%;
-      transform: translate(-50%, -35%);
-      width: 400px;
-      height: 400px;
+      transform: translate(-50%, -40%);
+      width: 350px;
+      height: 350px;
       background-size: contain;
       z-index: 0;
       pointer-events: none;
+      opacity: 0.1;
+      animation: fadeInUp 1.6s ease-in-out;
     }
 
     .badges {
       display: flex;
-      justify-content: space-around;
-      gap: 10px;
-      margin-bottom: 30px;
+      justify-content: center;
+      gap: 30px;
+      flex-wrap: wrap;
+      width: 100%;
+      max-width: 1100px;
       z-index: 1;
-      position: relative;
+      animation: fadeInUp 1.8s ease-in-out;
     }
 
     .badge-container {
       display: flex;
       flex-direction: column;
       align-items: center;
+      min-width: 180px;
+      flex: 1 1 180px;
+      gap: 10px;
     }
 
     .badge-container img {
-      margin-top: 50px;
-      max-width: 200px;
+      max-width: 100%;
       height: auto;
       border: 3px solid #7B4B2A;
       border-radius: 15px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.25);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: default;
+      user-select: none;
     }
 
     .badge-container img:hover {
-      transform: scale(1.05);
+      animation: pulse 3s infinite ease-in-out;
       box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
     }
 
     .dropzone {
-      margin-top: 8px;
-      width: 100px;
-      height: 30px;
+      width: 100%;
+      max-width: 200px;
+      height: 35px;
       background-color: rgba(123, 75, 42, 0.6);
       border: 2px dashed #FDF7E3;
-      border-radius: 10px;
+      border-radius: 12px;
       transition: background-color 0.3s ease, border-color 0.3s ease;
+      box-sizing: border-box;
+      user-select: none;
     }
 
     .dropzone:hover {
@@ -90,22 +135,29 @@
 
     .labels {
       display: flex;
-      justify-content: space-around;
       flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 20px;
+      justify-content: center;
+      gap: 15px;
+      max-width: 1100px;
+      width: 100%;
+      animation: fadeInUp 2s ease-in-out;
     }
 
     .label {
       background-color: #FDF7E3;
-      border: 1px solid #7B4B2A;
-      border-radius: 10px;
-      padding: 8px 12px;
+      border: 2px solid #7B4B2A;
+      border-radius: 12px;
+      padding: 10px 15px;
       text-align: center;
-      font-size: 13px;
+      font-size: 3vw;
       cursor: grab;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
       transition: transform 0.2s ease, background-color 0.2s ease;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+      user-select: none;
+      min-width: 250px;
+      max-width: 100%;
+      flex-grow: 1;
+      flex-basis: 250px;
     }
 
     .label:hover {
@@ -113,69 +165,142 @@
       background-color: #f2e3c5;
     }
 
-    @media (max-width: 480px) {
+    @media (min-width: 768px) {
       h1 {
-        font-size: 1.5rem;
+        font-size: 2.5rem;
       }
-
-      .badge-container img {
-        max-width: 90px;
-      }
-
-      .ellipse-bg {
-        width: 300px;
-        height: 300px;
-      }
-
-      .badges {
-        flex-direction: column;
-        align-items: center;
-      }
-
-      .labels {
-        flex-direction: column;
-        align-items: center;
-      }
-
       .label {
-        width: 90%;
+        font-size: 18px;
+        min-width: 220px;
+        padding: 12px 18px;
       }
-
       .dropzone {
-        width: 80%;
+        height: 40px;
+      }
+      .badge-container {
+        min-width: 220px;
+        flex-basis: 220px;
+      }
+      .container {
+        padding: 30px 40px;
+      }
+      .ellipse-bg {
+        width: 400px;
+        height: 400px;
       }
     }
+
+@media (max-width: 480px) {
+  body {
+    padding: 10px 5px;
+  }
+  .container {
+    min-height: 100vh; /* zmiana z height na min-height */
+    max-height: 100vh;
+    padding: 10px 15px;
+    overflow-y: auto; /* dopuszczamy scroll w kontenerze, nie na body */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  
+  h1 {
+    font-size: 1.3rem;
+    margin: 0;
+    flex-shrink: 0;
+    text-align: center;
+  }
+  
+  .badges {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 8px 10px;
+    max-width: 100%;
+    justify-items: center;
+    flex-shrink: 0;
+  }
+  
+  .badge-container:nth-child(3) {
+    grid-column: 1 / 3;
+    justify-self: center;
+    max-width: 110px;
+    width: 100%;
+  }
+
+  .badge-container:nth-child(1),
+  .badge-container:nth-child(2) {
+    max-width: 90px;
+    width: 100%;
+  }
+  
+  .badge-container img {
+    max-width: 100%;
+    max-height: 90px;  /* wymuszona maksymalna wysokość */
+    height: auto;
+    border-radius: 15px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+    object-fit: contain; /* zachowanie proporcji bez przycinania */
+  }
+
+  .dropzone {
+    max-width: 100%;
+    height: 22px; /* mniejsza wysokość */
+    margin-top: 6px;
+    border-width: 1.5px;
+  }
+  
+  .labels {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px;
+    max-width: 100%;
+    align-items: center;
+    padding-bottom: 5px;
+    flex-shrink: 0;
+  }
+  
+  .label {
+    min-width: 100% !important;
+    max-width: 280px;
+    font-size: 12px;
+    padding: 8px 10px;
+    text-align: center;
+    cursor: grab;
+    user-select: none;
+  }
+}
+
+
+
   </style>
 </head>
 <body>
-
   <div class="container">
     <div class="ellipse-bg"></div>
     <h1>Przeciągnij opis do obrazka!</h1>
 
-    <!-- Odznaki -->
     <div class="badges">
       <div class="badge-container">
-        <img src="obrazki/odznaka1.png" alt="odznaka 1">
+        <img src="obrazki/odznaka1.png" alt="odznaka 1" />
         <div class="dropzone"></div>
       </div>
       <div class="badge-container">
-        <img src="obrazki/odznaka2.png" alt="odznaka 2">
+        <img src="obrazki/odznaka2.png" alt="odznaka 2" />
         <div class="dropzone"></div>
       </div>
       <div class="badge-container">
-        <img src="obrazki/odznaka3.png" alt="odznaka 3">
+        <img src="obrazki/odznaka3.png" alt="odznaka 3" />
         <div class="dropzone"></div>
       </div>
     </div>
 
-    <!-- Etykiety -->
     <div class="labels">
       <div class="label" draggable="true">Krzyż Kawalerski Orderu Odrodzenia Polski</div>
       <div class="label" draggable="true">Srebrny Medal za Długoletnią Służbę</div>
       <div class="label" draggable="true">Medal Dziesięciolecia Odzyskania Niepodległości</div>
     </div>
   </div>
-
 </body>
 </html>

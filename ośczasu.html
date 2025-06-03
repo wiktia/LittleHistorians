@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.03);
+      }
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-4px);
+      }
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Merriweather', serif;
+      background: #d3c5aa url('obrazki/kartkapapieru.jpg') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      animation: fadeInUp 1s ease-out;
+    }
+
+    .container {
+        
+      width: 90vw;
+      max-width: 400px;
+      aspect-ratio: 1 / 1.3;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      box-sizing: border-box;
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid #2D1B0E;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+      animation: fadeInUp 1.2s ease-in-out;
+    }
+
+    .title {
+      font-size: 6vw;
+      font-weight: bold;
+      text-align: center;
+      color: #2D1B0E;
+      margin-bottom: 0.5rem;
+      animation: fadeInUp 1.4s ease-in-out;
+    }
+
+    
+
+  .timeline-wrapper {
+    position: relative;
+    width: 100%;
+    flex-grow: 1;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin: 0.5rem 0;
+    animation: fadeInUp 1.6s ease-in-out;
+  }
+
+  .timeline-img {
+    position: absolute;
+    left: 0;
+    width: 40%;
+    height: auto;
+    transform: rotate(270deg) scale(2.5);
+  }
+
+  .event-slot {
+    position: absolute;
+    width: 50%;
+    height: 10%;
+    background-color: #9A745A;
+    border-radius: 10px;
+    left: 45%;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    animation: pulse 4s infinite ease-in-out;
+  }
+
+  .slot-1953 { top: 16%;
+margin-top: 10px; }
+  .slot-1928 { top: 47%;
+margin-top: 10px;  }
+  .slot-1925 { top: 64%; 
+margin-top: 10px; }
+
+  .labels {
+    position: absolute;
+    left: 15%;
+    font-size: 3.5vw;
+    font-weight: bold;
+    color: #2D1B0E;
+  }
+
+  .label-1953 { top: 13%; }
+  .label-1928 { top: 44%; }
+  .label-1925 { top: 61%; }
+
+  
+
+
+    .options {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      animation: fadeInUp 2s ease-in-out;
+    }
+
+    .option {
+      background-color: #FDF7E3;
+      border: 2px solid #2D1B0E;
+      border-radius: 10px;
+      padding: 0.5rem 1rem;
+      font-weight: bold;
+      font-size: 3.5vw;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      animation: float 4s ease-in-out infinite;
+    }
+
+    .option:hover {
+      transform: translateY(-6px) scale(1.05);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+    }
+
+    @media (min-width: 768px) {
+      .title {
+        font-size: 32px;
+      }
+      .container
+      { scale:1.2;}
+
+      .labels {
+        font-size: 16px;
+      }
+
+      .option {
+        font-size: 16px;
+        padding: 0.6rem 1.2rem;
+      }
+
+      .timeline-img {
+        width: 35%;
+        transform: rotate(270deg) scale(2.5);
+      }
+
+      .event-slot {
+        height: 35px;
+        width: 45%;
+      }
+
+
+
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      .timeline-img {
+        bottom: 20px;
+      }
+
+      .ellipse-bg {
+        width: 300px;
+        height: 300px;
+      }
+      }
+    
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="title">Dopasuj wydarzenia na osi czasu!</div>
+
+    <div class="timeline-wrapper">
+  <img src="obrazki/ośczasu.png" alt="oś czasu" class="timeline-img"/>
+
+  <div class="labels label-1953">– 1953</div>
+  <div class="labels label-1928">– 1928</div>
+  <div class="labels label-1925">– 1925</div>
+
+  <div class="event-slot slot-1953"></div>
+  <div class="event-slot slot-1928"></div>
+  <div class="event-slot slot-1925"></div>
+</div>
+
+
+    <div class="options">
+      <div class="option">Awans do stopnia majora</div>
+      <div class="option">Narodziny córki Marii</div>
+      <div class="option">Wykonanie wyroku śmierci</div>
+    </div>
+  </div>
+
+</body>
+</html>
