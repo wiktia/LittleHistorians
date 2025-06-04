@@ -1,149 +1,156 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Responsywne PUZZLE 3x3</title>
-<style>
-    body {
-      margin: 0;
-      padding: 0;
-      background-image: url("obrazki/puzzletlo.png"), url("obrazki/kartkapapieru.jpg");
-      background-size: cover, cover;
-      background-repeat: no-repeat, no-repeat;
-      background-position: center, center;
-      font-family: Merriweather, serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Responsywne PUZZLE 3x3</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-image: url("obrazki/puzzletlo.png"), url("obrazki/kartkapapieru.jpg");
+            background-size: cover, cover;
+            background-repeat: no-repeat, no-repeat;
+            background-position: center, center;
+            font-family: Merriweather, serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
 
-  .container {
-    position: relative;
-    width: 90vw;
-    max-width: 400px;
-    aspect-ratio: 1 / 1.3; 
-  }
+        .container {
+            position: relative;
+            width: 90vw;
+            max-width: 400px;
+            aspect-ratio: 1 / 1.3;
+        }
 
-  .board {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 1 / 1; 
-    background: white;
-    border: 1px solid black;
-    box-shadow: 0 4px 4px rgba(0,0,0,0.25);
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(3, 1fr);
-    gap: 1px; 
-    border-radius: 4px;
-    overflow: hidden;
-  }
+        .board {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background: white;
+            border: 1px solid black;
+            box-shadow: 0 4px 4px rgba(0,0,0,0.25);
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 1px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
 
+        /* Usunąłem .cell - teraz to .puzzle-img będą komórkami */
+        .puzzle-img {
+            background: #FDF7E3; /* Domyślne tło, jeśli obrazek się nie załaduje */
+            border: 1px solid black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 700;
+            font-size: 1.5vw;
+            user-select: none;
+            width: 100%; /* Obrazek wypełnia komórkę */
+            height: 100%; /* Obrazek wypełnia komórkę */
+            object-fit: cover; /* Ważne: skaluje obrazek, by wypełnić komórkę bez zniekształceń */
+            cursor: pointer;
+            transition: transform 0.1s ease-in-out; /* Dodajemy animację do zaznaczenia */
+        }
 
-  .cell {
-    background: #FDF7E3;
-    border: 1px solid black;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: 700;
-    font-size: 1.5vw;
-    user-select: none;
-  }
-
-
-  .title {
-    font-size: 8vw;
-    font-weight: 700;
-    text-align: center;
-    margin-bottom: 1rem;
-    color: #2D1B0E;
-    font-family: Merriweather, serif;
-  }
-
-
-  .shuffle-button {
-    margin-top: 1rem;
-    background: #2D1B0E;
-    color: #FDF7E3;
-    padding: 0.8rem 2rem;
-    border-radius: 10px;
-    border: none;
-    font-size: 4vw;
-    font-weight: 700;
-    cursor: pointer;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    user-select: none;
-  }
-
-  .avatar img {
-    position: center;
-    max-width: 40%;
-    height: auto;
-    border-radius: 20px;
-    border: 1px solid black;
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    display: block;
-
-  }
-
-  /* Ruchy */
-  .moves {
-    margin-top: 1rem;
-    font-weight: 700;
-    font-size: 5vw;
-    text-align: center;
-    color: black;
-  }
+        .puzzle-img.selected {
+            border: 2px solid blue; /* Wyróżnienie zaznaczonego puzzla */
+            transform: scale(0.95); /* Lekkie zmniejszenie po zaznaczeniu */
+        }
 
 
-  @media (min-width: 768px) {
-    .title {
-      font-size: 48px;
-    }
-    .cell {
-      font-size: 18px;
-    }
-    .shuffle-button {
-      font-size: 20px;
-      padding: 12px 40px;
-    }
-    .moves {
-      font-size: 24px;
-    }
-    .background {
-      background-repeat: no-repeat;
-    }
-  }
-</style>
+        .title {
+            font-size: 8vw;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 1rem;
+            color: #2D1B0E;
+            font-family: Merriweather, serif;
+        }
+
+
+        .shuffle-button { /* Zmieniłem na id="shuffle" w JS */
+            margin-top: 1rem;
+            background: #2D1B0E;
+            color: #FDF7E3;
+            padding: 0.8rem 2rem;
+            border-radius: 10px;
+            border: none;
+            font-size: 4vw;
+            font-weight: 700;
+            cursor: pointer;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            user-select: none;
+        }
+
+        .avatar img {
+            position: center;
+            max-width: 40%;
+            height: auto;
+            border-radius: 20px;
+            border: 1px solid black;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            display: block;
+
+        }
+
+        /* Ruchy */
+        .moves {
+            margin-top: 1rem;
+            font-weight: 700;
+            font-size: 5vw;
+            text-align: center;
+            color: black;
+        }
+
+
+        @media (min-width: 768px) {
+            .title {
+                font-size: 48px;
+            }
+            .puzzle-img { /* Zmieniono .cell na .puzzle-img */
+                font-size: 18px;
+            }
+            .shuffle-button { /* Zmieniono na id="shuffle" w JS */
+                font-size: 20px;
+                padding: 12px 40px;
+            }
+            .moves {
+                font-size: 24px;
+            }
+            .background {
+                background-repeat: no-repeat;
+            }
+        }
+    </style>
 </head>
 <body>
 
 <div class="container">
 
+    <div class="avatar img">
+        <img src="obrazki/15.png" alt="Avatar 1">
+    </div>
 
+    <div class="board" id="puzzleBoard">
+        </div>
 
-  <div class="avatar img">
-    <img src="obrazki/15.png" alt="Avatar 1">
+    <div class="moves" id="counter">Ruchy = 0</div>
+    <button class="shuffle-button" id="shuffle">Wymieszaj!</button>
 
-  </div>
-
-  <div class="board" id="puzzleBoard">
-  </div>
-
-  <button class="shuffle-button">Przejdź dalej!</button>
-  
 </div>
 <script src="scriptpuzzle.js"></script>
 </body>
 </html>
-
 
 
