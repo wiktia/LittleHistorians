@@ -2,30 +2,37 @@ let firstSelected = null;
 let move = 0;
 
 const totalPieces = 9;
-const puzzleFolder = "puzzle-img"; // Upewnij się, że to poprawna ścieżka do folderu z kawałkami puzzli
+const puzzleFolder = "puzzle-img";
 const puzzleBoard = document.getElementById("puzzleBoard");
-const counterElement = document.getElementById("counter"); // Odwołanie do elementu licznika
-const shuffleButton = document.getElementById("shuffle"); // Odwołanie do przycisku mieszania
+const counterElement = document.getElementById("counter");
+// Zmieniamy odwołanie do nowego ID przycisku
+const nextPageButton = document.getElementById("nextPageButton");
+
+// Tablica do przechowywania elementów obrazków w ich początkowej (ułożonej) kolejności
+let originalPuzzleOrder = [];
 
 /**
  * Tworzy elementy <img> dla każdego kawałka puzzli i dodaje je do planszy.
+ * Zapisuje również oryginalną kolejność puzzli.
  */
 function createPuzzleImages() {
-    // Wyczyść planszę na wypadek ponownego wywołania
-    puzzleBoard.innerHTML = '';
+    puzzleBoard.innerHTML = ''; // Wyczyść planszę na wypadek ponownego wywołania
+    originalPuzzleOrder = []; // Resetuj oryginalną kolejność
 
     for (let i = 1; i <= totalPieces; i++) {
         const img = document.createElement("img");
-        img.src = `${puzzleFolder}/img (${i}).jpg`; // Ścieżka do obrazka
+        img.src = `${puzzleFolder}/img (${i}).jpg`;
         img.classList.add("puzzle-img");
-        // img.draggable = true; // draggable jest potrzebne tylko dla drag and drop, nie dla click
-        img.dataset.originalIndex = i; // Zachowaj oryginalny indeks, przydatny do sprawdzenia rozwiązania
+        // dataset.originalIndex będzie używany do sprawdzenia, czy puzzle są ułożone
+        img.dataset.originalIndex = i.toString(); // Zapisz oryginalny indeks jako string
         puzzleBoard.appendChild(img);
+        originalPuzzleOrder.push(img); // Dodaj do tablicy oryginalnej kolejności
     }
-    // Po utworzeniu obrazków, dodaj do nich nasłuchiwacze zdarzeń
     addPuzzleClickListeners();
-    // Wymieszaj puzzle po stworzeniu, aby nie były od razu ułożone
+    // Automatycznie wymieszaj puzzle po stworzeniu, skoro nie ma przycisku "Wymieszaj"
     shufflePuzzle();
+    // Początkowo wyłącz przycisk "Przejdź dalej", dopóki puzzle nie zostaną ułożone
+    nextPageButton.disabled = true;
 }
 
 /**
@@ -35,35 +42,23 @@ function addPuzzleClickListeners() {
     document.querySelectorAll('.puzzle-img').forEach(img => {
         img.addEventListener('click', () => {
             if (!firstSelected) {
-                // Jeśli nic nie jest zaznaczone, zaznacz ten obrazek
                 selectPuzzle(img);
             } else {
-                // Jeśli coś jest już zaznaczone
                 if (firstSelected !== img) {
-                    // Jeśli kliknięto inny obrazek, zamień miejscami
                     movePuzzle(firstSelected, img);
                 }
-                // Niezależnie od tego, czy był to ten sam obrazek, czy inny, odznacz pierwszy
                 deselectPuzzle(firstSelected);
-                firstSelected = null; // Zresetuj zaznaczenie
+                firstSelected = null;
             }
         });
     });
 }
 
-/**
- * Zaznacza kawałek puzzla.
- * @param {HTMLImageElement} img - Element obrazka do zaznaczenia.
- */
 function selectPuzzle(img) {
     firstSelected = img;
     img.classList.add('selected');
 }
 
-/**
- * Odznacza kawałek puzzla.
- * @param {HTMLImageElement} img - Element obrazka do odznaczenia.
- */
 function deselectPuzzle(img) {
     img.classList.remove('selected');
 }
@@ -74,17 +69,15 @@ function deselectPuzzle(img) {
  * @param {HTMLImageElement} img2 - Drugi obrazek.
  */
 function movePuzzle(img1, img2) {
-    // Wymiana obrazków poprzez zamianę wartości 'src'
     const tempSrc = img1.src;
     img1.src = img2.src;
     img2.src = tempSrc;
 
-    // Zwiększ licznik ruchów
     move++;
     counterElement.innerText = "Ruchy = " + move;
 
-    // Opcjonalnie: Sprawdź, czy puzzle są ułożone po każdym ruchu
-    // checkWinCondition();
+    // Po każdym ruchu sprawdzamy, czy puzzle są ułożone
+    checkWinCondition();
 }
 
 /**
@@ -92,33 +85,66 @@ function movePuzzle(img1, img2) {
  */
 function shufflePuzzle() {
     const puzzleImgs = Array.from(document.querySelectorAll('.puzzle-img'));
-    // Pobierz ścieżki do obrazków z aktualnych puzzli
     const sources = puzzleImgs.map(img => img.src);
 
-    // Algorytm Fisher-Yates shuffle do mieszania tablicy ścieżek
     for (let i = sources.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [sources[i], sources[j]] = [sources[j], sources[i]]; // Zamiana elementów
+        [sources[i], sources[j]] = [sources[j], sources[i]];
     }
 
-    // Przypisz wymieszane ścieżki z powrotem do elementów <img>
     puzzleImgs.forEach((img, index) => {
         img.src = sources[index];
     });
 
-    // Zresetuj licznik ruchów
     move = 0;
     counterElement.innerText = "Ruchy = 0";
-    // Odznacz ewentualnie zaznaczony puzzel
     if (firstSelected) {
         deselectPuzzle(firstSelected);
         firstSelected = null;
     }
+    // Po przetasowaniu, puzzle na pewno nie są ułożone, więc wyłącz przycisk "Przejdź dalej"
+    nextPageButton.disabled = true;
 }
 
-// Dodaj nasłuchiwacz zdarzeń do przycisku mieszania
-shuffleButton.addEventListener("click", shufflePuzzle);
+/**
+ * Sprawdza, czy wszystkie puzzle są w poprawnej kolejności.
+ * Porównuje aktualne ścieżki obrazków z ich oryginalnymi indeksami.
+ */
+function checkWinCondition() {
+    const currentPuzzleImgs = Array.from(document.querySelectorAll('.puzzle-img'));
+    let isSolved = true;
+
+    currentPuzzleImgs.forEach((img, index) => {
+        // Oczekiwany indeks dla tej pozycji to (index + 1)
+        // Porównujemy ostatni człon ścieżki (np. "img (1).jpg") z oczekiwanym
+        const expectedSrcPart = `img (${index + 1}).jpg`;
+        if (!img.src.endsWith(expectedSrcPart)) {
+            isSolved = false;
+        }
+    });
+
+    if (isSolved) {
+        console.log("PUZZLE UŁOŻONE!");
+        // Aktywuj przycisk "Przejdź dalej", jeśli puzzle są ułożone
+        nextPageButton.disabled = false;
+        // Opcjonalnie: możesz dodać jakąś animację, dźwięk lub alert
+        // alert("Gratulacje! Puzzle ułożone!");
+    } else {
+        // Jeśli puzzle nie są ułożone (lub zostały pomieszane), wyłącz przycisk
+        nextPageButton.disabled = true;
+    }
+}
+
+// Obsługa kliknięcia przycisku "Przejdź dalej"
+nextPageButton.addEventListener("click", () => {
+    // Sprawdź, czy puzzle są ułożone, zanim przejdziesz dalej (dodatkowe zabezpieczenie)
+    if (nextPageButton.disabled) {
+        alert("Musisz najpierw ułożyć puzzle!");
+        return;
+    }
+    // Tutaj możesz określić, na jaką stronę chcesz przejść
+    window.location.href = 'nastepna_strona.html'; // Zastąp 'nastepna_strona.html' faktyczną nazwą pliku
+});
 
 // Inicjalizacja: stwórz puzzle po załadowaniu DOM
 document.addEventListener('DOMContentLoaded', createPuzzleImages);
-

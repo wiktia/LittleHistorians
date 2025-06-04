@@ -41,9 +41,8 @@
             overflow: hidden;
         }
 
-        /* Usunąłem .cell - teraz to .puzzle-img będą komórkami */
         .puzzle-img {
-            background: #FDF7E3; /* Domyślne tło, jeśli obrazek się nie załaduje */
+            background: #FDF7E3;
             border: 1px solid black;
             display: flex;
             justify-content: center;
@@ -51,18 +50,17 @@
             font-weight: 700;
             font-size: 1.5vw;
             user-select: none;
-            width: 100%; /* Obrazek wypełnia komórkę */
-            height: 100%; /* Obrazek wypełnia komórkę */
-            object-fit: cover; /* Ważne: skaluje obrazek, by wypełnić komórkę bez zniekształceń */
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
             cursor: pointer;
-            transition: transform 0.1s ease-in-out; /* Dodajemy animację do zaznaczenia */
+            transition: transform 0.1s ease-in-out;
         }
 
         .puzzle-img.selected {
-            border: 2px solid blue; /* Wyróżnienie zaznaczonego puzzla */
-            transform: scale(0.95); /* Lekkie zmniejszenie po zaznaczeniu */
+            border: 2px solid blue;
+            transform: scale(0.95);
         }
-
 
         .title {
             font-size: 8vw;
@@ -73,8 +71,7 @@
             font-family: Merriweather, serif;
         }
 
-
-        .shuffle-button { /* Zmieniłem na id="shuffle" w JS */
+        .next-button { /* Zmieniliśmy nazwę klasy, żeby była bardziej sensowna */
             margin-top: 1rem;
             background: #2D1B0E;
             color: #FDF7E3;
@@ -101,10 +98,8 @@
             margin-top: 10px;
             margin-bottom: 10px;
             display: block;
-
         }
 
-        /* Ruchy */
         .moves {
             margin-top: 1rem;
             font-weight: 700;
@@ -113,15 +108,14 @@
             color: black;
         }
 
-
         @media (min-width: 768px) {
             .title {
                 font-size: 48px;
             }
-            .puzzle-img { /* Zmieniono .cell na .puzzle-img */
+            .puzzle-img {
                 font-size: 18px;
             }
-            .shuffle-button { /* Zmieniono na id="shuffle" w JS */
+            .next-button { /* Używamy nowej nazwy klasy */
                 font-size: 20px;
                 padding: 12px 40px;
             }
@@ -146,7 +140,7 @@
         </div>
 
     <div class="moves" id="counter">Ruchy = 0</div>
-    <button class="shuffle-button" id="shuffle">Wymieszaj!</button>
+    <button class="next-button" id="nextPageButton">PRZEJDŹ DALEJ</button>
 
 </div>
 <script src="scriptpuzzle.js"></script>
