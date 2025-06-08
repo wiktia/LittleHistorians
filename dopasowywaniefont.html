@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dopasowywanie odznaczeń</title>
+  <style>
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1);}
+      50% { transform: scale(1.03);}
+    }
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: 'Merriweather', serif;
+      background: #d3c5aa url('obrazki/kartkapapieru.jpg') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      animation: fadeInUp 1s ease-out;
+      box-sizing: border-box;
+    }
+    .container {
+      width: 90vw;
+      max-width: 1200px;
+      background-color: rgba(253, 247, 227, 0.9);
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.25);
+      box-sizing: border-box;
+      animation: fadeInUp 1.2s ease-in-out;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 25px;
+      position: relative;
+      min-height: 650px;
+    }
+    h1 {
+      font-size: 4vw;
+      text-align: center;
+      margin: 0;
+      color: #333;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+      animation: fadeInUp 1.4s ease-in-out;
+      user-select: none;
+    }
+    .ellipse-bg {
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -40%);
+      width: 350px;
+      height: 350px;
+      background-size: contain;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.1;
+      animation: fadeInUp 1.6s ease-in-out;
+    }
+    .badges {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      flex-wrap: wrap;
+      width: 100%;
+      max-width: 1100px;
+      z-index: 1;
+      animation: fadeInUp 1.8s ease-in-out;
+    }
+    .badge-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 180px;
+      flex: 1 1 180px;
+      gap: 10px;
+    }
+    .badge-container img {
+      max-width: 100%;
+      height: auto;
+      border: 3px solid #7B4B2A;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: default;
+      user-select: none;
+    }
+    .badge-container img:hover {
+      animation: pulse 3s infinite ease-in-out;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
+    }
+    .dropzone {
+      width: 100%;
+      max-width: 200px;
+      height: 35px;
+      background-color: rgba(123, 75, 42, 0.6);
+      border: 2px dashed #FDF7E3;
+      border-radius: 12px;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+      box-sizing: border-box;
+      user-select: none;
+    }
+    .dropzone:hover {
+      background-color: rgba(123, 75, 42, 0.8);
+      border-color: #ffe8b3;
+    }
+    .labels {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      max-width: 1100px;
+      width: 100%;
+      animation: fadeInUp 2s ease-in-out;
+    }
+    .label {
+      background-color: #FDF7E3;
+      border: 2px solid #7B4B2A;
+      border-radius: 12px;
+      padding: 10px 15px;
+      text-align: center;
+      font-size: 3vw;
+      cursor: grab;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+      transition: transform 0.2s ease, background-color 0.2s ease;
+      user-select: none;
+      min-width: 250px;
+      max-width: 100%;
+      flex-grow: 1;
+      flex-basis: 250px;
+    }
+    .label:hover {
+      transform: scale(1.05);
+      background-color: #f2e3c5;
+    }
+    @media (min-width: 601px) {
+      h1 {
+        font-size: 2.5rem;
+      }
+      .label {
+        font-size: 18px;
+        min-width: 220px;
+        padding: 12px 18px;
+      }
+      .dropzone {
+        height: 40px;
+      }
+      .badge-container {
+        min-width: 220px;
+        flex-basis: 220px;
+      }
+      .container {
+        padding: 30px 40px;
+      }
+      .ellipse-bg {
+        width: 400px;
+        height: 400px;
+      }
+    }
+@media (max-width: 600px) {
+  html, body {
+    scale:1.05;
+    padding: 0;
+    margin: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .container {
+    margin: 0;
+    position: relative;
+  
+
+  
+    padding: 10px 6px;
+    width: 80vw;
+    max-width: 85vw;
+    min-height: 85vh;
+    max-height: 85vh;
+    margin: 5vh auto;
+    border-radius: 18px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.10);
+    position: bottom;
+    align-items: stretch;
+    background-color: rgba(253, 247, 227, 0.93);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  h1 {
+    font-size: 1.1rem;
+    margin: 0 0 8px 0;
+    line-height: 1.2;
+    color: #222;
+    text-shadow: 0 1px 0 #fff;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    height: 40px;
+    padding-top: 10px;
+  }
+
+  .badges {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 10px 8px;
+    width: 100%;
+    max-width: 100%;
+    justify-items: center;
+    align-items: center;
+  }
+
+  .badge-container:nth-child(1) { grid-column: 1; grid-row: 1; }
+  .badge-container:nth-child(2) { grid-column: 2; grid-row: 1; }
+  .badge-container:nth-child(3) { grid-column: 1 / span 2; grid-row: 2; justify-self: center; }
+
+  .badge-container {
+    width: 36vw;
+    max-width: 38vw;
+    min-width: 0;
+    gap: 5px;
+    background: rgba(255,255,255,0.7);
+    border-radius: 12px;
+    padding: 4px 0 6px 0;
+    box-shadow: 0 1px 4px rgba(123,75,42,0.08);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 40vw;
+  }
+
+  .badge-container img {
+    width: 100%;
+    max-width: 100%;
+    height: 32vw;
+    border-radius: 10px;
+    object-fit: contain;
+    border: 2px solid #7B4B2A;
+    background: #fffbe9;
+  }
+
+  .dropzone {
+    width: 90%;
+    height: 30vw;
+    margin-top: 2px;
+    font-size: 11px;
+    min-height: 0;
+    max-height: 22px;
+    border-radius: 8px;
+    background-color: rgba(123, 75, 42, 0.13);
+  }
+
+  .labels {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 6px;
+    padding: 0;
+    width: 100%;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+
+  .label {
+    
+    font-size: 11px;
+    padding: 5px 7px;
+    width: 36vw;
+    min-width: 0;
+    max-width: 38vw;
+    max-height: 34px;
+    text-align: center;
+    box-sizing: border-box;
+    cursor: grab;
+    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-radius: 10px;
+    background: #fffbe9;
+    border: 2px solid #7B4B2A;
+    color: #222;
+    box-shadow: 0 1px 3px rgba(123,75,42,0.07);
+    transition: background 0.2s;
+  }
+  .label:active {
+    background: #ffe8b3c0;
+  }
+
+  .ellipse-bg {
+    display: none;
+  }
+}
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="ellipse-bg"></div>
+    <h1>Przeciągnij opis do obrazka!</h1>
+    <div class="badges">
+      <div class="badge-container">
+        <img src="obrazki/odznaka1.png" alt="odznaka 1" />
+        <div class="dropzone"></div>
+      </div>
+      <div class="badge-container">
+        <img src="obrazki/odznaka2.png" alt="odznaka 2" />
+        <div class="dropzone"></div>
+      </div>
+      <div class="badge-container">
+        <img src="obrazki/odznaka3.png" alt="odznaka 3" />
+        <div class="dropzone"></div>
+      </div>
+    </div>
+    <div class="labels">
+      <div class="label" draggable="true">Krzyż Kawalerski Orderu Odrodzenia Polski</div>
+      <div class="label" draggable="true">Srebrny Medal za Długoletnią Służbę</div>
+      <div class="label" draggable="true">Medal Dziesięciolecia Odzyskania Niepodległości</div>
+    </div>
+  </div>
+</body>
+</html>
