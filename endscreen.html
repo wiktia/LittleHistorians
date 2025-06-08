@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Wynik</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            height: 100%;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(to bottom, #f3e2be 0%, #b0d2cf 100%);
+            margin: 0;
+            padding: 0;
+            font-family: 'Merriweather', serif;
+            background: #d3c5aa url('obrazki/kartkapapieru.jpg') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .content {
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            max-width: 90%;
+            width: 320px;
+            z-index: 2;
+            transition: width 0.3s, padding 0.3s;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .avatar {
+            margin: 1rem 0;
+        }
+
+        .avatar img {
+            width: 120px;
+            height: 120px;
+            border-radius: 20px;
+            object-fit: cover;
+            border: 4px solid #6b4e35;
+            background: #fff;
+        }
+
+        .score p {
+            margin: 0.5rem 0;
+            color: #222;
+            font-size: 3rem;
+        }
+
+        .confetti-piece {
+            position: absolute;
+            width: 10px;
+            height: 30px;
+            border-radius: 2px;
+            z-index: 1;
+            opacity: 0.85;
+            animation: confetti-fall linear infinite;
+        }
+
+        .exit-btn {
+            margin-top: 1.5rem;
+            padding: 0.75rem 2rem;
+            font-size: 1.1rem;
+            background: #6b4e35;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: background 0.2s;
+        }
+        .exit-btn:hover {
+            background: #4e3623;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-40px) rotate(var(--rotate, 0deg));
+                opacity: 1;
+            }
+            80% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(110vh) rotate(var(--rotate-end, 360deg));
+                opacity: 0.7;
+            }
+        }
+
+        .yellow { background: #FFDE59; }
+        .red    { background: #FF4141; }
+        .blue   { background: #4B7BEC; }
+        .green  { background: #00C851; }
+        .pink   { background: #ff7eb9; }
+        .purple { background: #a259f7; }
+        .orange { background: #ffb347; }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .content {
+                width: 100%;
+                padding: 1rem;
+            }
+            .avatar img {
+                width: 100px;
+                height: 100px;
+            }
+        }
+
+        /* Większe białe tło na laptopach i komputerach */
+        @media (min-width: 601px) {
+            .content {
+                width: 480px;
+                max-width: 98%;
+                padding: 3rem 2.5rem;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+            .avatar img {
+                width: 150px;
+                height: 150px;
+            }
+            .score p {
+                font-size: 1.15rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Konfetti (dynamicznie generowane przez JS) -->
+        <div id="confetti"></div>
+
+        <!-- Treść -->
+        <div class="content">
+            <h1>Dobra robota, <span id="username">[imię]</span>!</h1>
+            <div class="avatar">
+                <img src="obrazki/15.png" alt="Avatar użytkownika" />
+            </div>
+            <div class="score">
+                <p>Twój wynik: <strong>xx/yy</strong></p>
+                <p>Twoje miejsce w grupie: <strong>x</strong></p>
+            </div>
+            <button class="exit-btn" onclick="window.close();">Wyjdź z gry</button>
+        </div>
+    </div>
+    <script>
+        // Parametry konfetti
+        const confettiColors = ['yellow', 'red', 'blue', 'green', 'pink', 'purple', 'orange'];
+        const confettiCount = 60; // więcej konfetti
+        const confettiContainer = document.getElementById('confetti');
+
+        for (let i = 0; i < confettiCount; i++) {
+            const confetti = document.createElement('div');
+            confetti.classList.add('confetti-piece');
+            confetti.classList.add(confettiColors[Math.floor(Math.random() * confettiColors.length)]);
+            // Losowa pozycja startowa
+            confetti.style.left = (Math.random() * 98) + '%';
+            confetti.style.top = '-40px'; // zawsze startuje tuż nad ekranem
+            // Losowy czas trwania animacji
+            const duration = 2.5 + Math.random() * 2.5; // 2.5s - 5s
+            confetti.style.animationDuration = duration + 's';
+            confetti.style.animationDelay = (Math.random() * 2) + 's';
+            // Losowy obrót na starcie i końcu
+            const rotateStart = Math.floor(Math.random() * 360);
+            const rotateEnd = rotateStart + 180 + Math.floor(Math.random() * 180);
+            confetti.style.setProperty('--rotate', rotateStart + 'deg');
+            confetti.style.setProperty('--rotate-end', rotateEnd + 'deg');
+            // Losowa szerokość i wysokość
+            confetti.style.width = (8 + Math.random() * 8) + 'px';
+            confetti.style.height = (18 + Math.random() * 18) + 'px';
+            confettiContainer.appendChild(confetti);
+        }
+    </script>
+</body>
+</html>
