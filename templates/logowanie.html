@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz AK</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='stylelogowanie.css') }}">
+ 
+  <script defer src="{{ url_for('static', filename='scriptlogowanie.js') }}"></script>
+</head>
+<body>
+
+
+  <div class="container">
+
+    <h1>Wybierz swój awatar</h1>
+    
+<form action="/start" method="POST" id="user-form">
+  <div class="gender-icons">
+    <img src="{{ url_for('static', filename='obrazki/male.png') }}" id="male-gender">
+    <img src="{{ url_for('static', filename='obrazki/female.png') }}" id="famale-gender">
+  </div>
+
+  <div class="avatars" id="avatar-container"></div>
+
+  <label for="name" class="name-label">Podaj swoje imię</label>
+  <input type="text" id="name" name="name" class="input-box" />
+
+  <input type="hidden" name="avatar" id="selected-avatar" />
+
+  <button type="submit">Rozpocznij quiz</button>
+</form>
+
+</body>
+</html>
