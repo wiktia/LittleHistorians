@@ -5,6 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quiz AK</title>
   <style>
+    .avatar-option {
+  cursor: pointer;
+  transition: transform 0.2s, border 0.2s;
+}
+
+.avatar-option:hover {
+  transform: scale(1.05);
+}
+
+.selected-avatar {
+  border: 4px solid #2D1B0E;
+  box-shadow: 0 0 10px #2D1B0E;
+}
     body {
       margin: 0;
       padding: 0;
@@ -131,6 +144,7 @@
       margin: 0 auto 30px;
     }
   </style>
+  <script defer src = "scriptlogowanie.js"></script>
 </head>
 <body>
 
@@ -140,8 +154,8 @@
     <h1>Wybierz swój awatar</h1>
 
     <div class="gender-icons">
-      <img src="obrazki/male.png" alt="Mężczyzna">
-      <img src="obrazki/female.png" alt="Kobieta">
+      <img src="obrazki/male.png" alt="Mężczyzna" id="male-gender">
+      <img src="obrazki/female.png" alt="Kobieta" id="famale-gender">
     </div>
 
 
@@ -157,7 +171,7 @@
     
     <label for="name" class="name-label">Podaj swoje imię</label>
     <input type="text" id="name" name="name" class="input-box" />
-
+    <button class="input-box" id="confirm-name">Zatwierdź</button>
   </div>
 
 </body>
