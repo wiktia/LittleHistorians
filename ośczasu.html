@@ -4,8 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <style>
-    
-
     @keyframes pulse {
       0%, 100% {
         transform: scale(1);
@@ -64,9 +62,16 @@
       animation: fadeInUp 1.4s ease-in-out;
     }
 
+    .subtitle {
+      font-size: 4vw;
+      font-weight: 600;
+      color: #6A4C3B;
+      margin: 0.5rem 0;
+      user-select: none;
+    }
+
     .timeline-wrapper {
-    position: relative;
-      
+      position: relative;
       width: 100%;
       flex-grow: 1;
       display: flex;
@@ -86,7 +91,6 @@
     }
 
     .event-slot {
-    
       position: absolute;
       width: 50%;
       margin-top:100px;
@@ -94,14 +98,13 @@
       background-color: #9A745A;
       border-radius: 10px;
       left: 45%;
-      
-      
       display: flex;
       justify-content: center;
       align-items: center;
-     
       font-weight: bold;
       text-align: center;
+      color: #FFF;
+      user-select: none;
     }
 
     .slot-1953 { top: 10%; margin-top: 0px; }
@@ -114,6 +117,7 @@
       font-size: 3.5vw;
       font-weight: bold;
       color: #2D1B0E;
+      user-select: none;
     }
 
     .label-1953 { top: 13%; }
@@ -127,6 +131,7 @@
       gap: 0.5rem;
       margin-top: 1rem;
       animation: fadeInUp 2s ease-in-out;
+      user-select: none;
     }
 
     .option {
@@ -140,6 +145,8 @@
       cursor: pointer;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
       animation: float 4s ease-in-out infinite;
+      user-select: none;
+      color: #2D1B0E;
     }
 
     .option:hover {
@@ -148,12 +155,21 @@
     }
 
     .disabled {
-      
       pointer-events: none;
+      opacity: 0.6;
+    }
+
+    #scoreDisplay {
+      margin-top: 0.5rem;
+      font-weight: bold;
+      font-size: 4vw;
+      color: #2D1B0E;
+      user-select: none;
     }
 
     @media (min-width: 768px) {
       .title { font-size: 32px; }
+      .subtitle { font-size: 18px; }
       .container { scale: 1.2; }
       .labels { font-size: 16px; }
       .option {
@@ -163,23 +179,21 @@
       .timeline-img {
         width: 35%;
         transform: rotate(270deg) scale(2.5);
-
       }
       .event-slot {
         height: 35px;
         width: 45%;
       }
-     
+      #scoreDisplay {
+        font-size: 18px;
+      }
     }
 
     @media (max-width: 480px) {
       h1 { font-size: 1.5rem; }
-      .timeline-img { bottom: 20px; }
+      .timeline-img { bottom: 100px; }
       .ellipse-bg { width: 300px; height: 300px; }
-
-    
-
-      
+      .container{height: 70vh;}
     }
   </style>
 </head>
@@ -187,6 +201,12 @@
   <div class="container">
     <div class="title">Dopasuj wydarzenia na osi czasu!</div>
 
+ 
+    <div id="cards" class="options">
+      <div class="option card draggable" data-date="1953">Wykonanie wyroku śmierci</div>
+      <div class="option card draggable" data-date="1925">Awans do stopnia majora</div>
+      <div class="option card draggable" data-date="1928">Narodziny córki Marii</div>
+    </div>
     <div class="timeline-wrapper">
       <img src="obrazki/ośczasu.png" alt="oś czasu" class="timeline-img"/>
       <div class="labels label-1953">– 1953</div>
@@ -197,132 +217,115 @@
       <div class="event-slot slot-1925 slot" data-correct="1925">?</div>
     </div>
 
-    <div id="cards" class="options">
-      <div class="option card draggable" data-date="1953">Wykonanie wyroku śmierci</div>
-      <div class="option card draggable" data-date="1925">Awans do stopnia majora</div>
-      <div class="option card draggable" data-date="1928">Narodziny córki Marii</div>
-    </div>
-
+   
     <div style="margin-top: 1rem; text-align: center;">
-     <div id="scoreDisplay" style="margin-top: 0.5rem; font-weight: bold;"></div>
+      <div id="scoreDisplay"></div>
     </div>
-
-    
   </div>
 
   <script>
-const cardsContainer = document.getElementById('cards');
-const scoreDisplay = document.getElementById('scoreDisplay');
-const slots = document.querySelectorAll('.slot');
+    const cardsContainer = document.getElementById('cards');
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    const slots = document.querySelectorAll('.slot');
 
-function enableDrag(card) {
-  card.classList.add('draggable');
-  card.setAttribute('draggable', true);
-  card.classList.remove('disabled');
+    function enableDrag(card) {
+      card.classList.add('draggable');
+      card.setAttribute('draggable', true);
+      card.classList.remove('disabled');
 
-  card.addEventListener('dragstart', e => {
-    e.dataTransfer.setData('text/plain', card.dataset.id);
-    setTimeout(() => card.style.display = "none", 0);
-  });
+      card.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('text/plain', card.dataset.id);
+        setTimeout(() => card.style.display = "none", 0);
+      });
 
-  card.addEventListener('dragend', () => {
-    card.style.display = "block";
-  });
-}
-
-document.querySelectorAll('.draggable').forEach((card, index) => {
-  card.dataset.id = `card-${index}`;
-  enableDrag(card);
-});
-
-slots.forEach(slot => {
-  slot.addEventListener('dragover', e => e.preventDefault());
-  slot.addEventListener('drop', e => {
-    e.preventDefault(); // Zapobiega domyślnemu działaniu przeglądarki
-
-    const cardId = e.dataTransfer.getData('text/plain');
-    const card = document.querySelector(`[data-id='${cardId}']`);
-    if (!card) return;
-
-    if (slot.querySelector('.card')) {
-      const existingCard = slot.querySelector('.card');
-      cardsContainer.appendChild(existingCard);
-      enableDrag(existingCard);
+      card.addEventListener('dragend', () => {
+        card.style.display = "block";
+      });
     }
 
-    slot.innerHTML = '';
-    slot.appendChild(card);
-    enableDrag(card);
-
-    // Dodaj ten fragment, aby zapobiec przesunięciom w dół
-    
-  slot.style.height = slot.style.height;
-
-    checkAllSlots();
-  });
-});
-
-
-cardsContainer.addEventListener('dragover', e => e.preventDefault());
-cardsContainer.addEventListener('drop', e => {
-  e.preventDefault();
-  const cardId = e.dataTransfer.getData('text/plain');
-  const card = document.querySelector(`[data-id='${cardId}']`);
-  if (!card) return;
-  cardsContainer.appendChild(card);
-  enableDrag(card);
-
-  slots.forEach(slot => {
-    const child = slot.querySelector(`[data-id='${cardId}']`);
-    if (child) {
-      slot.innerHTML = '?';
-    }
-  });
-
-  checkAllSlots();
-});
-
-function checkAllSlots() {
-  // Sprawdź, czy wszystkie sloty mają kartę
-  const allFilled = Array.from(slots).every(slot => slot.querySelector('.card'));
-
-  if (!allFilled) {
-    scoreDisplay.innerText = '';
-    slot.style.backgroundColor = '#D9534F';
-    return;
-
-  }
-
-  else {
-    slots.forEach(slot => {
-      slot.style.backgroundColor = 'transparent'; // przywróć kolor slotów
+    document.querySelectorAll('.draggable').forEach((card, index) => {
+      card.dataset.id = `card-${index}`;
+      enableDrag(card);
     });
-  }
 
-  // Wszystkie sloty wypełnione - policz punkty i pokaż wynik
-  let score = 0;
-  slots.forEach(slot => {
-    const card = slot.querySelector('.card');
-    const droppedDate = card.dataset.date;
-    const correctDate = slot.dataset.correct;
-    if (droppedDate === correctDate) {
-      score++;
-     
-      card.style.backgroundColor = '#5CB85C'; // zielony
-    } else {
-      card.style.backgroundColor = '#D9534F'; // czerwony
+    slots.forEach(slot => {
+      slot.addEventListener('dragover', e => e.preventDefault());
+      slot.addEventListener('drop', e => {
+        e.preventDefault();
+
+        const cardId = e.dataTransfer.getData('text/plain');
+        const card = document.querySelector(`[data-id='${cardId}']`);
+        if (!card) return;
+
+        if (slot.querySelector('.card')) {
+          const existingCard = slot.querySelector('.card');
+          cardsContainer.appendChild(existingCard);
+          enableDrag(existingCard);
+        }
+
+        slot.innerHTML = '';
+        slot.appendChild(card);
+        enableDrag(card);
+
+        slot.style.height = slot.style.height;
+
+        checkAllSlots();
+      });
+    });
+
+    cardsContainer.addEventListener('dragover', e => e.preventDefault());
+    cardsContainer.addEventListener('drop', e => {
+      e.preventDefault();
+      const cardId = e.dataTransfer.getData('text/plain');
+      const card = document.querySelector(`[data-id='${cardId}']`);
+      if (!card) return;
+      cardsContainer.appendChild(card);
+      enableDrag(card);
+
+      slots.forEach(slot => {
+        const child = slot.querySelector(`[data-id='${cardId}']`);
+        if (child) {
+          slot.innerHTML = '?';
+        }
+      });
+
+      checkAllSlots();
+    });
+
+    function checkAllSlots() {
+      const allFilled = Array.from(slots).every(slot => slot.querySelector('.card'));
+
+      if (!allFilled) {
+        scoreDisplay.innerText = '';
+        
+        return;
+      } else {
+        slots.forEach(slot => {
+          slot.style.backgroundColor = 'transparent';
+        });
+      }
+
+      let score = 0;
+      slots.forEach(slot => {
+        const card = slot.querySelector('.card');
+        const droppedDate = card.dataset.date;
+        const correctDate = slot.dataset.correct;
+        if (droppedDate === correctDate) {
+          score++;
+          card.style.backgroundColor = '#5CB85C';
+        } else {
+          card.style.backgroundColor = '#D9534F';
+        }
+      });
+
+      scoreDisplay.innerText = `Zdobyto ${score} / ${slots.length} punktów`;
+
+      // Zablokuj dalsze przeciąganie kart po sprawdzeniu
+      document.querySelectorAll('.card').forEach(card => {
+        card.classList.add('disabled');
+        card.setAttribute('draggable', false);
+      });
     }
-  });
-
-  scoreDisplay.innerText = `Zdobyto ${score} / ${slots.length} punktów`;
-
-  // Zablokuj dalsze przeciąganie kart, żeby nie zmieniać wyniku po sprawdzeniu
-  document.querySelectorAll('.card').forEach(card => {
-    card.classList.add('disabled');
-    card.setAttribute('draggable', false);
-  });
-}
-
   </script>
 </body>
 </html>
