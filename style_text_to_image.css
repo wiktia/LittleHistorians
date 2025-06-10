@@ -1,0 +1,56 @@
+body {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
+
+.cards-container, .slots-container {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.card {
+  padding: 10px;
+  background: #eef;
+  border: 1px solid #99f;
+  width: 100px;
+  text-align: center;
+  cursor: grab;
+  user-select: none;
+}
+
+.card.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.slot {
+  width: 150px;
+  height: 150px;
+  border: 2px dashed #ccc;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.slot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.slot .card {
+  position: absolute;
+  bottom: 5px;
+  background: #ffffffcc;
+  border: 1px solid #666;
+  width: 90%;
+  cursor: default;
+}
+
+button {
+  margin-right: 10px;
+  padding: 6px 12px;
+}
