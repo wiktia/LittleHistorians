@@ -1,99 +1,74 @@
-const cardsContainer = document.getElementById('cards'); 
-const checkBtn = document.getElementById('checkBtn');
-const resetBtn = document.getElementById('resetBtn');
-const scoreDisplay = document.getElementById('scoreDisplay');
-const slots = document.querySelectorAll('.slot');
-
-function enableDrag(card) {
-  card.setAttribute('draggable', true);
-  card.classList.remove('disabled');
-
-  card.addEventListener('dragstart', e => {
-    e.dataTransfer.setData('text/plain', card.dataset.id);
-    setTimeout(() => card.style.display = "none", 0);
+document.querySelectorAll('.draggable').forEach(label => {
+  label.addEventListener('dragstart', (e) => {
+    e.dataTransfer.setData('text/plain', label.dataset.id);
+    setTimeout(() => label.classList.add('hide'), 0);
   });
 
-  card.addEventListener('dragend', () => {
-    card.style.display = "block";
+  label.addEventListener('dragend', () => {
+    label.classList.remove('hide');
   });
+});
+
+document.querySelectorAll('.dropzone').forEach(zone => {
+  zone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    zone.classList.add('over');
+  });
+
+  zone.addEventListener('dragleave', () => {
+    zone.classList.remove('over');
+  });
+
+  zone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    zone.classList.remove('over');
+
+    if (zone.children.length > 0) return; // nie pozwól na nadpisanie
+
+    const draggedId = e.dataTransfer.getData('text/plain');
+    const label = document.querySelector(`.draggable[data-id='${draggedId}']`);
+
+    zone.appendChild(label);
+
+    // Automatyczne sprawdzenie po uzupełnieniu wszystkich
+    const total = document.querySelectorAll('.dropzone').length;
+    const filled = Array.from(document.querySelectorAll('.dropzone')).filter(z => z.children.length > 0).length;
+
+    if (filled === total) checkAnswers();
+  });
+});
+
+function checkAnswers() {
+  let correct = 0;
+  document.querySelectorAll('.dropzone').forEach(zone => {
+    const expectedId = zone.dataset.id;
+    const label = zone.querySelector('.draggable');
+
+    if (label && label.dataset.id === expectedId) {
+      correct++;
+      label.style.background = '#5CB85C';
+    } else if (label) {
+      label.style.background = '#D9534F';
+    }
+  });
+
+  document.getElementById('scoreDisplay').textContent = `Poprawnych: ${correct}/3`;
 }
 
-// Aktywuj drag dla każdej karty
-document.querySelectorAll('.draggable').forEach(card => {
-  enableDrag(card);
-});
+document.getElementById('resetBtn').addEventListener('click', () => {
+  const labelsContainer = document.querySelector('.labels');
+  const labels = document.querySelectorAll('.draggable');
+  const dropzones = document.querySelectorAll('.dropzone');
 
-// Obsługa przeciągania do slotów
-slots.forEach(slot => {
-  slot.addEventListener('dragover', e => e.preventDefault());
-
-  slot.addEventListener('drop', e => {
-    e.preventDefault();
-    const cardId = e.dataTransfer.getData('text/plain');
-    const card = document.querySelector(`[data-id='${cardId}']`);
-    if (!card) return;
-
-    // Przenieś poprzednią kartę z powrotem
-    const existingCard = slot.querySelector('.card');
-    if (existingCard) {
-      cardsContainer.appendChild(existingCard);
-      enableDrag(existingCard);
-    }
-
-    slot.appendChild(card);
-    enableDrag(card);
-  });
-});
-
-// Obsługa przeciągania z powrotem do kontenera kart
-cardsContainer.addEventListener('dragover', e => e.preventDefault());
-cardsContainer.addEventListener('drop', e => {
-  e.preventDefault();
-  const cardId = e.dataTransfer.getData('text/plain');
-  const card = document.querySelector(`[data-id='${cardId}']`);
-  if (!card) return;
-
-  cardsContainer.appendChild(card);
-  enableDrag(card);
-});
-
-// Sprawdzenie wyniku
-checkBtn.addEventListener('click', () => {
-  let score = 0;
-
-  slots.forEach(slot => {
-    const card = slot.querySelector('.card');
-    if (!card) return;
-
-    const droppedId = card.dataset.id;
-    const correctId = slot.dataset.correct;
-
-    if (droppedId === correctId) {
-      score++;
-    }
+  labels.forEach(label => {
+    labelsContainer.appendChild(label);
+    label.style.background = '#FDF7E3';
   });
 
-  scoreDisplay.innerText = `Poprawne dopasowania: ${score} / ${slots.length}`;
-
-  document.querySelectorAll('.card').forEach(card => {
-    card.classList.add('disabled');
-    card.setAttribute('draggable', false);
-  });
-});
-
-// Reset gry
-resetBtn.addEventListener('click', () => {
-  scoreDisplay.innerText = '';
-
-  slots.forEach(slot => {
-    const card = slot.querySelector('.card');
-    if (card) {
-      cardsContainer.appendChild(card);
-      enableDrag(card);
-    }
+  dropzones.forEach(zone => {
+    zone.innerHTML = '';
+    zone.style.borderColor = '#FDF7E3';
   });
 
-  document.querySelectorAll('.card').forEach(card => {
-    enableDrag(card);
-  });
+  document.getElementById('scoreDisplay').textContent = '';
 });
