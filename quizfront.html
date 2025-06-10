@@ -4,17 +4,14 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Quiz Muzealny</title>
-<<<<<<< HEAD
-
-=======
->>>>>>> b088dd0cf675be2e683d54d963a5068f8aa65f99
+<script defer src = "scriptquiz.js"></script>
 <style>
   body {
     margin: 0;
     padding: 0;
     height: 100%;
     font-family: Merriweather, serif;
-    background-image: url("obrazki/kartkapapieru.jpg");
+    background-image: url("static/obrazki/kartkapapieru.jpg");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -25,10 +22,6 @@
     position: relative;
   }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> b088dd0cf675be2e683d54d963a5068f8aa65f99
   .progress-bar-section { 
     width: 80%; 
     height: 25px; 
@@ -176,24 +169,24 @@
 </style>
 </head>
 <body>
-
   <div class="progress-bar-section"> 
     <div class="progress-bar-fill" style="width: 20%;"></div> 
   </div>
+<div class="container">
+ <div class="avatar">
+  <img id="player-avatar" alt="Avatar gracza">
+</div>
 
-  <div class="container">
- <div class="avatar img">
-    <img src="obrazki/1.png" alt="Avatar 1">
+  <div id="player-info" style="text-align: center; margin-bottom: 20px;">
+    <div id="player-name" style="color: #FDF7E3; font-weight: 600;">Gracz</div>
+    <div id="player-score" style="color: #FDF7E3;">Wynik: 0</div>
+  </div>
 
-  </div>
-    <div class="question">Pytanie</div>
-    <div class="answers-container">
-      <button class="answer-btn">odpowiedz 1</button> 
-      <button class="answer-btn">odpowiedz 2</button>
-      <button class="answer-btn">odpowiedz 3</button>
-      <button class="answer-btn">odpowiedz 4</button>
-    </div>
-  </div>
+  <img id="feedback-image" src="" alt="" style="display: none;" />
+
+  <div class="question">Pytanie</div>
+  <div class="answers-container"></div>
+</div>
 
 </body>
 </html>
