@@ -4,9 +4,7 @@
             min-width: 100vw;
             margin: 0;
             padding: 0;
-            background-image: url("{{ url_for('static', filename='obrazki/puzzletlo.png') }}"), 
-                  url("{{ url_for('static', filename='obrazki/kartkapapieru.jpg') }}");
-
+            background-image: url("obrazki/puzzletlo.png"), url("obrazki/kartkapapieru.jpg");
             background-repeat: no-repeat, no-repeat;
             background-position: center, center;
             background-size: cover, cover;
