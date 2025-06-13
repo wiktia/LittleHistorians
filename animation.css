@@ -1,0 +1,97 @@
+html {
+  font-size: 16px;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Delicious Handrawn', serif;
+}
+
+.Przejsciowy {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: url('static/obrazki/kartkapapieru.jpg');
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end; /* zamiast: justify-content: flex; */
+  padding-bottom: 20vh; 
+  flex-direction: column;
+}
+
+.Ellipse1 {
+  width: 220%;
+  height: 220%;
+  left: -60%;
+  top: 32%;
+  position: absolute;
+  opacity: 0.7;
+  background: rgba(252, 39, 42, 0.36);
+  border-radius: 9999px;
+}
+
+.Obrazek {
+  width: 60%;
+  max-width: 280px;
+  height: auto;
+  aspect-ratio: 302 / 261;
+  border-radius: 30px;
+  border: 2px solid black;
+  z-index: 2;
+  margin-bottom: 1.5rem; 
+  position: relative;
+
+}
+
+.NastPnymRazemSiUda {
+  font-size: 6vw; /* większy tekst */
+  margin-bottom: 28vh; 
+  position: relative;
+  font: 'Delicious Handrawn'
+}
+
+@media (max-width: 600px) {
+  .Obrazek {
+    width: 80%;
+    bottom:40%;
+   
+  }
+  
+  .NastPnymRazemSiUda {
+    font-size: 10vw;
+    top: 40%;
+
+  }
+}
+
+@media (min-width: 601px) {
+.Ellipse1 {
+    width: 150%;
+    height: -500%;
+    left: -25%;
+    bottom: 40%;
+    border-radius: 9999999px;
+    opacity: 0.5;
+    top:50%;
+  }
+
+  .Obrazek {
+    
+    scale: 2;
+    bottom: 40%;
+   
+  }
+  .NastPnymRazemSiUda {
+
+   top: 40%;
+   font-size: 4vw;;
+  }
+  
+ 
+}
