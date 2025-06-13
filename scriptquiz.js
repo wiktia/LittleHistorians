@@ -1,8 +1,4 @@
 
-
-
-
-
 const questions = [
     {
         question: "Kim był August Emil Fieldorf 'Nil'?",
@@ -61,137 +57,130 @@ const questions = [
 ];
 
 let currentQuestionIndex = 0;
-
+let score = 0;
 let quizEnded = false;
 
-const progressBar = document.getElementById('progress-bar');
-const questionElement = document.getElementById('question');
-const answerButtons = document.getElementById('answer-buttons');
-const nextButton = document.getElementById('next-btn');
-const feedbackImage = document.getElementById('feedback-image');
+// Dopasowanie do istniejącego HTML
+const questionElement = document.querySelector('.question');
+const answerButtons = document.querySelector('.answers-container');
+const nextButton = document.createElement('button');
+nextButton.className = 'answer-btn';
+nextButton.style.marginTop = '20px';
+nextButton.textContent = 'Dalej';
+nextButton.style.display = 'none';
+answerButtons.parentElement.appendChild(nextButton);
 
-// Player display
+const feedbackImage = document.getElementById('feedback-image') || { src: '' };
 const playerAvatar = document.getElementById('player-avatar');
 const playerNameElement = document.getElementById('player-name');
 const playerScoreElement = document.getElementById('player-score');
 
-// Load user data
 let userName = localStorage.getItem('userName') || 'Gracz';
-let userAvatar = localStorage.getItem('selectedAvatar') || 'aw/1.png';
-let userPoints = /*parseInt(localStorage.getItem('userPoints')) ||*/ 0;
+let rawAvatar = localStorage.getItem('selectedAvatar') || '1';
+let userAvatar = `static/obrazki/${rawAvatar}`;
+playerAvatar.src = userAvatar;
+let userPoints = 0;
 
-
-
+playerAvatar.src = userAvatar;
+playerNameElement.textContent = userName;
+playerScoreElement.textContent = `Wynik: ${userPoints}`;
 
 function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
 }
 
-
 function startQuiz() {
-    currentQuestionIndex = 0;
-    score = 0;
-    quizEnded = false;
-    nextButton.innerHTML = 'Next';
-    shuffleArray(questions);
-    showQuestion();
+  currentQuestionIndex = 0;
+  score = 0;
+  quizEnded = false;
+  nextButton.innerHTML = 'Dalej';
+  nextButton.style.display = 'none';
+  shuffleArray(questions);
+  showQuestion();
 }
 
 function showQuestion() {
-    resetState();
-    
-    feedbackImage.src = userAvatar;
+  resetState();
+  feedbackImage.src = userAvatar;
 
-    // aktualny obiekt pytania
-    const currentQuestion = questions[currentQuestionIndex];
-    questionElement.innerHTML = `${currentQuestionIndex + 1}. ${currentQuestion.question}`;
+  const currentQuestion = questions[currentQuestionIndex];
+  questionElement.innerHTML = `${currentQuestionIndex + 1}. ${currentQuestion.question}`;
 
-    // shuffle odpowiedzi
-    const answers = [...currentQuestion.answers];
-    shuffleArray(answers);
+  const answers = [...currentQuestion.answers];
+  shuffleArray(answers);
 
-    answers.forEach(answer => {
-        const button = document.createElement('button');
-        button.innerText = answer.text;
-        button.classList.add('btn', 'fade-in');
-        if (answer.correct) {
-            button.dataset.correct = 'true';
-        }
-        button.addEventListener('click', selectAnswer);
-        answerButtons.appendChild(button);
-    });
+  answers.forEach(answer => {
+    const button = document.createElement('button');
+    button.innerText = answer.text;
+    button.classList.add('answer-btn');
+    if (answer.correct) {
+      button.dataset.correct = 'true';
+    }
+    button.addEventListener('click', selectAnswer);
+    answerButtons.appendChild(button);
+  });
 
-    // update progress bar
-    const progressPercent = (currentQuestionIndex / questions.length) * 100;
-    progressBar.style.width = progressPercent + '%';
+  const progressPercent = ((currentQuestionIndex + 1) / questions.length) * 100;
+  progressBar.style.width = progressPercent + '%';
 }
 
 function resetState() {
-    nextButton.style.display = 'none';
-    while (answerButtons.firstChild) {
-        answerButtons.removeChild(answerButtons.firstChild);
-    }
-
-    
-
+  nextButton.style.display = 'none';
+  [...answerButtons.querySelectorAll('.answer-btn')].forEach(btn => btn.remove());
 }
 
-
 function selectAnswer(e) {
-    const selectedBtn = e.target;
-    const isCorrect = selectedBtn.dataset.correct === "true";
+  const selectedBtn = e.target;
+  const isCorrect = selectedBtn.dataset.correct === 'true';
 
-    if (isCorrect) {
-        selectedBtn.classList.add("correct");
-        score++;
-        feedbackImage.src = userAvatar.replace('.png', '-like.png');
-    } else {
-        selectedBtn.classList.add("incorrect");
-        feedbackImage.src = userAvatar;
+  if (isCorrect) {
+    selectedBtn.classList.add('correct');
+    score++;
+    feedbackImage.src = userAvatar.replace('.png', '-like.png');
+  } else {
+    selectedBtn.classList.add('incorrect');
+    feedbackImage.src = userAvatar;
+  }
+
+  [...answerButtons.querySelectorAll('.answer-btn')].forEach(button => {
+    if (button.dataset.correct === 'true') {
+      button.classList.add('correct');
     }
-    
+    button.disabled = true;
+  });
 
-    Array.from(answerButtons.children).forEach(button => {
-        if (button.dataset.correct === "true") {
-            button.classList.add("correct");
-        }
-        button.disabled = true;
-    });
-
-    nextButton.style.display = 'block';
+  nextButton.style.display = 'block';
 }
 
 function showScore() {
-    resetState();
-    questionElement.innerHTML = `Zdobyłeś ${score} na ${questions.length} punktów!`;
-    nextButton.innerHTML = "Zagraj ponownie";
-    nextButton.style.display = "block";
-    quizEnded = true;
-    progressBar.style.width = "100%";
+  resetState();
+  questionElement.innerHTML = `Zdobyłeś ${score} na ${questions.length} punktów!`;
+  nextButton.innerHTML = 'Zagraj ponownie';
+  nextButton.style.display = 'block';
+  quizEnded = true;
+  progressBar.style.width = '100%';
 }
 
 function handleNextButton() {
-    currentQuestionIndex++;
-    if (currentQuestionIndex < questions.length) {
-        showQuestion();
-    } else {
-        showScore();
-    }
-    
-    feedbackImage.src = userAvatar;
+  currentQuestionIndex++;
+  if (currentQuestionIndex < questions.length) {
+    showQuestion();
+  } else {
+    showScore();
+  }
+
+  feedbackImage.src = userAvatar;
 }
 
-nextButton.addEventListener("click", () => {
-    if (quizEnded) {
-        startQuiz();
-    } else {
-        handleNextButton();
-    }
-    
-    feedbackImage.src = userAvatar;
+nextButton.addEventListener('click', () => {
+  if (quizEnded) {
+    startQuiz();
+  } else {
+    handleNextButton();
+  }
 });
 
 startQuiz();
