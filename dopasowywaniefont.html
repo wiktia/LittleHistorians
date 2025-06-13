@@ -21,13 +21,18 @@
       background-size: cover;
       display: flex;
       justify-content: center;
-      align-items: flex-start;
+      align-items: center;
       min-height: 100vh;
       animation: fadeInUp 1s ease-out;
       box-sizing: border-box;
+      margin-top: 10%;
+      margin-bottom: 10%;
+      margin-left: 35%;
+      margin-right: 40%;
+      
     }
     .container {
-      width: 90vw;
+      
       max-width: 1200px;
       background-color: rgba(253, 247, 227, 0.9);
       border-radius: 15px;
@@ -36,12 +41,48 @@
       box-sizing: border-box;
       animation: fadeInUp 1.2s ease-in-out;
       display: flex;
-      flex-direction: column;
+      
       align-items: center;
-      gap: 25px;
-      position: relative;
+      
+ 
       min-height: 650px;
     }
+
+    .containernavbar{
+         
+         position: center;
+        
+         border-radius: 25px; 
+         align-items: center;
+         padding-top: 50px; 
+         width: 100%;
+         padding: 40px;
+         margin-top: 80px; 
+
+
+        }
+        .progress-bar-section { 
+    width: 80%; 
+    height: 25px; 
+    background: #2A1D16; 
+    border-radius: 20px; 
+    border: 2px solid #1E1410; 
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    overflow: hidden; 
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+    z-index: 10;
+  }
+
+  .progress-bar-fill { 
+    width: 20%; 
+    height: 100%; 
+    background: #795548; 
+    border-radius: 18px; 
+    transition: width 0.3s ease-in-out;
+  }
     h1 {
       font-size: 4vw;
       text-align: center;
@@ -156,9 +197,7 @@
         min-width: 220px;
         flex-basis: 220px;
       }
-      .container {
-        padding: 30px 40px;
-      }
+      
       .ellipse-bg {
         width: 400px;
         height: 400px;
@@ -309,6 +348,11 @@
   </style>
 </head>
 <body>
+  <div class="containernavbar">
+  <div class="progress-bar-section"> 
+    <div class="progress-bar-fill" style="width: 20%;"></div> 
+  </div>
+</div>
   <div class="container">
     <div class="ellipse-bg"></div>
     <h1>Przeciągnij opis do obrazka!</h1>
