@@ -10,7 +10,7 @@ def logowanie():
 def start_quiz():
     name = request.form.get("name")
     avatar = request.form.get("avatar")
-    return render_template("endscreen.html", name=name, avatar=avatar)
+    return render_template("test2.html", name=name, avatar=avatar)
 
 @app.route("/startscreen")
 def startscreen():
