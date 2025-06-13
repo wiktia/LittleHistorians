@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+ 
   <style>
+    
     @keyframes pulse {
       0%, 100% {
         transform: scale(1);
@@ -200,6 +202,7 @@
 <body>
   <div class="container">
     <div class="title">Dopasuj wydarzenia na osi czasu!</div>
+    
 
  
     <div id="cards" class="options">
@@ -272,6 +275,7 @@
         checkAllSlots();
       });
     });
+    
 
     cardsContainer.addEventListener('dragover', e => e.preventDefault());
     cardsContainer.addEventListener('drop', e => {
@@ -327,5 +331,7 @@
       });
     }
   </script>
+  
+ 
 </body>
 </html>
