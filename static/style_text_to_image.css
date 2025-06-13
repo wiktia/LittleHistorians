@@ -1,10 +1,3 @@
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Dopasowywanie odznaczeń</title>
-  <style>
     @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(30px); }
       to { opacity: 1; transform: translateY(0); }
@@ -262,43 +255,3 @@
     top: 10px;
   }
 }
-
-  </style>
-</head>
-<body>
- <body>
-  <div class="progress-bar-section">
-    <div class="progress-bar-fill" style="width: 20%;"></div>
-  </div>
-
-  <div class="container">
-    <h1>Dopasuj opis do odznaki</h1>
-
-    <div class="badges">
-      <div class="badge-container">
-        <img src="static/obrazki/odznaka3.png" alt="Odznaka 1">
-        <div class="dropzone" data-id="3"></div>
-      </div>
-      <div class="badge-container">
-        <img src="static/obrazki/odznaka2.png" alt="Odznaka 2">
-        <div class="dropzone" data-id="2"></div>
-      </div>
-      <div class="badge-container">
-        <img src="static/obrazki/odznaka1.png" alt="Odznaka 3">
-        <div class="dropzone" data-id="1"></div>
-      </div>
-    </div>
-
-    <div class="labels">
-      <div class="label draggable" data-id="1" draggable="true">Krzyż Kawalerski Orderu Odrodzenia Polski</div>
-      <div class="label draggable" data-id="2" draggable="true">Srebrny Medal za Długoletnią Służbę</div>
-      <div class="label draggable" data-id="3" draggable="true">Medal Dziesięciolecia Odzyskania Niepodległości</div>
-    </div>
-
-
-  </div>
-
-  <script src="script_text_to_image.js"></script>
-</body>
-</body>
-</html>

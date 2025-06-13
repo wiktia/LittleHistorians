@@ -1,11 +1,4 @@
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Responsywne PUZZLE 3x3</title>
-    <style>
-       
+  
         body {
             min-height: 100vh;
             min-width: 100vw;
@@ -192,26 +185,3 @@
 
 
         
-    </style>
-</head>
-<body>
-  <div class="containernavbar">
-  <div class="progress-bar-section"> 
-    <div class="progress-bar-fill" style="width: 20%;"></div> 
-  </div>
-</div>
-<div class="container">
->
-
-
-
-    <div class="board" id="puzzleBoard">
-    </div>
-
-    <div class="moves" id="counter"></div>
-    <button class="next-button" id="nextPageButton">PRZEJDŹ DALEJ</button>
-
-</div>
-<script src="scriptpuzzle.js"></script>
-</body>
-</html>
