@@ -20,7 +20,7 @@
       margin: 0;
       padding: 0;
       font-family: 'Merriweather', serif;
-      background: #d3c5aa url('static/obrazki/kartkapapieru.jpg') no-repeat center center fixed;
+      background: #d3c5aa url('obrazki/kartkapapieru.jpg') no-repeat center center fixed;
       background-size: cover;
       display: flex;
       justify-content: center;
