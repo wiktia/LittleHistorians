@@ -124,7 +124,7 @@
             }
         }
 
-        /* Większe białe tło na laptopach i komputerach */
+
         @media (min-width: 601px) {
             .content {
                 width: 480px;
