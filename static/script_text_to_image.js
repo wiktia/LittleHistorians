@@ -1,3 +1,5 @@
+let scoreSent = false; // tylko raz wysyłamy wynik
+
 document.querySelectorAll('.draggable').forEach(label => {
   label.addEventListener('dragstart', (e) => {
     e.dataTransfer.setData('text/plain', label.dataset.id);
@@ -40,6 +42,7 @@ document.querySelectorAll('.dropzone').forEach(zone => {
 
 function checkAnswers() {
   let correct = 0;
+
   document.querySelectorAll('.dropzone').forEach(zone => {
     const expectedId = zone.dataset.id;
     const label = zone.querySelector('.draggable');
@@ -50,9 +53,37 @@ function checkAnswers() {
     } else if (label) {
       label.style.background = '#D9534F';
     }
+
+    // Zablokuj przeciąganie po sprawdzeniu
+    if (label) {
+      label.setAttribute('draggable', false);
+      label.classList.add('disabled');
+    }
   });
 
   document.getElementById('scoreDisplay').textContent = `Poprawnych: ${correct}/3`;
+
+  // 📡 Wyślij wynik, jeśli jeszcze nie wysłano
+  if (!scoreSent) {
+    sendLabelScore(correct);
+    scoreSent = true;
+  }
+}
+
+function sendLabelScore(points) {
+  fetch('/update_score', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ score: points })
+  })
+  .then(res => res.json())
+  .then(data => {
+    console.log(" Wynik zapisany:", data.new_score);
+    window.location.href = "/next";
+  })
+  .catch(error => {
+    console.error(" Błąd zapisu wyniku:", error);
+  });
 }
 
 document.getElementById('resetBtn').addEventListener('click', () => {
@@ -63,6 +94,8 @@ document.getElementById('resetBtn').addEventListener('click', () => {
   labels.forEach(label => {
     labelsContainer.appendChild(label);
     label.style.background = '#FDF7E3';
+    label.setAttribute('draggable', true);
+    label.classList.remove('disabled');
   });
 
   dropzones.forEach(zone => {
@@ -71,4 +104,5 @@ document.getElementById('resetBtn').addEventListener('click', () => {
   });
 
   document.getElementById('scoreDisplay').textContent = '';
+  scoreSent = false;
 });

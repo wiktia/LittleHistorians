@@ -2,12 +2,13 @@ let firstSelected = null;
 let move = 0;
 
 const totalPieces = 9;
-const puzzleFolder = "/static/puzzle-img"; // Poprawiona ścieżka do folderu w Flask
+const puzzleFolder = "/static/puzzle-img";
 const puzzleBoard = document.getElementById("puzzleBoard");
 const counterElement = document.getElementById("counter");
 const nextPageButton = document.getElementById("nextPageButton");
 
 let originalPuzzleOrder = [];
+let scoreSent = false;  // 🔒 Czy punkty już zostały zapisane?
 
 function createPuzzleImages() {
     puzzleBoard.innerHTML = '';
@@ -15,7 +16,7 @@ function createPuzzleImages() {
 
     for (let i = 1; i <= totalPieces; i++) {
         const img = document.createElement("img");
-        img.src = `${puzzleFolder}/img (${i}).jpg`;  // Poprawiona ścieżka
+        img.src = `${puzzleFolder}/img (${i}).jpg`;
         img.classList.add("puzzle-img");
         img.dataset.originalIndex = i.toString();
         puzzleBoard.appendChild(img);
@@ -85,6 +86,7 @@ function shufflePuzzle() {
     }
 
     nextPageButton.disabled = true;
+    scoreSent = false;
 }
 
 function checkWinCondition() {
@@ -99,19 +101,43 @@ function checkWinCondition() {
     });
 
     if (isSolved) {
-        console.log("PUZZLE UŁOŻONE!");
+        console.log("🧩 PUZZLE UŁOŻONE!");
         nextPageButton.disabled = false;
+
+        if (!scoreSent) {
+            sendPuzzleScore(5);  // 🏆 np. 5 punktów za ułożenie
+            scoreSent = true;
+            
+        }
     } else {
         nextPageButton.disabled = true;
     }
 }
 
-nextPageButton.addEventListener("click", () => {
-    if (nextPageButton.disabled) {
-        alert("Musisz najpierw ułożyć puzzle!");
-        return;
+function sendPuzzleScore(points) {
+    fetch('/update_score', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ score: points })
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log(" Wynik zapisany:", data.new_score);
+        window.location.href = "/next";
+    })
+    .catch(error => {
+        console.error(" Błąd zapisu wyniku:", error);
+    });
+}
+
+
+nextPageButton.addEventListener('click', () => {
+    if (!scoreSent) {
+        sendPuzzleScore(5);
+        scoreSent = true;
+    } else {
+        window.location.href = "/next";
     }
-    window.location.href = "/nastepna_strona";  
 });
 
 document.addEventListener('DOMContentLoaded', createPuzzleImages);
