@@ -1,187 +1,120 @@
-  
-        body {
-            min-height: 100vh;
-            min-width: 100vw;
-            margin: 0;
-            padding: 0;
-            background-image: url("obrazki/puzzletlo.png"), url("obrazki/kartkapapieru.jpg");
-            background-repeat: no-repeat, no-repeat;
-            background-position: center, center;
-            background-size: cover, cover;
-            font-family: Merriweather, serif;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            position: relative;
-        }
-         .containernavbar{
-         
-         position: center;
-        
-         border-radius: 25px; 
-         align-items: center;
-         padding-top: 50px; 
-         width: 100%;
-         padding: 40px;
-         margin-top: 80px; 
+/* stylepuzzle.css - CZYSTE STYLE SPECYFICZNE DLA STRONY PUZZLI */
 
+/* UWAGA: WSZYSTKIE STYLE DLA GLOBALNYCH ELEMENTÓW (body, html, .top-bar,
+   .progress-bar-section, .clock-container, .Ellipse1, .title, .avatar img)
+   ZOSTAŁY USUNIĘTE Z TEGO PLIKU. ONE SĄ DEFINIOWANE TYLKO W template.css. */
 
-        }
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Wyśrodkowanie pionowe zawartości w kontenerze puzzli */
+    align-items: center;   /* Wyśrodkowanie poziome zawartości w kontenerze puzzli */
+    
+    /* TO JEST KLUCZOWE: odsuwa kontener puzzli od góry, aby nie nachodził na top-bar */
+    /* Wartość '100px' to punkt wyjścia, może wymagać drobnego dopasowania
+       w zależności od dokładnej wysokości paska 'top-bar'. Upewnij się, że ten margin-top
+       jest wystarczający, aby twoje puzzle nie były pod top-bar. */
+    margin-top: 100px; /* PRZYKŁAD, dostosuj */
+    margin-bottom: 20px; 
 
-        .container {
-           
-            max-width: 400px;
-            width: 90vw;
-            max-width: 400px;
-            aspect-ratio: 1 / 1.3;
-        }
+    max-width: 400px;
+    width: 90vw;      
+    aspect-ratio: 1 / 1.3;
+    
+    /* Tło specyficzne dla KONTENERA puzzli (obrazek liści z Twojego screenshota) */
+    /* Upewnij się, że ścieżka do obrazka jest POPRAWNA WZGLĘDEM TEGO PLIKU CSS */
+    background-image: url("../obrazki/puzzletlo.png"); /* Zmieniono na ../obrazki, jeśli css jest w static/css */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
 
-        .board {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 1 / 1;
-            background: white;
-            border: 1px solid black;
-            box-shadow: 0 4px 4px rgba(0,0,0,0.25);
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(3, 1fr);
-            gap: 1px;
-            border-radius: 4px;
-            overflow: hidden;
-        }
+.board {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background: white;
+    border: 1px solid black;
+    box-shadow: 0 4px 4px rgba(0,0,0,0.25);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 1px;
+    border-radius: 4px;
+    overflow: hidden;
+}
 
-        .puzzle-img {
-            background: #FDF7E3;
-            border: 1px solid black;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: 700;
-            font-size: 1.5vw;
-            user-select: none;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            cursor: pointer;
-            transition: transform 0.1s ease-in-out;
-        }
+.puzzle-img {
+    background: #FDF7E3;
+    border: 1px solid black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 700;
+    font-size: 1.5vw;
+    user-select: none;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    cursor: pointer;
+    transition: transform 0.1s ease-in-out;
+}
 
-        .puzzle-img.selected {
-            border: 2px solid blue;
-            transform: scale(0.95);
-        }
+.puzzle-img.selected {
+    border: 2px solid blue;
+    transform: scale(0.95);
+}
 
-        .title {
-            font-size: 8vw;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 1rem;
-            color: #2D1B0E;
-            font-family: Merriweather, serif;
-        }
+.next-button {
+    margin-top: 1rem;
+    background: #2D1B0E;
+    color: #FDF7E3;
+    padding: 0.8rem 2rem;
+    border-radius: 10px;
+    border: none;
+    font-size: 4vw;
+    font-weight: 700;
+    cursor: pointer;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    user-select: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
 
-        .next-button { /* Zmieniliśmy nazwę klasy, żeby była bardziej sensowna */
-            margin-top: 1rem;
-            background: #2D1B0E;
-            color: #FDF7E3;
-            padding: 0.8rem 2rem;
-            border-radius: 10px;
-            border: none;
-            font-size: 4vw;
-            font-weight: 700;
-            cursor: pointer;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-            user-select: none;
-        }
+.moves {
+    margin-top: 1rem;
+    font-weight: 700;
+    font-size: 5vw;
+    text-align: center;
+    color: black;
+}
 
-          .progress-bar-section { 
-    width: 80%; 
-    height: 25px; 
-    background: #2A1D16; 
-    border-radius: 20px; 
-    border: 2px solid #1E1410; 
-    position: absolute;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    overflow: hidden; 
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
-    z-index: 10;
-  }
-
-  .progress-bar-fill { 
-    width: 20%; 
-    height: 100%; 
-    background: #795548; 
-    border-radius: 18px; 
-    transition: width 0.3s ease-in-out;
-  }
-
-        .avatar img {
-            position: center;
-            max-width: 40%;
-            height: auto;
-            border-radius: 20px;
-            border: 1px solid black;
-            margin-left: auto;
-            margin-right: auto;
-            margin-top: 10px;
-            margin-bottom: 10px;
-            display: block;
-        }
-
-        .moves {
-            margin-top: 1rem;
-            font-weight: 700;
-            font-size: 5vw;
-            text-align: center;
-            color: black;
-        }
-
-        @media (min-width: 768px) {
-            .title {
-                font-size: 48px;
-            }
-            .puzzle-img {
-                font-size: 18px;
-            }
-            .next-button { /* Używamy nowej nazwy klasy */
-                font-size: 20px;
-                padding: 12px 40px;
-            }
-            .moves {
-                font-size: 24px;
-            }
-            .background {
-                background-repeat: no-repeat;
-                overflow: hidden;
-                background-size: cover;
-            }
-            .progress-bar-section {
-      height: 30px;
+/* Media Queries dla styli specyficznych dla puzzli (brak duplikacji z template.css) */
+@media (min-width: 768px) {
+    .puzzle-img {
+        font-size: 18px;
     }
+    .next-button {
+        font-size: 20px;
+        padding: 12px 40px;
+    }
+    .moves {
+        font-size: 24px;
+    }
+    /* Usunięto media query dla .title i .background, bo nie istnieją w HTML */
+}
 
-        }
-
-        @media (max-width: 768px) {
-          .container {
-            width: 90vw;
-            max-width: 400px;
-            aspect-ratio: 1 / 1.3;
-          }
-        }
-
-        html, body {
-          overflow: hidden;
-          height: 100%;
-        }
-        
-
-
-
-        
+@media (max-width: 768px) {
+    .container {
+        /* Ta reguła jest już w podstawowym .container, więc można ją usunąć,
+           jeśli nie ma specyficznych zmian dla tej media query. */
+        /* width: 90vw; */
+        /* max-width: 400px; */
+        /* aspect-ratio: 1 / 1.3; */
+    }
+}
+    

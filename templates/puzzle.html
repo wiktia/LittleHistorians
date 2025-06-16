@@ -3,24 +3,36 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Responsywne PUZZLE 3x3</title>
-    <script defer src="{{ url_for('static', filename='scriptpuzzle.js') }}"></script>
-      <link rel="stylesheet" href="{{ url_for('static', filename='stylepuzzle.css') }}">
+    <title>Responsywne PUZZLE 3x3</title> 
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/template.css') }}">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/stylepuzzle.css') }}">
+    
+    <script defer src="{{ url_for('static', filename='js/scriptpuzzle.js') }}"></script>
 </head>
 <body>
-  <div class="containernavbar">
-  <div class="progress-bar-section"> 
-    <div class="progress-bar-fill" style="width: 20%;"></div> 
-  </div>
-</div>
-<div class="container">
->
-    <div class="board" id="puzzleBoard"></div>
 
-    <div class="moves" id="counter"></div>
-    <button class="next-button" id="nextPageButton">PRZEJDŹ DALEJ</button>
+    <div data-layer="Ellipse 1" class="Ellipse1"></div>
 
-</div>
+    <div class="top-bar">
+        <div class="progress-bar-section"> 
+            <div class="progress-bar-fill" style="width: 20%;"></div> 
+        </div>
+        
+        <div class="clock-container">
+            <span class="czas" id="czas">00:00</span>
+            <img id="zegar" src="{{ url_for('static', filename='obrazki/zegar.png') }}" alt="Zegar"> 
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="board" id="puzzleBoard"></div>
+
+        <div class="moves" id="counter">Ruchy = 0</div>
+
+        <button class="next-button" id="nextPageButton">PRZEJDŹ DALEJ</button>
+    </div>
 
 </body>
 </html>
