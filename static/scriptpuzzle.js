@@ -77,7 +77,6 @@ function shufflePuzzle() {
     const puzzleImgs = Array.from(document.querySelectorAll('.puzzle-img'));
     const sources = puzzleImgs.map(img => img.src);
 
-    // Fisher-Yates shuffle
     for (let i = sources.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [sources[i], sources[j]] = [sources[j], sources[i]];
@@ -89,7 +88,6 @@ function shufflePuzzle() {
 
     move = 0;
     counterElement.innerText = "Ruchy = 0";
-    debugInfo.textContent = "Puzzle przetasowane. Zacznij układanie!";
 
     if (firstSelected) {
         deselectPuzzle(firstSelected);
@@ -121,18 +119,15 @@ function checkWinCondition() {
     });
 
     if (isSolved) {
-        console.log("🧩 PUZZLE UŁOŻONE POPRAWNIE!");
+        console.log(" PUZZLE UŁOŻONE POPRAWNIE!");
         isPuzzleSolved = true;
         nextPageButton.disabled = false;
-        window.location.href = "/next";
-        debugInfo.textContent = "Gratulacje! Puzzle ułożone poprawnie!";
-        debugInfo.style.color = "green";
         
-        // Automatycznie wyślij wynik
+        
         sendPuzzleScore(calculateScore());
     } else {
-        debugInfo.textContent = `Układanie w toku... (ruch ${move})`;
-        debugInfo.style.color = "orange";
+        
+        
     }
 }
 
@@ -158,12 +153,12 @@ function sendPuzzleScore(points) {
     })
     .then(data => {
         console.log("Odpowiedź serwera:", data);
-        debugInfo.textContent += ` | Wynik zapisany: +${points}pkt!`;
+         setTimeout(() => {
+            window.location.href = "/next";
+        }, 1500);
     })
     .catch(error => {
         console.error("Błąd zapisu wyniku:", error);
-        debugInfo.textContent = "Błąd zapisu: " + error.message;
-        debugInfo.style.color = "red";
     });
 }
 
