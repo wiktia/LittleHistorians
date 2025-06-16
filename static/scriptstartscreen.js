@@ -1,2 +1,7 @@
-  document.getElementById("startQuiz").addEventListener("click", function() {
-    window.location.href = "logowanie.html"; });
+
+    document.addEventListener("DOMContentLoaded", () => {
+  const startBtn = document.getElementById("startQuiz");
+  startBtn.addEventListener("click", () => {
+    window.location.href = "/logowanie";
+  });
+});

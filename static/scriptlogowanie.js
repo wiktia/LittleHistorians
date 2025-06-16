@@ -10,21 +10,21 @@ let selectedAvatar = null;
 
 // Zestawy avatarów
 const maleAvatars = [
-  "/static/obrazki/23.png",
-  "/static/obrazki/21.png",
-  "/static/obrazki/19.png",
-  "/static/obrazki/17.png",
-  "/static/obrazki/15.png",
-  "/static/obrazki/13.png"
+  "obrazki/23.png",
+  "obrazki/21.png",
+  "obrazki/19.png",
+  "obrazki/17.png",
+  "obrazki/15.png",
+  "obrazki/13.png"
 ];
 
 const femaleAvatars = [
-  "/static/obrazki/1.png",
-  "/static/obrazki/3.png",
-  "/static/obrazki/5.png",
-  "/static/obrazki/7.png",
-  "/static/obrazki/9.png",
-  "/static/obrazki/11.png"
+  "obrazki/1.png",
+  "obrazki/3.png",
+  "obrazki/5.png",
+  "obrazki/7.png",
+  "obrazki/9.png",
+  "obrazki/11.png"
 ];
 
 // Funkcja ładująca avatary
@@ -33,7 +33,7 @@ function loadAvatars(avatarList) {
 
   avatarList.forEach(src => {
     const img = document.createElement("img");
-    img.src = src;
+    img.src = "/static/" + src;
     img.alt = "Avatar";
     img.classList.add("avatar-option");
 

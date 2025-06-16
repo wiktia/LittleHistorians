@@ -1,16 +1,20 @@
 <!DOCTYPE html>
 <html>
-    <head>    <link rel="stylesheet" href="template.css"></head>
+<head>
+    <link rel="stylesheet" href="template.css">
+</head>
 <body>
-    <div>
-    <img data-layer="zegar" id="zegar" src="/static/obrazki/zegar2.png" alt="t = zegar">
-    <div class="progress-bar-section"> 
-    <div class="progress-bar-fill" style="width: 20%;"></div> 
-    
+    <div class="top-bar">
+        <div class="progress-bar-section"> 
+            <div class="progress-bar-fill" style="width: 20%;"></div> 
+        </div>
+        
+        <div class="clock-container">
+            <div class="czas">XX:XX</div>
+            <img data-layer="zegar" id="zegar" src="/static/obrazki/zegar2.png" alt="Zegar">
+        </div>
     </div>
-    <div data-layer="Ellipse 1" class="Ellipse1"></div>
     
-
-
+    <div data-layer="Ellipse 1" class="Ellipse1"></div>
 </body>
 </html>
