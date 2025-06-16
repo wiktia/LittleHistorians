@@ -20,7 +20,7 @@ step_routes = {
     'puzzle': 'puzzle',
     'text_to_image': 'text_to_image',
     'timeline': 'timeline',
-    'end': 'end_screen'
+    'end': 'endscreen' 
 }
 
 # Model gracza
@@ -35,7 +35,6 @@ class Player(db.Model):
 with app.app_context():
     db.create_all()
 
-# ---------- ROUTY GRY ----------
 
 @app.route("/")
 def startscreen():
@@ -53,7 +52,7 @@ def start():
     if not name or not avatar:
         return "Błąd: brak imienia lub avatara", 400
 
-    player = Player(name=name, avatar=avatar, current_step='puzzle')
+    player = Player(name=name, avatar=avatar, current_step='text_to_image')
     db.session.add(player)
     db.session.commit()
 
@@ -82,7 +81,7 @@ def timeline():
 def end_screen():
     return redirect(url_for("endscreen"))
 
-@app.route("/endscreen")
+@app.route("/endscreen")  # Poprawiona nazwa endpointu
 def endscreen():
     player_id = session.get("player_id")
     if not player_id:
@@ -93,7 +92,6 @@ def endscreen():
         return "Gracz nie istnieje", 404
 
     return render_template("endscreen.html", player=player)
-
 
 @app.route("/save_score", methods=["POST"])
 def save_score():
@@ -108,7 +106,7 @@ def save_score():
         return jsonify({"error": "Gracz nie znaleziony"}), 404
 
     player.score += score
-    player.current_step = get_next_step(player.current_step)
+    player.current_step = get_next_step(player.current_step)  # Aktualizuj krok
     db.session.commit()
 
     return jsonify({
@@ -140,6 +138,6 @@ def get_next_step(current):
 @app.route("/update_score", methods=["POST"])
 def update_score():
     return save_score()  
-    
+
 if __name__ == "__main__":
     app.run(debug=True)

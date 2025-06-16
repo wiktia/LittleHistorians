@@ -54,55 +54,50 @@ function checkAnswers() {
       label.style.background = '#D9534F';
     }
 
-    // Zablokuj przeciąganie po sprawdzeniu
     if (label) {
       label.setAttribute('draggable', false);
       label.classList.add('disabled');
     }
   });
 
-  document.getElementById('scoreDisplay').textContent = `Poprawnych: ${correct}/3`;
-
-  // 📡 Wyślij wynik, jeśli jeszcze nie wysłano
-  if (!scoreSent) {
-    sendLabelScore(correct);
-    scoreSent = true;
+  const scoreDisplay = document.getElementById('scoreDisplay');
+  if (scoreDisplay) {
+    scoreDisplay.textContent = `Poprawnych: ${correct}/3`;
   }
+
+  console.log("Wynik:", correct, "poprawne odpowiedzi"); // Debug
+  sendLabelScore(correct); // Wysyłamy zawsze, bez flagi scoreSent
 }
 
 function sendLabelScore(points) {
-  fetch('/update_score', {
+  console.log("Próba wysłania wyniku:", points); // Debug
+  
+  fetch('/save_score', {
     method: 'POST',
-    headers: {'Content-Type': 'application/json'},
+    headers: {
+      'Content-Type': 'application/json',
+    },
     body: JSON.stringify({ score: points })
   })
-  .then(res => res.json())
+  .then(response => {
+    console.log("Odpowiedź serwera:", response.status); // Debug
+    if (!response.ok) {
+      throw new Error('Błąd sieci');
+    }
+    return response.json();
+  })
   .then(data => {
-    console.log(" Wynik zapisany:", data.new_score);
-    window.location.href = "/next";
+    console.log("Odpowiedź JSON:", data); // Debug
+    if (data.next_step) {
+      window.location.href = "/next";
+    }
   })
   .catch(error => {
-    console.error(" Błąd zapisu wyniku:", error);
+    console.error("Błąd:", error); // Debug
+    alert("Wystąpił błąd: " + error.message);
   });
 }
 
-document.getElementById('resetBtn').addEventListener('click', () => {
-  const labelsContainer = document.querySelector('.labels');
-  const labels = document.querySelectorAll('.draggable');
-  const dropzones = document.querySelectorAll('.dropzone');
 
-  labels.forEach(label => {
-    labelsContainer.appendChild(label);
-    label.style.background = '#FDF7E3';
-    label.setAttribute('draggable', true);
-    label.classList.remove('disabled');
-  });
 
-  dropzones.forEach(zone => {
-    zone.innerHTML = '';
-    zone.style.borderColor = '#FDF7E3';
-  });
 
-  document.getElementById('scoreDisplay').textContent = '';
-  scoreSent = false;
-});
