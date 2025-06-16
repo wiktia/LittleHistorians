@@ -1,5 +1,6 @@
 let firstSelected = null;
 let move = 0;
+let isPuzzleSolved = false;
 
 const totalPieces = 9;
 const puzzleFolder = "/static/puzzle-img";
@@ -7,30 +8,37 @@ const puzzleBoard = document.getElementById("puzzleBoard");
 const counterElement = document.getElementById("counter");
 const nextPageButton = document.getElementById("nextPageButton");
 
-let originalPuzzleOrder = [];
-let scoreSent = false;  // 🔒 Czy punkty już zostały zapisane?
+// Element debugowania
+const debugInfo = document.createElement("div");
+debugInfo.id = "debugInfo";
+debugInfo.style.cssText = "color: red; margin: 10px auto; text-align: center;";
+document.querySelector(".container").appendChild(debugInfo);
 
 function createPuzzleImages() {
     puzzleBoard.innerHTML = '';
-    originalPuzzleOrder = [];
-
+    firstSelected = null;
+    move = 0;
+    isPuzzleSolved = false;
+    nextPageButton.disabled = true;
+    debugInfo.textContent = "";
+    
     for (let i = 1; i <= totalPieces; i++) {
         const img = document.createElement("img");
         img.src = `${puzzleFolder}/img (${i}).jpg`;
         img.classList.add("puzzle-img");
-        img.dataset.originalIndex = i.toString();
+        img.dataset.originalIndex = i.toString(); // Zapisz oryginalny indeks
         puzzleBoard.appendChild(img);
-        originalPuzzleOrder.push(img);
     }
 
     addPuzzleClickListeners();
     shufflePuzzle();
-    nextPageButton.disabled = true;
 }
 
 function addPuzzleClickListeners() {
     document.querySelectorAll('.puzzle-img').forEach(img => {
         img.addEventListener('click', () => {
+            if (isPuzzleSolved) return;
+            
             if (!firstSelected) {
                 selectPuzzle(img);
             } else {
@@ -54,6 +62,7 @@ function deselectPuzzle(img) {
 }
 
 function movePuzzle(img1, img2) {
+    // Zamień źródła obrazków
     const tempSrc = img1.src;
     img1.src = img2.src;
     img2.src = tempSrc;
@@ -68,6 +77,7 @@ function shufflePuzzle() {
     const puzzleImgs = Array.from(document.querySelectorAll('.puzzle-img'));
     const sources = puzzleImgs.map(img => img.src);
 
+    // Fisher-Yates shuffle
     for (let i = sources.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [sources[i], sources[j]] = [sources[j], sources[i]];
@@ -79,6 +89,7 @@ function shufflePuzzle() {
 
     move = 0;
     counterElement.innerText = "Ruchy = 0";
+    debugInfo.textContent = "Puzzle przetasowane. Zacznij układanie!";
 
     if (firstSelected) {
         deselectPuzzle(firstSelected);
@@ -86,58 +97,74 @@ function shufflePuzzle() {
     }
 
     nextPageButton.disabled = true;
-    scoreSent = false;
+    isPuzzleSolved = false;
 }
 
 function checkWinCondition() {
     const currentPuzzleImgs = Array.from(document.querySelectorAll('.puzzle-img'));
     let isSolved = true;
 
-    currentPuzzleImgs.forEach((img, index) => {
-        const expectedSrcPart = `img (${index + 1}).jpg`;
-        if (!img.src.includes(expectedSrcPart)) {
+    currentPuzzleImgs.forEach(img => {
+        const originalIndex = img.dataset.originalIndex;
+        
+        // dekodowanie URL i obsługa spacji
+        const decodedSrc = decodeURIComponent(img.src);
+        const currentFilename = decodedSrc.split('/').pop();
+        
+        // wyciąganie numeru z nazwy pliku
+        const match = currentFilename.match(/img\s*\((\d+)\)/i);
+        const currentIndex = match ? match[1] : null;
+        
+        if (currentIndex !== originalIndex) {
             isSolved = false;
         }
     });
 
     if (isSolved) {
-        console.log("🧩 PUZZLE UŁOŻONE!");
+        console.log("🧩 PUZZLE UŁOŻONE POPRAWNIE!");
+        isPuzzleSolved = true;
         nextPageButton.disabled = false;
-
-        if (!scoreSent) {
-            sendPuzzleScore(5);  // 🏆 np. 5 punktów za ułożenie
-            scoreSent = true;
-            
-        }
+        window.location.href = "/next";
+        debugInfo.textContent = "Gratulacje! Puzzle ułożone poprawnie!";
+        debugInfo.style.color = "green";
+        
+        // Automatycznie wyślij wynik
+        sendPuzzleScore(calculateScore());
     } else {
-        nextPageButton.disabled = true;
+        debugInfo.textContent = `Układanie w toku... (ruch ${move})`;
+        debugInfo.style.color = "orange";
     }
 }
 
+function calculateScore() {
+    const maxScore = 10;
+    const penalty = Math.min(move, 15);
+    return Math.max(maxScore - penalty, 1);
+}
+
 function sendPuzzleScore(points) {
-    fetch('/update_score', {
+    fetch('/save_score', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ score: points })
     })
-    .then(res => res.json())
+    .then(response => {
+        if (!response.ok) {
+            return response.text().then(text => {
+                throw new Error(`HTTP ${response.status}: ${text}`);
+            });
+        }
+        return response.json();
+    })
     .then(data => {
-        console.log(" Wynik zapisany:", data.new_score);
-        window.location.href = "/next";
+        console.log("Odpowiedź serwera:", data);
+        debugInfo.textContent += ` | Wynik zapisany: +${points}pkt!`;
     })
     .catch(error => {
-        console.error(" Błąd zapisu wyniku:", error);
+        console.error("Błąd zapisu wyniku:", error);
+        debugInfo.textContent = "Błąd zapisu: " + error.message;
+        debugInfo.style.color = "red";
     });
 }
-
-
-nextPageButton.addEventListener('click', () => {
-    if (!scoreSent) {
-        sendPuzzleScore(5);
-        scoreSent = true;
-    } else {
-        window.location.href = "/next";
-    }
-});
 
 document.addEventListener('DOMContentLoaded', createPuzzleImages);

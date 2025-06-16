@@ -65,12 +65,12 @@ function checkAnswers() {
     scoreDisplay.textContent = `Poprawnych: ${correct}/3`;
   }
 
-  console.log("Wynik:", correct, "poprawne odpowiedzi"); // Debug
+  console.log("Wynik:", correct, "poprawne odpowiedzi"); 
   sendLabelScore(correct); // Wysyłamy zawsze, bez flagi scoreSent
 }
 
 function sendLabelScore(points) {
-  console.log("Próba wysłania wyniku:", points); // Debug
+  console.log("Próba wysłania wyniku:", points); 
   
   fetch('/save_score', {
     method: 'POST',
@@ -80,20 +80,20 @@ function sendLabelScore(points) {
     body: JSON.stringify({ score: points })
   })
   .then(response => {
-    console.log("Odpowiedź serwera:", response.status); // Debug
+    console.log("Odpowiedź serwera:", response.status); 
     if (!response.ok) {
       throw new Error('Błąd sieci');
     }
     return response.json();
   })
   .then(data => {
-    console.log("Odpowiedź JSON:", data); // Debug
+    console.log("Odpowiedź JSON:", data); 
     if (data.next_step) {
       window.location.href = "/next";
     }
   })
   .catch(error => {
-    console.error("Błąd:", error); // Debug
+    console.error("Błąd:", error); 
     alert("Wystąpił błąd: " + error.message);
   });
 }

@@ -31,7 +31,7 @@ class Player(db.Model):
     score = db.Column(db.Integer, default=0)
     current_step = db.Column(db.String(50), default='start')
 
-# Tworzenie bazy danych (jeśli nie istnieje)
+
 with app.app_context():
     db.create_all()
 
@@ -52,7 +52,7 @@ def start():
     if not name or not avatar:
         return "Błąd: brak imienia lub avatara", 400
 
-    player = Player(name=name, avatar=avatar, current_step='text_to_image')
+    player = Player(name=name, avatar=avatar, current_step='puzzle')
     db.session.add(player)
     db.session.commit()
 
@@ -81,7 +81,7 @@ def timeline():
 def end_screen():
     return redirect(url_for("endscreen"))
 
-@app.route("/endscreen")  # Poprawiona nazwa endpointu
+@app.route("/endscreen")  
 def endscreen():
     player_id = session.get("player_id")
     if not player_id:
@@ -106,9 +106,9 @@ def save_score():
         return jsonify({"error": "Gracz nie znaleziony"}), 404
 
     player.score += score
-    player.current_step = get_next_step(player.current_step)  # Aktualizuj krok
+    player.current_step = get_next_step(player.current_step)  
     db.session.commit()
-
+    print(f"Po aktualizacji: krok={player.current_step}, wynik={player.score}") 
     return jsonify({
         "message": "Wynik zapisany",
         "new_score": player.score,
