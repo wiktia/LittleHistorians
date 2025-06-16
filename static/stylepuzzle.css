@@ -84,7 +84,7 @@
             font-family: Merriweather, serif;
         }
 
-        .next-button { /* Zmieniliśmy nazwę klasy, żeby była bardziej sensowna */
+        .next-button { 
             margin-top: 1rem;
             background: #2D1B0E;
             color: #FDF7E3;
