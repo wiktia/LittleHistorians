@@ -48,7 +48,6 @@ def start():
     # 🔹 Na potrzeby testów od razu przekierowujemy na endscreen
     return redirect(url_for("endscreen", player_id=player.id))
 
-# 🔹 Endscreen z danymi gracza
 @app.route("/endscreen")
 def endscreen():
     player_id = request.args.get("player_id")
@@ -56,15 +55,12 @@ def endscreen():
     if not player:
         return "Gracz nie istnieje", 404
     return render_template("endscreen.html", player=player)
-
-
-# 🔹 Quiz (jeszcze nie używane)
+    
 @app.route("/quiz")
 def quiz():
     player_id = request.args.get("player_id")
     return render_template("quiz.html", player_id=player_id)
 
-# 🔹 Aktualizacja wyniku
 @app.route("/update_score", methods=["POST"])
 def update_score():
     player_id = request.form.get("player_id")
