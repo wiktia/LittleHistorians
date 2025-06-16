@@ -1,3 +1,5 @@
+let scoreSent = false; // tylko raz wysyłamy wynik
+
 document.querySelectorAll('.draggable').forEach(label => {
   label.addEventListener('dragstart', (e) => {
     e.dataTransfer.setData('text/plain', label.dataset.id);
@@ -40,6 +42,7 @@ document.querySelectorAll('.dropzone').forEach(zone => {
 
 function checkAnswers() {
   let correct = 0;
+
   document.querySelectorAll('.dropzone').forEach(zone => {
     const expectedId = zone.dataset.id;
     const label = zone.querySelector('.draggable');
@@ -50,25 +53,51 @@ function checkAnswers() {
     } else if (label) {
       label.style.background = '#D9534F';
     }
+
+    if (label) {
+      label.setAttribute('draggable', false);
+      label.classList.add('disabled');
+    }
   });
 
-  document.getElementById('scoreDisplay').textContent = `Poprawnych: ${correct}/3`;
+  const scoreDisplay = document.getElementById('scoreDisplay');
+  if (scoreDisplay) {
+    scoreDisplay.textContent = `Poprawnych: ${correct}/3`;
+  }
+
+  console.log("Wynik:", correct, "poprawne odpowiedzi"); 
+  sendLabelScore(correct); // Wysyłamy zawsze, bez flagi scoreSent
 }
 
-document.getElementById('resetBtn').addEventListener('click', () => {
-  const labelsContainer = document.querySelector('.labels');
-  const labels = document.querySelectorAll('.draggable');
-  const dropzones = document.querySelectorAll('.dropzone');
-
-  labels.forEach(label => {
-    labelsContainer.appendChild(label);
-    label.style.background = '#FDF7E3';
+function sendLabelScore(points) {
+  console.log("Próba wysłania wyniku:", points); 
+  
+  fetch('/save_score', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ score: points })
+  })
+  .then(response => {
+    console.log("Odpowiedź serwera:", response.status); 
+    if (!response.ok) {
+      throw new Error('Błąd sieci');
+    }
+    return response.json();
+  })
+  .then(data => {
+    console.log("Odpowiedź JSON:", data); 
+    if (data.next_step) {
+      window.location.href = "/next";
+    }
+  })
+  .catch(error => {
+    console.error("Błąd:", error); 
+    alert("Wystąpił błąd: " + error.message);
   });
+}
 
-  dropzones.forEach(zone => {
-    zone.innerHTML = '';
-    zone.style.borderColor = '#FDF7E3';
-  });
 
-  document.getElementById('scoreDisplay').textContent = '';
-});
+
+
