@@ -3,7 +3,6 @@
     padding: 0;
     height: 100%;
     font-family: Merriweather, serif;
-    background-image: url("obrazki/kartkapapieru.jpg");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -13,30 +12,6 @@
     min-height: 100vh;
     position: relative;
   }
-
-  .progress-bar-section { 
-    width: 80%; 
-    height: 25px; 
-    background: #2A1D16; 
-    border-radius: 20px; 
-    border: 2px solid #1E1410; 
-    position: absolute;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    overflow: hidden; 
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
-    z-index: 10;
-  }
-
-  .progress-bar-fill { 
-    width: 20%; 
-    height: 100%; 
-    background: #795548; 
-    border-radius: 18px; 
-    transition: width 0.3s ease-in-out;
-  }
-
   .container {
     max-width: 400px;
     width: 90vw;
@@ -129,9 +104,6 @@
       padding-top: 5px; 
       scale: 1.2;
       top: 50px;
-    }
-    .progress-bar-section {
-      height: 30px;
     }
     .avatar {
       width: 150px;

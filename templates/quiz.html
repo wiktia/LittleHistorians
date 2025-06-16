@@ -6,30 +6,36 @@
 <title>Quiz Muzealny</title>
 
   <link rel="stylesheet" href="{{ url_for('static', filename='stylequiz.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/template.css') }}">
   <script defer src="{{ url_for('static', filename='scriptquiz.css') }}"></script>
 
 </head>
 <body>
-  <div class="progress-bar-section"> 
-    <div class="progress-bar-fill" style="width: 20%;"></div> 
-  </div>
-<div class="container">
+    <div class="top-bar">
+        <div class="progress-bar-section"> 
+            <div class="progress-bar-fill" style="width: 20%;"></div> 
+        </div>
+        
+        <div class="clock-container">
+            <div class="czas">XX:XX</div>
+            <img data-layer="zegar" id="zegar" src="/static/obrazki/zegar2.png" alt="Zegar">
+        </div>
+    </div>
+    
+    <div data-layer="Ellipse 1" class="Ellipse1"></div>
+  <div class="container">
 
-  <div id="player-info" style="text-align: center; margin-bottom: 20px;">
+    <div id="player-info" style="text-align: center; margin-bottom: 20px;">
 
       <div class="question">
-    Pytanie 
+      Pytanie 
+    </div>
+
+    <div class="answers-container">
+      <button class="answer-btn">Odp1</button>
+      <button class="answer-btn">Odp2</button>
+    </div>
+
   </div>
-
-  <div class="answers-container">
-    <button class="answer-btn">Odp1</button>
-    <button class="answer-btn">Odp2</button>
-  </div>
-
-  </div>
-
-
-
-
 </body>
 </html>
