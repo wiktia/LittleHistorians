@@ -5,11 +5,11 @@
             min-width: 100vw;
             margin: 0;
             padding: 0;
-            background-image: url("obrazki/puzzletlo.png"), url("obrazki/kartkapapieru.jpg");
+            background-image: url("obrazki/kartkapapieru.jpg"), url("obrazki/kartkapapieru.jpg");
             background-repeat: no-repeat, no-repeat;
             background-position: center, center;
-            background-size: cover, cover;
-            font-family: Merriweather, serif;
+            background-size: cover;
+            font-family: 'Delicious Handrawn', serif;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -52,6 +52,7 @@
             gap: 1px;
             border-radius: 4px;
             overflow: hidden;
+            z-index: 2;
         }
 
         .puzzle-img {
@@ -85,6 +86,7 @@
         }
 
         .next-button { 
+            position: relative;
             margin-top: 1rem;
             background: #2D1B0E;
             color: #FDF7E3;
@@ -98,6 +100,7 @@
             margin-left: auto;
             margin-right: auto;
             user-select: none;
+            z-index: 2;
         }
 
           .progress-bar-section { 
@@ -106,13 +109,13 @@
     background: #2A1D16; 
     border-radius: 20px; 
     border: 2px solid #1E1410; 
-    position: absolute;
+    position: absolute; /* jak sie da relative jak w template to znika pasek */
     top: 20px;
     left: 50%;
     transform: translateX(-50%);
     overflow: hidden; 
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
-    z-index: 10;
+ 
   }
 
   .progress-bar-fill { 
@@ -122,6 +125,29 @@
     border-radius: 18px; 
     transition: width 0.3s ease-in-out;
   }
+
+  .clock-container {
+    position:absolute;
+    top: -35%;
+    right:-600px;
+    display: flex
+
+  }
+
+  #zegar {
+    scale: 0.4;
+  }
+
+    .czas {
+        position: absolute;
+        top: 300%;
+        right: 20px;
+        font-size: 40px;
+        font-weight: bold;
+        color: #2A1D16;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    }
+ 
 
         .avatar img {
             position: center;
@@ -151,9 +177,10 @@
     top: 1%;
     position: absolute;
     opacity: 0.5;
-    background: rgba(53, 252, 39, 0.36);
+    background: rgba(252, 39, 135, 0.36);
     border-radius: 99999999px;
     scale: 0.5;
+    z-index:1
 }
 
 
@@ -179,12 +206,24 @@
                 background-size: cover;
             }
             .progress-bar-section {
-      height: 30px;
+                width: 85%;
     }
+    
 
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 600px) {
+            .progress-bar-section {
+        width: 90%;
+        height: 20px;
+    }
+    #zegar {
+        width: 50px;
+    }
+    .czas {
+        font-size: 16px;
+    }
+    
           .container {
             width: 90vw;
             max-width: 400px;
