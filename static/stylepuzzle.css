@@ -17,6 +17,18 @@
             overflow: hidden;
             position: relative;
         }
+
+        .Ellipse1 {
+    width: 220%;
+    height: 220%;
+    left: -60%;
+    top: 1%;
+    position: absolute;
+    opacity: 0.5;
+    background: rgba(53, 252, 39, 0.36);
+    border-radius: 99999999px;
+    scale: 0.5;
+}
          .containernavbar{
          
          position: center;
