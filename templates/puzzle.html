@@ -8,11 +8,17 @@
       <link rel="stylesheet" href="{{ url_for('static', filename='stylepuzzle.css') }}">
 </head>
 <body>
-  <div class="containernavbar">
-  <div class="progress-bar-section"> 
-    <div class="progress-bar-fill" style="width: 20%;"></div> 
-  </div>
-</div>
+
+  <div class="top-bar">
+        <div class="progress-bar-section"> 
+            <div class="progress-bar-fill" style="width: 20%;"></div> 
+        </div>
+        
+        <div class="clock-container">
+            <div class="czas">XX:XX</div>
+            <img data-layer="zegar" id="zegar" src="/static/obrazki/zegar2.png" alt="Zegar">
+        </div>
+    </div>
 <div class="container">
 >
     <div class="board" id="puzzleBoard"></div>
@@ -21,6 +27,6 @@
     <button class="next-button" id="nextPageButton">PRZEJDŹ DALEJ</button>
 
 </div>
-
+<div data-layer="Ellipse 1" class="Ellipse1"></div>
 </body>
 </html>
