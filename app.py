@@ -210,8 +210,13 @@ def endscreen():
     player = Player.query.get(player_id)
     if not player:
         return "Gracz nie istnieje", 404
+    
+    players = Player.query.order_by(Player.score.desc()).all()
 
-    return render_template("endscreen.html", player=player)
+    
+    rank = next((index + 1 for index, p in enumerate(players) if p.id == player.id), None)
+
+    return render_template("endscreen.html", player=player,  rank=rank)
 
 @app.route("/save_score", methods=["POST"])
 def save_score():
@@ -249,6 +254,54 @@ def next_step():
 @app.route("/update_score", methods=["POST"])
 def update_score():
     return save_score()
+@app.route("/admin/data")
+def show_data():
+    if not session.get('admin_logged_in'):
+        return jsonify({"error": "Brak dostępu"}), 403
+
+    players = Player.query.all()
+    questions = QuizQuestion.query.all()
+
+    return jsonify({
+        "players": [
+            {
+                "id": p.id,
+                "name": p.name,
+                "avatar": p.avatar,
+                "score": p.score,
+                "current_step": p.current_step
+            } for p in players
+        ],
+        "questions": [
+            {
+                "id": q.id,
+                "question": q.question,
+                "answer1": q.answer1,
+                "answer2": q.answer2,
+                "answer3": q.answer3,
+                "answer4": q.answer4,
+                "correct": q.correct
+            } for q in questions
+        ]
+    })
+@app.route('/admin/clear_players', methods=['POST'])
+def clear_players():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+
+    Player.query.delete()
+    db.session.commit()
+    flash('Wszyscy gracze zostali usunięci.', 'warning')
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/admin/ranking')
+def admin_ranking():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+
+    players = Player.query.order_by(Player.score.desc()).all()
+    return render_template('admin_ranking.html', players=players)
 
 if __name__ == "__main__":
     app.run(debug=True)
+

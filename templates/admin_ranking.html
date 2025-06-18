@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Ranking graczy</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-5">
+    <h1>Ranking graczy</h1>
+    <form action="{{ url_for('clear_players') }}" method="post" onsubmit="return confirm('Na pewno usunąć wszystkich graczy?');">
+    <button type="submit" class="btn btn-danger">🗑 Wyczyść ranking (usuń graczy)</button>
+    </form>
+    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary mb-3">Powrót do panelu</a>
+    <table class="table table-bordered table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th>Miejsce</th>
+                <th>Imię</th>
+                <th>Avatar</th>
+                <th>Wynik</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for player in players %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ player.name }}</td>
+                <td><img src="{{ player.avatar }}" alt="Avatar" style="width: 50px;"></td>
+                <td>{{ player.score }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4" class="text-center">Brak graczy</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
