@@ -7,15 +7,21 @@
       50% { transform: scale(1.03); }
     }
     body {
+      min-height: 100vh;
+      min-width: 100vw;
       margin: 0;
-      padding: 20px;
-      font-family: 'Merriweather', serif;
-      background: #d3c5aa url('static/obrazki/kartkapapieru.jpg') no-repeat center center fixed;
+      padding: 0;
+      font-family: 'Delicious Handrawn', serif;
+      background: #d3c5aa url('obrazki/kartkapapieru.jpg') no-repeat center center fixed;
+      background-repeat: no-repeat, no-repeat;
+      background-position: center, center;
       background-size: cover;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
+      overflow: hidden;
+      position: relative;
       animation: fadeInUp 1s ease-out;
       box-sizing: border-box;
     }
@@ -27,15 +33,10 @@
     top: 1%;
     position: absolute;
     opacity: 0.5;
-    background: rgba(53, 252, 39, 0.36);
+    background: rgba(38, 14, 193, 0.36);
     border-radius: 99999999px;
     scale: 0.5;
-}
-
-.top-bar {
-    position: relative;
-    width: 100%;
-    padding-top: 15px;
+    z-index: -1;
 }
 
 .progress-bar-section { 
@@ -44,8 +45,10 @@
     background: #2A1D16; 
     border-radius: 20px; 
     border: 2px solid #1E1410; 
-    position: relative;
-    margin: 0 auto;
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
     overflow: hidden; 
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
 }
@@ -59,15 +62,14 @@
 }
 
 .clock-container {
-    position: absolute;
-    top: 100%;
-    right: 10%;
-    transform: translateX(50%);
+    position: relative;
+    bottom: 10vh;
+    left:40vw;
+    top:1vw;
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-top: 10px;
-    padding-top: 10px;
+    gap: 8px;
+    z-index: 10;
 }
 
 #zegar {
@@ -194,7 +196,7 @@
       background-color: #f2e3c5;
     }
 
-    @media (min-width: 601px) {
+    @media (min-width: 768px) {
       h1 {
         font-size: 2.5rem;
       }
@@ -217,19 +219,20 @@
     padding: 0;
     margin: 0;
     width: 100vw;
-    height: 100vh;
-    overflow-y: auto; /* <- zmieniono z hidden na auto, by nie ucinać zawartości */
+    height: auto;
+    overflow-y: hidden; /* <- zmieniono z hidden na auto, by nie ucinać zawartości */
     box-sizing: border-box;
     display: flex;
     justify-content: center;
-    align-items: start;
+    align-items: center;
   }
 
   .container {
     display:flex;
-    margin-top: 10%;
+    margin-top: auto;
+    margin-bottom: auto;
     width: 80vw;
-    height: 103%;
+    height: 100%;
     padding: 10px 5px;
     display: flex;
     flex-direction: column;
@@ -290,9 +293,5 @@
     margin-top: 2px;
   }
 
-  .progress-bar-section {
-    width: 90%;
-    height: 20px;
-    top: 10px;
-  }
+
 }
