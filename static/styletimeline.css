@@ -20,7 +20,9 @@
       margin: 0;
       padding: 0;
       font-family: 'Merriweather', serif;
-      background: #d3c5aa url('obrazki/kartkapapieru.jpg') no-repeat center center fixed;
+      background-image: url("obrazki/kartkapapieru.jpg"), url("obrazki/kartkapapieru.jpg");
+      background-repeat: no-repeat, no-repeat;
+      background-position: center, center;
       background-size: cover;
       display: flex;
       justify-content: center;
@@ -32,7 +34,7 @@
     .container {
       width: 90vw;
       max-width: 450px;
-      height: 100%;
+      height:  auto;
       aspect-ratio: 1 / 1.3;
       display: flex;
       flex-direction: column;
@@ -45,6 +47,10 @@
       border-radius: 10px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.4);
       animation: fadeInUp 1.2s ease-in-out;
+      z-index: 2;
+      transform: scale(0.9);
+      transform-origin: top;
+      position: relative;
     }
 
     .title {
@@ -75,7 +81,7 @@
       animation: fadeInUp 1.6s ease-in-out;
     }
 
-    #zegar{scale:0.5; transform-origin: top right; position: absolute; right: 0; top: 0; z-index: 1;}
+    
 
     .timeline-img {
       position: absolute;
@@ -204,7 +210,7 @@
 body, html {
     height: 100%;
     font-family: 'Delicious Handrawn', serif;
-    background: #d3c5aa url('static/obrazki/kartkapapieru.jpg') no-repeat center center fixed;
+    background: #d3c5aa url('obrazki/kartkapapieru.jpg') no-repeat center center fixed;
     background-size: cover;
     overflow: hidden;
 }
@@ -216,16 +222,12 @@ body, html {
     top: 1%;
     position: absolute;
     opacity: 0.5;
-    background: rgba(53, 252, 39, 0.36);
+    background: rgba(12, 121, 133, 0.36);
     border-radius: 99999999px;
     scale: 0.5;
+    z-index: 1;
 }
 
-.top-bar {
-    position: relative;
-    width: 100%;
-    padding-top: 15px;
-}
 
 .progress-bar-section { 
     width: 80%; 
@@ -233,8 +235,10 @@ body, html {
     background: #2A1D16; 
     border-radius: 20px; 
     border: 2px solid #1E1410; 
-    position: relative;
-    margin: 0 auto;
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
     overflow: hidden; 
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
 }
@@ -248,15 +252,15 @@ body, html {
 }
 
 .clock-container {
-    position: absolute;
-    top: 100%;
-    right: 10%;
-    transform: translateX(50%);
+    position: fixed;
+     bottom: 10vh;
+    right:3vw;
+    top:-32vw;
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-top: 10px;
-    padding-top: 10px;
+    gap: 8px;
+    z-index: 10;
+    
 }
 
 #zegar {
@@ -301,6 +305,7 @@ body, html {
     
     .clock-container {
         right: 5%;
+        top: -75%;
         transform: translateX(0);
         gap: 5px;
         margin-top: 3px;
