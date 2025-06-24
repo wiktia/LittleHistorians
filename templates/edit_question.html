@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Edytuj pytanie</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="mb-4">Edytuj pytanie</h1>
+        
+        <form method="POST">
+            <div class="form-group">
+                <label for="question">Pytanie:</label>
+                <textarea class="form-control" id="question" name="question" rows="3" required>{{ question.question }}</textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="answer1">Odpowiedź 1:</label>
+                <input type="text" class="form-control" id="answer1" name="answer1" value="{{ question.answer1 }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="answer2">Odpowiedź 2:</label>
+                <input type="text" class="form-control" id="answer2" name="answer2" value="{{ question.answer2 }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="answer3">Odpowiedź 3 (opcjonalnie):</label>
+                <input type="text" class="form-control" id="answer3" name="answer3" value="{{ question.answer3 or '' }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="answer4">Odpowiedź 4 (opcjonalnie):</label>
+                <input type="text" class="form-control" id="answer4" name="answer4" value="{{ question.answer4 or '' }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="correct">Poprawna odpowiedź:</label>
+                <select class="form-control" id="correct" name="correct" required>
+                    <option value="1" {% if question.correct == 1 %}selected{% endif %}>Odpowiedź 1</option>
+                    <option value="2" {% if question.correct == 2 %}selected{% endif %}>Odpowiedź 2</option>
+                    <option value="3" {% if question.correct == 3 %}selected{% endif %}>Odpowiedź 3</option>
+                    <option value="4" {% if question.correct == 4 %}selected{% endif %}>Odpowiedź 4</option>
+                </select>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Zapisz zmiany</button>
+            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">Anuluj</a>
+        </form>
+    </div>
+</body>
+</html>

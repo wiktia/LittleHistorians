@@ -1,19 +1,60 @@
-  body {
+       
+       
+       
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+body, html {
+    height: 100%;
+
     margin: 0;
     padding: 0;
-    height: 100%;
-    font-family: Merriweather, serif;
-    background-image: url("obrazki/kartkapapieru.jpg");
+    font-family: 'Delicious Handrawn', serif;
+    background: #d3c5aa url('obrazki/kartkapapieru.jpg') no-repeat center center fixed;
     background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
-    position: relative;
-  }
+    overflow: hidden; /* Zmieniamy z hidden na auto aby można było scrollować jeśli zawartość jest długa */
+}
 
+.container {
+  transform-origin: center center;
+  width: 95vw;
+  max-width: 900px;
+  background: rgba(58, 46, 41, 0.9); 
+  border-radius: 30px; /* Zwiększono zaokrąglenie rogów */
+  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px;
+  box-sizing: border-box;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+  margin: 60px auto; /* Dodajemy auto dla marginesów bocznych */
+  z-index: 2;
+  position: relative;
+}
+.Ellipse1 {
+  width: 220%;
+  height: 220%;
+  left: -60%;
+  top: 32%;
+  position: absolute;
+  opacity: 0.7;
+  background: rgba(131, 39, 252, 0.36);
+  border-radius: 99999999px;
+  opacity:0.5;
+  scale:0.5;
+  top:1%;
+}
+.answer-btn {
+  z-index: 10;
+  position: relative;
+}
   .progress-bar-section { 
     width: 80%; 
     height: 25px; 
@@ -26,7 +67,7 @@
     transform: translateX(-50%);
     overflow: hidden; 
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
-    z-index: 10;
+  
   }
 
   .progress-bar-fill { 
@@ -36,25 +77,29 @@
     border-radius: 18px; 
     transition: width 0.3s ease-in-out;
   }
+.xxxx-text{
+  top: 70px;
+  right: 200px;
+  transform-origin: center;
+  position: absolute;
+  font-weight: 700;
+  font-size: 2.7rem;
+  font-family: 'Delicious Handrawn', serif;
+}
+#zegar {
+    width: 100px;
+    height: 100px;
+    transform-origin: 50% 50%;
+    border-radius: 50%;
+    position: absolute;
+    top: 40px;
+    right: 100px;
+    transform-origin: center;
+    transition: transform 0.5s ease;
+    scale:0.65;
+}
 
-  .container {
-    max-width: 400px;
-    width: 90vw;
-    position: relative;
-    background: rgba(58, 46, 41, 0.9); 
-    border-radius: 25px; 
-    border: 1px solid #1E1410; 
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-top: 50px; 
-    box-sizing: border-box;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-    max-width: 600px;
-    width: 95vw;
-    padding: 40px;
-    margin-top: 80px; 
-  }
+
 
   .avatar img{
     width: 120px; 
@@ -81,9 +126,10 @@
     justify-items: center;
 
     color: #FDF7E3; 
-    font-weight: 700;
+    font-weight: 300;
     font-size: 1.3rem; 
-    font-family: 'Merriweather', serif;
+    font-family: 'Serif', serif;
+
     text-align: center;
     margin-bottom: 25px; 
     line-height: 1.4;
@@ -94,12 +140,16 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 12px; 
+    gap: 20px;
   }
 
   .answer-btn { 
-    width: 85%; 
-    max-width: 300px; 
+    width: auto;
+max-width: 100%;
+min-width: 50%;
+padding-left: 25px;
+padding-right: 25px;
+white-space: nowrap;
     padding: 15px; 
     background: #FDF7E3; 
     border-radius: 20px; 
@@ -107,7 +157,7 @@
     color: #3A2E29; 
     font-weight: 700;
     font-size: 1.1rem; 
-    font-family: 'Merriweather', serif;
+    font-family: 'Delicious Handrawn', serif;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -119,6 +169,28 @@
   .answer-btn:hover {
     background-color: #E0D8C0;
   }
+  #next-button {
+    width: auto;
+    min-width: 50%;
+    padding: 15px 25px;
+    background: #FDF7E3;
+    border-radius: 20px;
+    border: none;
+    color: #3A2E29;
+    font-weight: 700;
+    font-size: 1.1rem;
+    font-family: 'Delicious Handrawn', serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    margin: 20px auto; /* To wyśrodkuje przycisk */
+    z-index: 10;
+    position: relative;
+}
   
 
   @media (min-width: 768px) {
@@ -127,12 +199,11 @@
       max-width: 1000px; 
       padding: 60px 130px;
       padding-top: 5px; 
-      scale: 1.2;
+      
+
       top: 50px;
     }
-    .progress-bar-section {
-      height: 30px;
-    }
+
     .avatar {
       width: 150px;
       height: 150px;
@@ -158,3 +229,50 @@
       justify-self: center; 
     }
   }
+
+  @media (max-width: 767px) {
+    .main-wrapper {
+        padding-top: 70px;
+    }
+    
+    .container {
+        margin-top: 30px;
+        padding: 30px 20px;
+    }
+    
+    .progress-bar-section {
+        top: 15px;
+    }
+    
+    .xxxx-text {
+        top: 55px;
+        right: 80px;
+        font-size: 1.8rem;
+    }
+    
+    #zegar {
+        width: 60px;
+        height: 60px;
+        top: 45px;
+        right: 20px;
+    }
+    
+    .question {
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+    }
+    
+    .answer-btn {
+        font-size: 1rem;
+        padding: 12px;
+        white-space: normal;
+    }
+    
+      #next-button {
+        width: 80%;
+        max-width: 300px;
+        margin: 20px auto; /* To zapewni wyśrodkowanie i odpowiednią szerokość */
+        padding: 12px;
+        font-size: 1rem;
+    }
+}
