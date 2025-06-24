@@ -1,0 +1,43 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<h2>Pytania quizowe</h2>
+
+<table class="table table-striped table-bordered">
+    <thead class="thead-dark">
+        <tr>
+            <th>ID</th>
+            <th>Pytanie</th>
+            <th>Odpowiedź 1</th>
+            <th>Odpowiedź 2</th>
+            <th>Odpowiedź 3</th>
+            <th>Odpowiedź 4</th>
+            <th>Poprawna</th>
+            <th>Akcje</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for question in questions %}
+        <tr>
+            <td>{{ question.id }}</td>
+            <td>{{ question.question }}</td>
+            <td>{{ question.answer1 }}</td>
+            <td>{{ question.answer2 }}</td>
+            <td>{{ question.answer3 or '-' }}</td>
+            <td>{{ question.answer4 or '-' }}</td>
+            <td>{{ question.correct }}</td>
+            <td>
+                <a href="{{ url_for('edit_question', id=question.id) }}" class="btn btn-sm btn-primary">Edytuj</a>
+                <form action="{{ url_for('delete_question', id=question.id) }}" method="POST" style="display: inline-block;">
+                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Czy na pewno chcesz usunąć to pytanie?')">Usuń</button>
+                </form>
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="8" class="text-center">Brak pytań w bazie danych</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

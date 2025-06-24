@@ -13,6 +13,13 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
 # Modele
+class GameStep(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    game_type = db.Column(db.String(50), nullable=False)  
+    order = db.Column(db.Integer, nullable=False)        # Kolejność wyświetlania
+    config = db.Column(db.JSON)                          
+    is_active = db.Column(db.Boolean, default=True)      # Czy krok aktywny
+
 class Player(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False)
@@ -32,26 +39,50 @@ class QuizQuestion(db.Model):
 # Utwórz tabele
 with app.app_context():
     db.create_all()
-
-# Kroki gry i ich przypisane ścieżki
-steps = ['start', 'login', 'puzzle', 'text_to_image', 'timeline', 'quiz', 'end']
-step_routes = {
-    'start': 'startscreen',
-    'login': 'logowanie',
-    'puzzle': 'puzzle',
-    'text_to_image': 'text_to_image',
-    'timeline': 'timeline',
-    'quiz': 'quiz',
-    'end': 'endscreen' 
-}
+    if not GameStep.query.first():
+        default_steps = [
+            GameStep(game_type='start', order=0, is_active=True),
+            GameStep(game_type='login', order=1, is_active=True),
+            GameStep(game_type='puzzle', order=2, is_active=True),
+            GameStep(game_type='text_to_image', order=3, is_active=True),
+            GameStep(game_type='timeline', order=4, is_active=True),
+            GameStep(game_type='quiz', order=5, is_active=True),
+            GameStep(game_type='end', order=6, is_active=True)
+        ]
+        db.session.add_all(default_steps)
+        db.session.commit()    
 
 # Funkcje pomocnicze
+def get_all_steps():
+    return [step.game_type for step in GameStep.query.order_by(GameStep.order).all()]
+
 def get_next_step(current):
     try:
-        idx = steps.index(current)
-        return steps[idx + 1] if idx + 1 < len(steps) else 'end'
-    except ValueError:
+        current_step = GameStep.query.filter_by(game_type=current, is_active=True).first()
+        if not current_step:
+            return 'end'
+            
+        next_step = GameStep.query.filter(
+            GameStep.order > current_step.order,
+            GameStep.is_active == True
+        ).order_by(GameStep.order).first()
+        
+        return next_step.game_type if next_step else 'end'
+    except Exception as e:
+        print(f"Błąd w get_next_step: {e}")
         return 'end'
+
+def get_step_route(game_type):
+    routes = {
+        'start': 'startscreen',
+        'login': 'logowanie',
+        'puzzle': 'puzzle',
+        'text_to_image': 'text_to_image',
+        'timeline': 'timeline',
+        'quiz': 'quiz',
+        'end': 'endscreen'
+    }
+    return routes.get(game_type, 'startscreen')  # Domyślnie przekieruj na start
 
 # Panel administracyjny
 @app.route('/admin', methods=['GET', 'POST'])
@@ -62,7 +93,7 @@ def admin_login():
             return redirect(url_for('admin_dashboard'))
         else:
             flash('Nieprawidłowe hasło', 'danger')
-    return render_template('admin_login.html')
+    return render_template('admin/login.html')
 
 @app.route('/admin/dashboard')
 def admin_dashboard():
@@ -70,7 +101,61 @@ def admin_dashboard():
         return redirect(url_for('admin_login'))
     
     questions = QuizQuestion.query.all()
-    return render_template('admin_dashboard.html', questions=questions)
+    return render_template('admin/dashboard.html', questions=questions)
+
+@app.route('/admin/steps')
+def manage_steps():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+    
+    steps = GameStep.query.order_by(GameStep.order).all()
+    return render_template('admin/steps.html', steps=steps)
+
+@app.route('/admin/step/edit/<int:id>', methods=['GET', 'POST'])
+def edit_step(id):
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+    
+    step = GameStep.query.get_or_404(id)
+    if request.method == 'POST':
+        step.game_type = request.form['game_type']
+        step.order = int(request.form['order'])
+        step.is_active = 'is_active' in request.form
+        # Tutaj obsługa config jeśli potrzebujesz
+        db.session.commit()
+        flash('Krok zaktualizowany!', 'success')
+        return redirect(url_for('manage_steps'))
+    
+    return render_template('admin/edit_step.html', step=step)
+@app.route('/admin/step/add', methods=['GET', 'POST'])
+def add_step():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+    
+    if request.method == 'POST':
+        new_step = GameStep(
+            game_type=request.form['game_type'],
+            order=int(request.form['order']),
+            is_active='is_active' in request.form,
+            config={}  # Możesz dodać konfigurację jeśli potrzebujesz
+        )
+        db.session.add(new_step)
+        db.session.commit()
+        flash('Krok dodany pomyślnie!', 'success')
+        return redirect(url_for('manage_steps'))
+    
+    return render_template('admin/add_step.html')
+
+@app.route('/admin/step/delete/<int:id>', methods=['POST'])
+def delete_step(id):
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+    
+    step = GameStep.query.get_or_404(id)
+    db.session.delete(step)
+    db.session.commit()
+    flash('Krok usunięty pomyślnie!', 'success')
+    return redirect(url_for('manage_steps'))
 
 @app.route('/admin/question/add', methods=['GET', 'POST'])
 def add_question():
@@ -91,7 +176,7 @@ def add_question():
         flash('Pytanie dodane pomyślnie!', 'success')
         return redirect(url_for('admin_dashboard'))
     
-    return render_template('add_question.html')
+    return render_template('admin/add_question.html')
 
 @app.route('/admin/question/edit/<int:id>', methods=['GET', 'POST'])
 def edit_question(id):
@@ -111,7 +196,7 @@ def edit_question(id):
         flash('Pytanie zaktualizowane pomyślnie!', 'success')
         return redirect(url_for('admin_dashboard'))
     
-    return render_template('edit_question.html', question=question)
+    return render_template('admin/edit_question.html', question=question)
 
 @app.route('/admin/question/delete/<int:id>', methods=['POST'])
 def delete_question(id):
@@ -165,8 +250,9 @@ def start():
 
     if not name or not avatar:
         return "Błąd: brak imienia lub avatara", 400
-
-    player = Player(name=name, avatar=avatar, current_step='puzzle')
+    
+    first_step = GameStep.query.filter(GameStep.game_type != 'start', GameStep.is_active == True).order_by(GameStep.order).first()
+    player = Player(name=name, avatar=avatar, current_step=first_step.game_type)
     db.session.add(player)
     db.session.commit()
 
@@ -249,7 +335,7 @@ def next_step():
         return redirect(url_for('logowanie'))
 
     next_step = player.current_step
-    return redirect(url_for(step_routes.get(next_step, 'endscreen')))
+    return redirect(url_for(get_step_route(player.current_step))) 
 
 @app.route("/update_score", methods=["POST"])
 def update_score():
@@ -300,7 +386,7 @@ def admin_ranking():
         return redirect(url_for('admin_login'))
 
     players = Player.query.order_by(Player.score.desc()).all()
-    return render_template('admin_ranking.html', players=players)
+    return render_template('admin/ranking.html', players=players)
 
 if __name__ == "__main__":
     app.run(debug=True)
