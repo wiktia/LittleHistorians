@@ -17,23 +17,15 @@
     }
 
     body {
-      height: 100vh;
-      width: 100vw;
-      min-height: 100vh;
-      min-width: 100vw;
       margin: 0;
       padding: 0;
-      font-family: 'Delicious Handrawn', serif;
+      font-family: 'Merriweather', serif;
       background: #d3c5aa url('obrazki/kartkapapieru.jpg') no-repeat center center fixed;
-      background-repeat: no-repeat, no-repeat;
-      background-position: center, center;
       background-size: cover;
       display: flex;
-      flex-direction: column;
       justify-content: center;
       align-items: center;
-      overflow: hidden;
-      position: relative;
+      min-height: 100vh;
       animation: fadeInUp 1s ease-out;
     }
 
@@ -83,14 +75,14 @@
       animation: fadeInUp 1.6s ease-in-out;
     }
 
+    #zegar{scale:0.5; transform-origin: top right; position: absolute; right: 0; top: 0; z-index: 1;}
+
     .timeline-img {
-      position: relative;
-      top: 50%;
-      width: 50%;
+      position: absolute;
+      left: 0;
+      width: 40%;
       height: auto;
-      transform: rotate(270deg) scale(0.1);
-      transform-origin: top left;
-      left: 16%;
+      transform: rotate(270deg) scale(2.5);
       scale: 1.1;
     }
 
@@ -171,8 +163,53 @@
       user-select: none;
     }
 
+    @media (min-width: 768px) {
+      .title { font-size: 32px; }
+      .subtitle { font-size: 18px; }
+      .container { scale: 1.2; }
+      .labels { font-size: 16px; }
+      .option {
+        font-size: 16px;
+        padding: 0.6rem 1.2rem;
+      }
+      .timeline-img {
+        width: 35%;
+        transform: rotate(270deg) scale(2.5);
+      }
+      .event-slot {
+        height: 35px;
+        width: 45%;
+      }
+      #scoreDisplay {
+        font-size: 18px;
+      }
+    }
 
-    .Ellipse1 {
+    @media (max-width: 480px) {
+      h1 { font-size: 1.5rem; }
+      .timeline-img { bottom: 100px; }
+      .ellipse-bg { width: 300px; height: 300px; }
+      .container{height: 70vh;}
+    }
+
+
+
+
+    * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body, html {
+    height: 100%;
+    font-family: 'Delicious Handrawn', serif;
+    background: #d3c5aa url('static/obrazki/kartkapapieru.jpg') no-repeat center center fixed;
+    background-size: cover;
+    overflow: hidden;
+}
+
+.Ellipse1 {
     width: 220%;
     height: 220%;
     left: -60%;
@@ -182,10 +219,13 @@
     background: rgba(53, 252, 39, 0.36);
     border-radius: 99999999px;
     scale: 0.5;
-    z-index: 1;
 }
 
-
+.top-bar {
+    position: relative;
+    width: 100%;
+    padding-top: 15px;
+}
 
 .progress-bar-section { 
     width: 80%; 
@@ -193,10 +233,8 @@
     background: #2A1D16; 
     border-radius: 20px; 
     border: 2px solid #1E1410; 
-    position: absolute;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
+    position: relative;
+    margin: 0 auto;
     overflow: hidden; 
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
 }
@@ -235,31 +273,44 @@
     text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
 }
 
-    @media (min-width: 768px) {
-      .title { font-size: 32px; }
-      .subtitle { font-size: 18px; }
-      .container { scale: 1.2; }
-      .labels { font-size: 16px; }
-      .option {
-        font-size: 16px;
-        padding: 0.6rem 1.2rem;
-      }
-      .timeline-img {
-        width: 35%;
-        transform: rotate(270deg) scale(2.5);
-      }
-      .event-slot {
-        height: 35px;
-        width: 45%;
-      }
-      #scoreDisplay {
+/* Tablet */
+@media (min-width: 601px) and (max-width: 1024px) {
+    .progress-bar-section {
+        width: 85%;
+    }
+    
+    .clock-container {
+        right: 7.5%;
+    }
+    
+    #zegar {
+        width: 70px;
+    }
+    
+    .czas {
         font-size: 18px;
-      }
     }
+}
 
-    @media (max-width: 480px) {
-      h1 { font-size: 1.5rem; }
-      .timeline-img { bottom: 100px; }
-      .ellipse-bg { width: 300px; height: 300px; }
-      .container{height: 70vh;}
+/* Mobile */
+@media (max-width: 600px) {
+    .progress-bar-section {
+        width: 90%;
+        height: 20px;
     }
+    
+    .clock-container {
+        right: 5%;
+        transform: translateX(0);
+        gap: 5px;
+        margin-top: 3px;
+    }
+    
+    #zegar {
+        width: 50px;
+    }
+    
+    .czas {
+        font-size: 16px;
+    }
+}
