@@ -1,5 +1,4 @@
-
-
+const quizId = 'quiz-1';
 // Elementy DOM
 const questionElement = document.querySelector('.question');
 const answerButtons = document.querySelector('.answers-container');
@@ -9,38 +8,34 @@ const playerAvatar = document.getElementById('player-avatar');
 const playerNameElement = document.getElementById('player-name');
 const playerScoreElement = document.getElementById('player-score');
 
-// Zmienne quizu
-let questions = [];  // Będziemy ładować pytania z serwera
+let questions = [];
 let currentQuestionIndex = 0;
 let score = 0;
 let quizEnded = false;
 
-// Pobierz pytania z serwera (TYLKO 1 PYTANIE)
+// Pobierz pytania z serwera
 async function fetchQuestions() {
     try {
-        const response = await fetch('/api/quiz_questions');
+        const response = await fetch(`/api/quiz_questions?quiz=${encodeURIComponent(quizId)}`);
         const data = await response.json();
         
-        // Pobierz tylko 1 pytanie
-        questions = data.slice(0, 1).map(q => {
+        questions = data.map(q => {
             const answers = q.answers.map((text, index) => ({
                 text: text,
                 correct: (index + 1) === q.correct
             }));
-
             return {
                 question: q.question,
                 answers: answers
             };
         });
-        
+
         startQuiz();
     } catch (error) {
         console.error('Błąd pobierania pytań:', error);
         questionElement.innerHTML = "Błąd ładowania quizu. Spróbuj odświeżyć stronę.";
     }
 }
-
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -53,11 +48,9 @@ function startQuiz() {
         questionElement.innerHTML = "Brak pytań w bazie danych.";
         return;
     }
-    
     currentQuestionIndex = 0;
     score = 0;
     quizEnded = false;
-    
     showQuestion();
 }
 
@@ -65,9 +58,9 @@ function showQuestion() {
     resetState();
 
     const currentQuestion = questions[currentQuestionIndex];
-    questionElement.innerHTML = currentQuestion.question; // Bez numeru, bo tylko 1 pytanie
+    questionElement.textContent = currentQuestion.question;
 
-    // Pomieszaj odpowiedzi
+    // Mieszamy odpowiedzi
     const answers = [...currentQuestion.answers];
     shuffleArray(answers);
 
@@ -82,7 +75,7 @@ function showQuestion() {
         answerButtons.appendChild(button);
     });
 
-    // Pasek postępu na 100%, bo tylko 1 pytanie
+    
     progressBar.style.width = '100%';
 }
 
@@ -96,10 +89,10 @@ function selectAnswer(e) {
 
     if (isCorrect) {
         selectedBtn.classList.add('correct');
-        score = 1; // Tylko 1 punkt, bo tylko 1 pytanie
+        score = 1; 
     } else {
         selectedBtn.classList.add('incorrect');
-        feedbackImage.src = userAvatar;
+        feedbackImage.src = userAvatar;  // pokaz avatar gracza, jeśli źle
     }
 
     // Podświetl prawidłową odpowiedź i zablokuj przyciski
@@ -110,7 +103,7 @@ function selectAnswer(e) {
         button.disabled = true;
     });
 
-    // Od razu wyślij wynik i zakończ quiz
+    // Wyślij wynik i zakończ quiz
     sendQuizScore(score);
 }
 
@@ -122,13 +115,15 @@ function sendQuizScore(points) {
     })
     .then(response => response.json())
     .then(data => {
-        window.location.href = "/next";
+        window.location.href = "/next";  // przekieruj po zapisaniu
     })
     .catch(error => {
         console.error("Error saving score:", error);
-        window.location.href = "/next";
+        window.location.href = "/next";  // i tak przekieruj
     });
 }
+
 const userAvatar = playerAvatar ? playerAvatar.src : '';
-// Rozpocznij quiz
+
+// Start
 fetchQuestions();

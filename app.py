@@ -15,17 +15,19 @@ db = SQLAlchemy(app)
 # Modele
 class GameStep(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    game_type = db.Column(db.String(50), nullable=False)  
-    order = db.Column(db.Integer, nullable=False)        # Kolejność wyświetlania
-    config = db.Column(db.JSON)                          
-    is_active = db.Column(db.Boolean, default=True)      # Czy krok aktywny
+    name = db.Column(db.String(50), nullable=False)  # Nazwa wyświetlana np. "Quiz 1"
+    game_type = db.Column(db.String(50), nullable=False)  # Typ np. "quiz", "puzzle"
+    step_identifier = db.Column(db.String(50))  # Unikalny identyfikator np. "quiz-1", "puzzle-3"
+    order = db.Column(db.Integer, nullable=False)  # Kolejność wyświetlania
+    config = db.Column(db.JSON)  
+    is_active = db.Column(db.Boolean, default=True)
 
 class Player(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False)
     avatar = db.Column(db.String(120))
     score = db.Column(db.Integer, default=0)
-    current_step = db.Column(db.String(50), default='start')
+    current_step = db.Column(db.String(50), default='start')  # Przechowuje step_identifier
 
 class QuizQuestion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -45,47 +47,67 @@ class Event(db.Model):
 # Utwórz tabele
 with app.app_context():
     db.create_all()
-    if not GameStep.query.first():
-        default_steps = [
-            GameStep(game_type='start', order=0, is_active=True),
-            GameStep(game_type='login', order=1, is_active=True),
-            GameStep(game_type='puzzle', order=2, is_active=True),
-            GameStep(game_type='text_to_image', order=3, is_active=True),
-            GameStep(game_type='timeline', order=4, is_active=True),
-            GameStep(game_type='quiz', order=5, is_active=True),
-            GameStep(game_type='end', order=6, is_active=True)
+
+    if not Event.query.first():
+        sample_events = [
+            Event(description="Wydarzenie 1", date="--"),
+            Event(description="Wydarzenie 2", date="--"),
+            Event(description="Wydarzenie 3", date="--")
         ]
-        db.session.add_all(default_steps)
+        db.session.add_all(sample_events)
         db.session.commit()    
+    if not GameStep.query.first():
+        # Stałe kroki (nieusuwalne)
+        fixed_steps = [
+            GameStep(name="Start", game_type='start', step_identifier='start', order=0, is_active=True),
+            GameStep(name="Logowanie", game_type='login', step_identifier='login', order=1, is_active=True),
+            GameStep(name="Koniec", game_type='end', step_identifier='end', order=100, is_active=True)
+        ]
+        
+        # Przykładowe kroki gier (można modyfikować)
+        game_steps = [
+            GameStep(name="Quiz 1", game_type='quiz', step_identifier='quiz-1', order=2, is_active=True),
+            GameStep(name="Puzzle 1", game_type='puzzle', step_identifier='puzzle-1', order=3, is_active=True),
+            GameStep(name="Tekst na obraz", game_type='text_to_image', step_identifier='text_to_image-1', order=4, is_active=True),
+            GameStep(name="Oś czasu", game_type='timeline', step_identifier='timeline-1', order=5, is_active=True)
+        ]
+        
+        db.session.add_all(fixed_steps + game_steps)
+        db.session.commit()   
 
 # Funkcje pomocnicze
 def get_all_steps():
     return [step.game_type for step in GameStep.query.order_by(GameStep.order).all()]
 
-def get_next_step(current):
-    active_steps = get_all_steps()  
-
-    if current in active_steps:
-        idx = active_steps.index(current)
-        if idx + 1 < len(active_steps):
-            return active_steps[idx + 1]
+def get_next_step(current_identifier):
+    current_step = GameStep.query.filter_by(step_identifier=current_identifier).first()
+    if not current_step:
         return 'end'
-    elif active_steps:
-        return active_steps[0]
-    return 'end'
+    
+    # Znajdź następny aktywny krok (pomijając stałe kroki jeśli trzeba)
+    next_step = GameStep.query.filter(
+        GameStep.order > current_step.order,
+        GameStep.is_active == True,
+        ~GameStep.step_identifier.in_(['start', 'login'])  # Pomijamy start i login w środku gry
+    ).order_by(GameStep.order).first()
+    
+    return next_step.step_identifier if next_step else 'end'
 
 
-def get_step_route(game_type):
+def get_step_route(step_identifier):
+    # Wydziel typ gry z identyfikatora (np. "quiz-1" → "quiz")
+    game_type = step_identifier.split('-')[0] if '-' in step_identifier else step_identifier
+    
     routes = {
         'start': 'startscreen',
         'login': 'logowanie',
+        'quiz': 'quiz',
         'puzzle': 'puzzle',
         'text_to_image': 'text_to_image',
         'timeline': 'timeline',
-        'quiz': 'quiz',
         'end': 'endscreen'
     }
-    return routes.get(game_type, 'end')  
+    return routes.get(game_type, 'endscreen')
 
 # Panel administracyjny
 @app.route('/admin', methods=['GET', 'POST'])
@@ -130,18 +152,36 @@ def edit_step(id):
         return redirect(url_for('manage_steps'))
     
     return render_template('admin/edit_step.html', step=step)
+
 @app.route('/admin/step/add', methods=['GET', 'POST'])
 def add_step():
     if not session.get('admin_logged_in'):
         return redirect(url_for('admin_login'))
     
     if request.method == 'POST':
+        game_type = request.form['game_type']
+        step_number = request.form['step_number']
+        step_identifier = f"{game_type}-{step_number}"
+        
+        if GameStep.query.filter_by(step_identifier=step_identifier).first():
+            flash('Krok o tym identyfikatorze już istnieje!', 'danger')
+            return redirect(url_for('add_step'))
+        
+        try:
+            order = int(request.form['order'])
+        except ValueError:
+            flash('Pole "order" musi być liczbą całkowitą!', 'danger')
+            return redirect(url_for('add_step'))
+        
         new_step = GameStep(
-            game_type=request.form['game_type'],
-            order=int(request.form['order']),
+            name=f"{game_type.capitalize()} {step_number}",
+            game_type=game_type,
+            step_identifier=step_identifier,
+            order=order,
             is_active='is_active' in request.form,
-            config={}  # Możesz dodać konfigurację jeśli potrzebujesz
+            config={}
         )
+        
         db.session.add(new_step)
         db.session.commit()
         flash('Krok dodany pomyślnie!', 'success')
@@ -155,6 +195,12 @@ def delete_step(id):
         return redirect(url_for('admin_login'))
     
     step = GameStep.query.get_or_404(id)
+    
+    # Zabezpieczenie przed usunięciem stałych kroków
+    if step.step_identifier in ['start', 'login', 'end']:
+        flash('Nie można usunąć stałego kroku gry!', 'danger')
+        return redirect(url_for('manage_steps'))
+    
     db.session.delete(step)
     db.session.commit()
     flash('Krok usunięty pomyślnie!', 'success')
@@ -236,13 +282,40 @@ def get_quiz_questions():
             'correct': q.correct
         })
     return jsonify(output)
-
+@app.route('/api/quiz_question_by_step')
+def get_quiz_question_by_step():
+    step = request.args.get('step')
+    if not step or not step.startswith('quiz-'):
+        return jsonify({"error": "Nieprawidłowy parametr step"}), 400
+    
+    try:
+        question_id = int(step.split('-')[1])
+    except (IndexError, ValueError):
+        return jsonify({"error": "Nieprawidłowy format step"}), 400
+    
+    question = QuizQuestion.query.get(question_id)
+    if not question:
+        return jsonify([])  # brak pytania - koniec quizu
+    
+    answers = [question.answer1, question.answer2]
+    if question.answer3:
+        answers.append(question.answer3)
+    if question.answer4:
+        answers.append(question.answer4)
+    
+    return jsonify([{
+        'id': question.id,
+        'question': question.question,
+        'answers': answers,
+        'correct': question.correct
+    }])
 
 @app.route('/admin/timeline', methods=['GET', 'POST'])
 def edit_timeline():
+
     # Pobierz istniejące wydarzenia lub stwórz domyślne jeśli brak
     timeline_events = Event.query.order_by(Event.date.desc()).limit(3).all()
-    
+
     if request.method == 'POST':
         for i, event in enumerate(timeline_events):
             event.description = request.form.get(f'event_text_{i}')
@@ -352,7 +425,7 @@ def save_score():
     player = Player.query.get(session["player_id"])
     if not player:
         return jsonify({"error": "Gracz nie znaleziony"}), 404
-
+    
     player.score += score
     db.session.commit()
     
@@ -362,17 +435,19 @@ def save_score():
         "next_step_url": url_for("next_step")  
     })
 
-@app.route("/next")
+@app.route('/next')
 def next_step():
     if "player_id" not in session:
         return redirect(url_for("logowanie"))
+    
+    player = Player.query.get(session['player_id'])
+    next_step_identifier = get_next_step(player.current_step)
+    
+    player.current_step = next_step_identifier
+    db.session.commit()
+    
+    return redirect(url_for(get_step_route(next_step_identifier)))
 
-    player = Player.query.get(session["player_id"])
-    if not player:
-        return redirect(url_for("logowanie"))
-
-    # Pokaż ekran ładowania przed przejściem do następnego kroku
-    return render_template("loading.html", next_step=get_next_step(player.current_step))
 @app.route("/load_next_step")
 def load_next_step():
     if "player_id" not in session:
