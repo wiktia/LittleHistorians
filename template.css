@@ -1,87 +1,119 @@
-       
-       
-       
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body, html {
-            height: 100%;
-            font-family: 'Segoe UI', sans-serif;
-            overflow: hidden; 
-          
-            margin: 0;
-            padding: 0;
-            font-family: 'Delicious Handrawn', serif;
-            background: #d3c5aa url('static/obrazki/kartkapapieru.jpg') no-repeat center center fixed;
-            background-size: cover;
-
-        }
-
-
-
-
-.Ellipse1 {
-  width: 220%;
-  height: 220%;
-  left: -60%;
-  top: 32%;
-  position: absolute;
-  opacity: 0.7;
-  background: rgba(53, 252, 39, 0.36);
-  border-radius: 99999999px;
-  opacity:0.5;
-  scale:0.5;
-  top:1%;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-  .progress-bar-section { 
+body, html {
+    height: 100%;
+    font-family: 'Delicious Handrawn', serif;
+    background: #d3c5aa url('static/obrazki/kartkapapieru.jpg') no-repeat center center fixed;
+    background-size: cover;
+    overflow: hidden;
+}
+
+.Ellipse1 {
+    width: 220%;
+    height: 220%;
+    left: -60%;
+    top: 1%;
+    position: absolute;
+    opacity: 0.5;
+    background: rgba(53, 252, 39, 0.36);
+    border-radius: 99999999px;
+    scale: 0.5;
+}
+
+.top-bar {
+    position: relative;
+    width: 100%;
+    padding-top: 15px;
+}
+
+.progress-bar-section { 
     width: 80%; 
     height: 25px; 
     background: #2A1D16; 
     border-radius: 20px; 
     border: 2px solid #1E1410; 
-    position: absolute;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
+    position: relative;
+    margin: 0 auto;
     overflow: hidden; 
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
-  
-  }
+}
 
-  .progress-bar-fill { 
+.progress-bar-fill { 
     width: 20%; 
     height: 100%; 
     background: #795548; 
     border-radius: 18px; 
     transition: width 0.3s ease-in-out;
-  }
+}
+
+.clock-container {
+    position: absolute;
+    top: 100%;
+    right: 10%;
+    transform: translateX(50%);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+    padding-top: 10px;
+}
 
 #zegar {
-    position: absolute;
-    transform-origin: top right;
-    scale: 0.5;
+    width: 80px;
+    height: auto;
+    scale:3.5;
+    
 }
 
-   @media (max-width: 600px) {
-
-
-  .progress-bar-section {
-    width: 90%;
-    height: 20px;
-    top: 10px;
-  }
-
- 
-
-
+.czas {
+    font-size: 40px;
+    font-weight: bold;
+    color: #2A1D16;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
 }
 
- @media (min-width: 601px)
- {
+/* Tablet */
+@media (min-width: 601px) and (max-width: 1024px) {
+    .progress-bar-section {
+        width: 85%;
+    }
+    
+    .clock-container {
+        right: 7.5%;
+    }
+    
+    #zegar {
+        width: 70px;
+    }
+    
+    .czas {
+        font-size: 18px;
+    }
+}
 
-
- }
+/* Mobile */
+@media (max-width: 600px) {
+    .progress-bar-section {
+        width: 90%;
+        height: 20px;
+    }
+    
+    .clock-container {
+        right: 5%;
+        transform: translateX(0);
+        gap: 5px;
+        margin-top: 3px;
+    }
+    
+    #zegar {
+        width: 50px;
+    }
+    
+    .czas {
+        font-size: 16px;
+    }
+}
