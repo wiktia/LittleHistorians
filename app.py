@@ -36,6 +36,12 @@ class QuizQuestion(db.Model):
     answer4 = db.Column(db.String(200))
     correct = db.Column(db.Integer, nullable=False)  
 
+
+class Event(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    description = db.Column(db.String(200))
+    date = db.Column(db.String(10))   
+
 # Utwórz tabele
 with app.app_context():
     db.create_all()
@@ -57,7 +63,7 @@ def get_all_steps():
     return [step.game_type for step in GameStep.query.order_by(GameStep.order).all()]
 
 def get_next_step(current):
-    active_steps = get_all_steps
+    active_steps = get_all_steps()  
 
     if current in active_steps:
         idx = active_steps.index(current)
@@ -231,6 +237,23 @@ def get_quiz_questions():
         })
     return jsonify(output)
 
+
+@app.route('/admin/timeline', methods=['GET', 'POST'])
+def edit_timeline():
+    # Pobierz istniejące wydarzenia lub stwórz domyślne jeśli brak
+    timeline_events = Event.query.order_by(Event.date.desc()).limit(3).all()
+    
+    if request.method == 'POST':
+        for i, event in enumerate(timeline_events):
+            event.description = request.form.get(f'event_text_{i}')
+            event.date = request.form.get(f'event_date_{i}')
+        db.session.commit()
+        flash("Zapisano zmiany!", "success")
+        return redirect('/admin/timeline')
+
+    return render_template('admin/edit_timeline.html', events=timeline_events)
+
+
 # Główne endpointy gry
 @app.route("/")
 def startscreen():
@@ -277,11 +300,19 @@ def text_to_image():
         return redirect(url_for("logowanie"))
     return render_template("text_to_image.html")
 
-@app.route("/timeline")
+@app.route('/timeline')
 def timeline():
-    if "player_id" not in session:
-        return redirect(url_for("logowanie"))
-    return render_template("timeline.html")
+    timeline_events = Event.query.order_by(Event.date.desc()).limit(3).all()
+
+    events = timeline_events.copy()
+    import random
+    random.shuffle(events)
+
+    return render_template('timeline.html',
+                           events=events,
+                           slot1_date=timeline_events[0].date,
+                           slot2_date=timeline_events[1].date,
+                           slot3_date=timeline_events[2].date)
 
 @app.route("/quiz")
 def quiz():
