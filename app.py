@@ -354,29 +354,39 @@ def save_score():
         return jsonify({"error": "Gracz nie znaleziony"}), 404
 
     player.score += score
-    next_step_type = get_next_step(player.current_step)
-    player.current_step = next_step_type
     db.session.commit()
     
     return jsonify({
         "message": "Wynik zapisany",
         "new_score": player.score,
-        "next_step": next_step_type,
-        "next_step_url": url_for(get_step_route(next_step_type))
+        "next_step_url": url_for("next_step")  
     })
 
 @app.route("/next")
 def next_step():
-    pid = session.get("player_id")
+    if "player_id" not in session:
+        return redirect(url_for("logowanie"))
 
-    player = Player.query.get(pid)
+    player = Player.query.get(session["player_id"])
+    if not player:
+        return redirect(url_for("logowanie"))
 
-    # teraz current_step jest np. 'puzzle', więc get_next -> 'text_to_image'
+    # Pokaż ekran ładowania przed przejściem do następnego kroku
+    return render_template("loading.html", next_step=get_next_step(player.current_step))
+@app.route("/load_next_step")
+def load_next_step():
+    if "player_id" not in session:
+        return redirect(url_for("logowanie"))
+
+    player = Player.query.get(session["player_id"])
+    if not player:
+        return redirect(url_for("logowanie"))
+
     nxt = get_next_step(player.current_step)
     player.current_step = nxt
     db.session.commit()
+    
     return redirect(url_for(get_step_route(nxt)))
-
 
 @app.route("/update_score", methods=["POST"])
 def update_score():
