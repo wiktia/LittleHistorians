@@ -34,7 +34,7 @@ class QuizQuestion(db.Model):
     answer2 = db.Column(db.String(200), nullable=False)
     answer3 = db.Column(db.String(200))
     answer4 = db.Column(db.String(200))
-    correct = db.Column(db.Integer, nullable=False)  # 1,2,3,4 - numer poprawnej odpowiedzi
+    correct = db.Column(db.Integer, nullable=False)  
 
 # Utwórz tabele
 with app.app_context():
@@ -57,20 +57,17 @@ def get_all_steps():
     return [step.game_type for step in GameStep.query.order_by(GameStep.order).all()]
 
 def get_next_step(current):
-    try:
-        current_step = GameStep.query.filter_by(game_type=current, is_active=True).first()
-        if not current_step:
-            return 'end'
-            
-        next_step = GameStep.query.filter(
-            GameStep.order > current_step.order,
-            GameStep.is_active == True
-        ).order_by(GameStep.order).first()
-        
-        return next_step.game_type if next_step else 'end'
-    except Exception as e:
-        print(f"Błąd w get_next_step: {e}")
+    active_steps = get_all_steps
+
+    if current in active_steps:
+        idx = active_steps.index(current)
+        if idx + 1 < len(active_steps):
+            return active_steps[idx + 1]
         return 'end'
+    elif active_steps:
+        return active_steps[0]
+    return 'end'
+
 
 def get_step_route(game_type):
     routes = {
@@ -82,7 +79,7 @@ def get_step_route(game_type):
         'quiz': 'quiz',
         'end': 'endscreen'
     }
-    return routes.get(game_type, 'startscreen')  # Domyślnie przekieruj na start
+    return routes.get(game_type, 'end')  
 
 # Panel administracyjny
 @app.route('/admin', methods=['GET', 'POST'])
@@ -245,19 +242,28 @@ def logowanie():
 
 @app.route("/start", methods=["POST"])
 def start():
+    print(">>> [DEBUG start] sesja przed:", session)
     name = request.form.get("name")
     avatar = request.form.get("avatar")
 
     if not name or not avatar:
-        return "Błąd: brak imienia lub avatara", 400
-    
-    first_step = GameStep.query.filter(GameStep.game_type != 'start', GameStep.is_active == True).order_by(GameStep.order).first()
-    player = Player(name=name, avatar=avatar, current_step=first_step.game_type)
-    db.session.add(player)
+        flash("Proszę wypełnić wszystkie pola", "error")
+        return redirect(url_for("logowanie"))
+
+    # Znajdź lub stwórz gracza
+    player = Player.query.filter_by(name=name, avatar=avatar).first()
+    if not player:
+        player = Player(name=name, avatar=avatar, score=0)
+        db.session.add(player)
+
+    player.current_step = 'login'
     db.session.commit()
 
-    session["player_id"] = player.id
-    return redirect(url_for("next_step"))
+    # ustawiamy sesję i od razu lecimy do puzzle
+    session['player_id'] = player.id
+    print(">>> [DEBUG start] sesja po:", session)
+    return redirect(url_for('next_step'))
+
 
 @app.route("/puzzle")
 def puzzle():
@@ -317,25 +323,29 @@ def save_score():
         return jsonify({"error": "Gracz nie znaleziony"}), 404
 
     player.score += score
-    player.current_step = get_next_step(player.current_step)  
+    next_step_type = get_next_step(player.current_step)
+    player.current_step = next_step_type
     db.session.commit()
+    
     return jsonify({
         "message": "Wynik zapisany",
         "new_score": player.score,
-        "next_step": player.current_step
+        "next_step": next_step_type,
+        "next_step_url": url_for(get_step_route(next_step_type))
     })
 
-@app.route('/next')
+@app.route("/next")
 def next_step():
-    if 'player_id' not in session:
-        return redirect(url_for('logowanie'))
+    pid = session.get("player_id")
 
-    player = Player.query.get(session['player_id'])
-    if not player:
-        return redirect(url_for('logowanie'))
+    player = Player.query.get(pid)
 
-    next_step = player.current_step
-    return redirect(url_for(get_step_route(player.current_step))) 
+    # teraz current_step jest np. 'puzzle', więc get_next -> 'text_to_image'
+    nxt = get_next_step(player.current_step)
+    player.current_step = nxt
+    db.session.commit()
+    return redirect(url_for(get_step_route(nxt)))
+
 
 @app.route("/update_score", methods=["POST"])
 def update_score():
