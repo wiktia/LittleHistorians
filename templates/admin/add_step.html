@@ -1,0 +1,25 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<h2>Dodaj nowy krok gry</h2>
+
+<form method="POST">
+    <div class="form-group">
+        <label for="game_type">Typ gry:</label>
+        <input type="text" name="game_type" id="game_type" class="form-control" required>
+    </div>
+
+    <div class="form-group">
+        <label for="order">Kolejność:</label>
+        <input type="number" name="order" id="order" class="form-control" required>
+    </div>
+
+    <div class="form-check my-2">
+        <input type="checkbox" name="is_active" id="is_active" class="form-check-input">
+        <label class="form-check-label" for="is_active">Aktywny</label>
+    </div>
+
+    <button type="submit" class="btn btn-success">Dodaj krok</button>
+    <a href="{{ url_for('manage_steps') }}" class="btn btn-secondary">Anuluj</a>
+</form>
+{% endblock %}

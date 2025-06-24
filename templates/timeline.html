@@ -10,23 +10,25 @@
   <div class="container">
     <div class="title">Dopasuj wydarzenia na osi czasu!</div>
 
- 
     <div id="cards" class="options">
-      <div class="option card draggable" data-date="1953">Wykonanie wyroku śmierci</div>
-      <div class="option card draggable" data-date="1925">Awans do stopnia majora</div>
-      <div class="option card draggable" data-date="1928">Narodziny córki Marii</div>
-    </div>
-    <div class="timeline-wrapper">
-      <img src="static/obrazki/ośczasu.png" alt="oś czasu" class="timeline-img"/>
-      <div class="labels label-1953">– 1953</div>
-      <div class="labels label-1928">– 1928</div>
-      <div class="labels label-1925">– 1925</div>
-      <div class="event-slot slot-1953 slot" data-correct="1953">?</div>
-      <div class="event-slot slot-1928 slot" data-correct="1928">?</div>
-      <div class="event-slot slot-1925 slot" data-correct="1925">?</div>
+      {% for event in events %}
+      <div class="option card draggable" data-date="{{ event.date }}">{{ event.description }}</div>
+      {% endfor %}
     </div>
 
-   
+    <div class="timeline-wrapper">
+      <img src="{{ url_for('static', filename='obrazki/ośczasu.png') }}" alt="oś czasu" class="timeline-img"/>
+
+      <div class="labels label-1">– {{ slot1_date }}</div>
+      <div class="event-slot slot-1 slot" data-correct="{{ slot1_date }}">?</div>
+
+      <div class="labels label-2">– {{ slot2_date }}</div>
+      <div class="event-slot slot-2 slot" data-correct="{{ slot2_date }}">?</div>
+
+      <div class="labels label-3">– {{ slot3_date }}</div>
+      <div class="event-slot slot-3 slot" data-correct="{{ slot3_date }}">?</div>
+    </div>
+
     <div style="margin-top: 1rem; text-align: center;">
       <div id="scoreDisplay"></div>
     </div>

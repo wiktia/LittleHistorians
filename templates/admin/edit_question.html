@@ -1,0 +1,38 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<h1 class="mb-4">Edytuj pytanie</h1>
+
+<form method="POST">
+    <div class="form-group">
+        <label for="question">Pytanie:</label>
+        <textarea class="form-control" id="question" name="question" rows="3" required>{{ question.question }}</textarea>
+    </div>
+    <div class="form-group">
+        <label for="answer1">Odpowiedź 1:</label>
+        <input type="text" class="form-control" id="answer1" name="answer1" value="{{ question.answer1 }}" required>
+    </div>
+    <div class="form-group">
+        <label for="answer2">Odpowiedź 2:</label>
+        <input type="text" class="form-control" id="answer2" name="answer2" value="{{ question.answer2 }}" required>
+    </div>
+    <div class="form-group">
+        <label for="answer3">Odpowiedź 3:</label>
+        <input type="text" class="form-control" id="answer3" name="answer3" value="{{ question.answer3 or '' }}">
+    </div>
+    <div class="form-group">
+        <label for="answer4">Odpowiedź 4:</label>
+        <input type="text" class="form-control" id="answer4" name="answer4" value="{{ question.answer4 or '' }}">
+    </div>
+    <div class="form-group">
+        <label for="correct">Poprawna odpowiedź:</label>
+        <select class="form-control" id="correct" name="correct" required>
+            {% for i in range(1, 5) %}
+            <option value="{{ i }}" {% if question.correct == i %}selected{% endif %}>Odpowiedź {{ i }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Zapisz zmiany</button>
+    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">Anuluj</a>
+</form>
+{% endblock %}

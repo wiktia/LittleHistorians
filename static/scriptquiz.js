@@ -1,22 +1,13 @@
 
 
-
 // Elementy DOM
 const questionElement = document.querySelector('.question');
 const answerButtons = document.querySelector('.answers-container');
-const nextButton = document.createElement('button');
-nextButton.className = 'answer-btn';
-nextButton.style.marginTop = '20px';
-nextButton.textContent = 'Dalej';
-nextButton.style.display = 'none';
-answerButtons.parentElement.appendChild(nextButton);
-
 const progressBar = document.querySelector('.progress-bar-fill');
 const feedbackImage = document.getElementById('feedback-image') || { src: '' };
 const playerAvatar = document.getElementById('player-avatar');
 const playerNameElement = document.getElementById('player-name');
 const playerScoreElement = document.getElementById('player-score');
-
 
 // Zmienne quizu
 let questions = [];  // Będziemy ładować pytania z serwera
@@ -24,24 +15,24 @@ let currentQuestionIndex = 0;
 let score = 0;
 let quizEnded = false;
 
-// Pobierz pytania z serwera
+// Pobierz pytania z serwera (TYLKO 1 PYTANIE)
 async function fetchQuestions() {
     try {
         const response = await fetch('/api/quiz_questions');
         const data = await response.json();
         
-        // Przekształć dane z API do formatu oczekiwanego przez quiz
+        // Pobierz tylko 1 pytanie
         questions = data.slice(0, 1).map(q => {
-    const answers = q.answers.map((text, index) => ({
-        text: text,
-        correct: (index + 1) === q.correct
-    }));
+            const answers = q.answers.map((text, index) => ({
+                text: text,
+                correct: (index + 1) === q.correct
+            }));
 
-    return {
-        question: q.question,
-        answers: answers
-    };
-});
+            return {
+                question: q.question,
+                answers: answers
+            };
+        });
         
         startQuiz();
     } catch (error) {
@@ -66,11 +57,6 @@ function startQuiz() {
     currentQuestionIndex = 0;
     score = 0;
     quizEnded = false;
-    nextButton.innerHTML = 'Dalej';
-    nextButton.style.display = 'none';
-    
-    // Pomieszaj kolejność pytań
-    shuffleArray(questions);
     
     showQuestion();
 }
@@ -79,7 +65,7 @@ function showQuestion() {
     resetState();
 
     const currentQuestion = questions[currentQuestionIndex];
-    questionElement.innerHTML = `${currentQuestionIndex + 1}. ${currentQuestion.question}`;
+    questionElement.innerHTML = currentQuestion.question; // Bez numeru, bo tylko 1 pytanie
 
     // Pomieszaj odpowiedzi
     const answers = [...currentQuestion.answers];
@@ -96,13 +82,11 @@ function showQuestion() {
         answerButtons.appendChild(button);
     });
 
-    // Aktualizuj pasek postępu
-    const progressPercent = ((currentQuestionIndex + 1) / questions.length) * 100;
-    progressBar.style.width = progressPercent + '%';
+    // Pasek postępu na 100%, bo tylko 1 pytanie
+    progressBar.style.width = '100%';
 }
 
 function resetState() {
-    nextButton.style.display = 'none';
     [...answerButtons.querySelectorAll('.answer-btn')].forEach(btn => btn.remove());
 }
 
@@ -112,13 +96,13 @@ function selectAnswer(e) {
 
     if (isCorrect) {
         selectedBtn.classList.add('correct');
-        score++;
-
+        score = 1; // Tylko 1 punkt, bo tylko 1 pytanie
     } else {
         selectedBtn.classList.add('incorrect');
         feedbackImage.src = userAvatar;
     }
 
+    // Podświetl prawidłową odpowiedź i zablokuj przyciski
     [...answerButtons.querySelectorAll('.answer-btn')].forEach(button => {
         if (button.dataset.correct === 'true') {
             button.classList.add('correct');
@@ -126,25 +110,8 @@ function selectAnswer(e) {
         button.disabled = true;
     });
 
-     sendQuizScore(score);
-}
-
-function showScore() {
-    fetch('/save_score', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ score: points })
-})}
-
-function handleNextButton() {
-    currentQuestionIndex++;
-    if (currentQuestionIndex < questions.length) {
-        showQuestion();
-    } else {
-        showScore();
-    }
-
-    feedbackImage.src = userAvatar;
+    // Od razu wyślij wynik i zakończ quiz
+    sendQuizScore(score);
 }
 
 function sendQuizScore(points) {
@@ -153,25 +120,15 @@ function sendQuizScore(points) {
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ score: points })
     })
-    .then(response => {
-        if (!response.ok) {
-            return response.text().then(text => {
-                throw new Error(`HTTP ${response.status}: ${text}`);
-            });
-        }
-        return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
-        console.log("Odpowiedź serwera:", data);
-        setTimeout(() => {
-            window.location.href = "/next";  
-        }, 1500);
+        window.location.href = "/next";
     })
     .catch(error => {
-        console.error("Błąd zapisu wyniku:", error);
+        console.error("Error saving score:", error);
+        window.location.href = "/next";
     });
 }
-
-
-// Rozpocznij proces pobierania pytań i uruchomienia quizu
+const userAvatar = playerAvatar ? playerAvatar.src : '';
+// Rozpocznij quiz
 fetchQuestions();

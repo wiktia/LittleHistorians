@@ -1,0 +1,22 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h2>Edytuj wydarzenia na osi czasu</h2>
+
+<form method="POST">
+    {% for i in range(3) %}
+    <div class="card mb-3 p-3 border">
+        <h4>Wydarzenie {{ i + 1 }}</h4>
+        <div class="form-group mb-2">
+            <label for="event_text_{{ i }}">Tekst wydarzenia:</label>
+            <input type="text" class="form-control" id="event_text_{{ i }}" name="event_text_{{ i }}" value="{{ events[i].description }}" required>
+        </div>
+        <div class="form-group mb-2">
+            <label for="event_date_{{ i }}">Data (rok):</label>
+            <input type="text" class="form-control" id="event_date_{{ i }}" name="event_date_{{ i }}" value="{{ events[i].date }}" required>
+        </div>
+    </div>
+    {% endfor %}
+
+    <button type="submit" class="btn btn-primary">Zapisz zmiany</button>
+</form>
+{% endblock %}

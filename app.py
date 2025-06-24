@@ -13,6 +13,13 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
 # Modele
+class GameStep(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    game_type = db.Column(db.String(50), nullable=False)  
+    order = db.Column(db.Integer, nullable=False)        # Kolejność wyświetlania
+    config = db.Column(db.JSON)                          
+    is_active = db.Column(db.Boolean, default=True)      # Czy krok aktywny
+
 class Player(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False)
@@ -27,31 +34,58 @@ class QuizQuestion(db.Model):
     answer2 = db.Column(db.String(200), nullable=False)
     answer3 = db.Column(db.String(200))
     answer4 = db.Column(db.String(200))
-    correct = db.Column(db.Integer, nullable=False)  # 1,2,3,4 - numer poprawnej odpowiedzi
+    correct = db.Column(db.Integer, nullable=False)  
+
+
+class Event(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    description = db.Column(db.String(200))
+    date = db.Column(db.String(10))   
 
 # Utwórz tabele
 with app.app_context():
     db.create_all()
-
-# Kroki gry i ich przypisane ścieżki
-steps = ['start', 'login', 'puzzle', 'text_to_image', 'timeline', 'quiz', 'end']
-step_routes = {
-    'start': 'startscreen',
-    'login': 'logowanie',
-    'puzzle': 'puzzle',
-    'text_to_image': 'text_to_image',
-    'timeline': 'timeline',
-    'quiz': 'quiz',
-    'end': 'endscreen' 
-}
+    if not GameStep.query.first():
+        default_steps = [
+            GameStep(game_type='start', order=0, is_active=True),
+            GameStep(game_type='login', order=1, is_active=True),
+            GameStep(game_type='puzzle', order=2, is_active=True),
+            GameStep(game_type='text_to_image', order=3, is_active=True),
+            GameStep(game_type='timeline', order=4, is_active=True),
+            GameStep(game_type='quiz', order=5, is_active=True),
+            GameStep(game_type='end', order=6, is_active=True)
+        ]
+        db.session.add_all(default_steps)
+        db.session.commit()    
 
 # Funkcje pomocnicze
+def get_all_steps():
+    return [step.game_type for step in GameStep.query.order_by(GameStep.order).all()]
+
 def get_next_step(current):
-    try:
-        idx = steps.index(current)
-        return steps[idx + 1] if idx + 1 < len(steps) else 'end'
-    except ValueError:
+    active_steps = get_all_steps()  
+
+    if current in active_steps:
+        idx = active_steps.index(current)
+        if idx + 1 < len(active_steps):
+            return active_steps[idx + 1]
         return 'end'
+    elif active_steps:
+        return active_steps[0]
+    return 'end'
+
+
+def get_step_route(game_type):
+    routes = {
+        'start': 'startscreen',
+        'login': 'logowanie',
+        'puzzle': 'puzzle',
+        'text_to_image': 'text_to_image',
+        'timeline': 'timeline',
+        'quiz': 'quiz',
+        'end': 'endscreen'
+    }
+    return routes.get(game_type, 'end')  
 
 # Panel administracyjny
 @app.route('/admin', methods=['GET', 'POST'])
@@ -62,7 +96,7 @@ def admin_login():
             return redirect(url_for('admin_dashboard'))
         else:
             flash('Nieprawidłowe hasło', 'danger')
-    return render_template('admin_login.html')
+    return render_template('admin/login.html')
 
 @app.route('/admin/dashboard')
 def admin_dashboard():
@@ -70,7 +104,61 @@ def admin_dashboard():
         return redirect(url_for('admin_login'))
     
     questions = QuizQuestion.query.all()
-    return render_template('admin_dashboard.html', questions=questions)
+    return render_template('admin/dashboard.html', questions=questions)
+
+@app.route('/admin/steps')
+def manage_steps():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+    
+    steps = GameStep.query.order_by(GameStep.order).all()
+    return render_template('admin/steps.html', steps=steps)
+
+@app.route('/admin/step/edit/<int:id>', methods=['GET', 'POST'])
+def edit_step(id):
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+    
+    step = GameStep.query.get_or_404(id)
+    if request.method == 'POST':
+        step.game_type = request.form['game_type']
+        step.order = int(request.form['order'])
+        step.is_active = 'is_active' in request.form
+        # Tutaj obsługa config jeśli potrzebujesz
+        db.session.commit()
+        flash('Krok zaktualizowany!', 'success')
+        return redirect(url_for('manage_steps'))
+    
+    return render_template('admin/edit_step.html', step=step)
+@app.route('/admin/step/add', methods=['GET', 'POST'])
+def add_step():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+    
+    if request.method == 'POST':
+        new_step = GameStep(
+            game_type=request.form['game_type'],
+            order=int(request.form['order']),
+            is_active='is_active' in request.form,
+            config={}  # Możesz dodać konfigurację jeśli potrzebujesz
+        )
+        db.session.add(new_step)
+        db.session.commit()
+        flash('Krok dodany pomyślnie!', 'success')
+        return redirect(url_for('manage_steps'))
+    
+    return render_template('admin/add_step.html')
+
+@app.route('/admin/step/delete/<int:id>', methods=['POST'])
+def delete_step(id):
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+    
+    step = GameStep.query.get_or_404(id)
+    db.session.delete(step)
+    db.session.commit()
+    flash('Krok usunięty pomyślnie!', 'success')
+    return redirect(url_for('manage_steps'))
 
 @app.route('/admin/question/add', methods=['GET', 'POST'])
 def add_question():
@@ -91,7 +179,7 @@ def add_question():
         flash('Pytanie dodane pomyślnie!', 'success')
         return redirect(url_for('admin_dashboard'))
     
-    return render_template('add_question.html')
+    return render_template('admin/add_question.html')
 
 @app.route('/admin/question/edit/<int:id>', methods=['GET', 'POST'])
 def edit_question(id):
@@ -111,7 +199,7 @@ def edit_question(id):
         flash('Pytanie zaktualizowane pomyślnie!', 'success')
         return redirect(url_for('admin_dashboard'))
     
-    return render_template('edit_question.html', question=question)
+    return render_template('admin/edit_question.html', question=question)
 
 @app.route('/admin/question/delete/<int:id>', methods=['POST'])
 def delete_question(id):
@@ -149,6 +237,23 @@ def get_quiz_questions():
         })
     return jsonify(output)
 
+
+@app.route('/admin/timeline', methods=['GET', 'POST'])
+def edit_timeline():
+    # Pobierz istniejące wydarzenia lub stwórz domyślne jeśli brak
+    timeline_events = Event.query.order_by(Event.date.desc()).limit(3).all()
+    
+    if request.method == 'POST':
+        for i, event in enumerate(timeline_events):
+            event.description = request.form.get(f'event_text_{i}')
+            event.date = request.form.get(f'event_date_{i}')
+        db.session.commit()
+        flash("Zapisano zmiany!", "success")
+        return redirect('/admin/timeline')
+
+    return render_template('admin/edit_timeline.html', events=timeline_events)
+
+
 # Główne endpointy gry
 @app.route("/")
 def startscreen():
@@ -160,18 +265,28 @@ def logowanie():
 
 @app.route("/start", methods=["POST"])
 def start():
+    print(">>> [DEBUG start] sesja przed:", session)
     name = request.form.get("name")
     avatar = request.form.get("avatar")
 
     if not name or not avatar:
-        return "Błąd: brak imienia lub avatara", 400
+        flash("Proszę wypełnić wszystkie pola", "error")
+        return redirect(url_for("logowanie"))
 
-    player = Player(name=name, avatar=avatar, current_step='puzzle')
-    db.session.add(player)
+    # Znajdź lub stwórz gracza
+    player = Player.query.filter_by(name=name, avatar=avatar).first()
+    if not player:
+        player = Player(name=name, avatar=avatar, score=0)
+        db.session.add(player)
+
+    player.current_step = 'login'
     db.session.commit()
 
-    session["player_id"] = player.id
-    return redirect(url_for("next_step"))
+    # ustawiamy sesję i od razu lecimy do puzzle
+    session['player_id'] = player.id
+    print(">>> [DEBUG start] sesja po:", session)
+    return redirect(url_for('next_step'))
+
 
 @app.route("/puzzle")
 def puzzle():
@@ -185,11 +300,19 @@ def text_to_image():
         return redirect(url_for("logowanie"))
     return render_template("text_to_image.html")
 
-@app.route("/timeline")
+@app.route('/timeline')
 def timeline():
-    if "player_id" not in session:
-        return redirect(url_for("logowanie"))
-    return render_template("timeline.html")
+    timeline_events = Event.query.order_by(Event.date.desc()).limit(3).all()
+
+    events = timeline_events.copy()
+    import random
+    random.shuffle(events)
+
+    return render_template('timeline.html',
+                           events=events,
+                           slot1_date=timeline_events[0].date,
+                           slot2_date=timeline_events[1].date,
+                           slot3_date=timeline_events[2].date)
 
 @app.route("/quiz")
 def quiz():
@@ -226,29 +349,93 @@ def save_score():
         return jsonify({"error": "Gracz nie znaleziony"}), 404
 
     player.score += score
-    player.current_step = get_next_step(player.current_step)  
     db.session.commit()
+    
     return jsonify({
         "message": "Wynik zapisany",
         "new_score": player.score,
-        "next_step": player.current_step
+        "next_step_url": url_for("next_step")  
     })
 
-@app.route('/next')
+@app.route("/next")
 def next_step():
-    if 'player_id' not in session:
-        return redirect(url_for('logowanie'))
+    if "player_id" not in session:
+        return redirect(url_for("logowanie"))
 
-    player = Player.query.get(session['player_id'])
+    player = Player.query.get(session["player_id"])
     if not player:
-        return redirect(url_for('logowanie'))
+        return redirect(url_for("logowanie"))
 
-    next_step = player.current_step
-    return redirect(url_for(step_routes.get(next_step, 'endscreen')))
+    # Pokaż ekran ładowania przed przejściem do następnego kroku
+    return render_template("loading.html", next_step=get_next_step(player.current_step))
+@app.route("/load_next_step")
+def load_next_step():
+    if "player_id" not in session:
+        return redirect(url_for("logowanie"))
+
+    player = Player.query.get(session["player_id"])
+    if not player:
+        return redirect(url_for("logowanie"))
+
+    nxt = get_next_step(player.current_step)
+    player.current_step = nxt
+    db.session.commit()
+    
+    return redirect(url_for(get_step_route(nxt)))
 
 @app.route("/update_score", methods=["POST"])
 def update_score():
     return save_score()
+<<<<<<< HEAD
+=======
+@app.route("/admin/data")
+def show_data():
+    if not session.get('admin_logged_in'):
+        return jsonify({"error": "Brak dostępu"}), 403
+
+    players = Player.query.all()
+    questions = QuizQuestion.query.all()
+
+    return jsonify({
+        "players": [
+            {
+                "id": p.id,
+                "name": p.name,
+                "avatar": p.avatar,
+                "score": p.score,
+                "current_step": p.current_step
+            } for p in players
+        ],
+        "questions": [
+            {
+                "id": q.id,
+                "question": q.question,
+                "answer1": q.answer1,
+                "answer2": q.answer2,
+                "answer3": q.answer3,
+                "answer4": q.answer4,
+                "correct": q.correct
+            } for q in questions
+        ]
+    })
+@app.route('/admin/clear_players', methods=['POST'])
+def clear_players():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+
+    Player.query.delete()
+    db.session.commit()
+    flash('Wszyscy gracze zostali usunięci.', 'warning')
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/admin/ranking')
+def admin_ranking():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+
+    players = Player.query.order_by(Player.score.desc()).all()
+    return render_template('admin/ranking.html', players=players)
+>>>>>>> b04f28fecdefd706d0d636e166a3f178ddc82395
 
 if __name__ == "__main__":
     app.run(debug=True)
