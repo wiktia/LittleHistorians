@@ -1,4 +1,4 @@
-    @keyframes fadeInUp {
+@keyframes fadeInUp {
       from { opacity: 0; transform: translateY(30px); }
       to { opacity: 1; transform: translateY(0); }
     }
@@ -220,19 +220,19 @@
     margin: 0;
     width: 100vw;
     height: auto;
-    overflow-y: hidden; /* <- zmieniono z hidden na auto, by nie ucinać zawartości */
+    overflow-y: auto; /* Pozwala na przewijanie w pionie, nie ucina odpowiedzi na dole */
     box-sizing: border-box;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    display: block; /* Nie rozciąga na całą wysokość, strona kończy się po ostatniej odpowiedzi */
+    align-items: unset;
+    justify-content: unset;
   }
 
   .container {
     display:flex;
-    margin-top: auto;
+    margin-top: 10px;
     margin-bottom: auto;
     width: 80vw;
-    height: 100%;
+    height: auto; /* Usunięcie height: 100% aby nie ucinało zawartości */
     padding: 10px 5px;
     display: flex;
     flex-direction: column;
@@ -291,6 +291,27 @@
     max-height: 40px;
     margin-bottom:3px;
     margin-top: 2px;
+  }
+
+  .clock-container {
+    position: static;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    justify-content: center;
+    width: 100vw;
+    padding: 0;
+    margin-bottom: 10px;
+  }
+
+  #zegar {
+    scale: 1.2;
+    width: 50px;
+    max-width: 20vw;
+  }
+
+  .czas {
+    font-size: 6vw;
   }
 
 
