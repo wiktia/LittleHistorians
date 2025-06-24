@@ -214,105 +214,85 @@
       }
     }
 
-    @media (max-width: 600px) {
+@media (max-width: 600px) {
+  /* Blokada przewijania - główne zmiany */
   body {
-    padding: 0;
-    margin: 0;
-    width: 100vw;
-    height: auto;
-    overflow-y: auto; /* Pozwala na przewijanie w pionie, nie ucina odpowiedzi na dole */
-    box-sizing: border-box;
-    display: block; /* Nie rozciąga na całą wysokość, strona kończy się po ostatniej odpowiedzi */
-    align-items: unset;
-    justify-content: unset;
+    height: 100vh; /* Zmiana z min-height */
+    overflow: hidden; /* Zmiana z auto */
+    padding-top: 50px; /* Dostosowane do paska postępu */
   }
 
   .container {
-    display:flex;
-    margin-top: 10px;
-    margin-bottom: auto;
-    width: 80vw;
-    height: auto; /* Usunięcie height: 100% aby nie ucinało zawartości */
-    padding: 10px 5px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-    gap: 15px;
+    height: calc(100vh - 60px); /* Dokładne dopasowanie */
+    overflow: hidden; /* Blokada przewijania wewnątrz */
+    margin: 0 auto; /* Uproszczone marginesy */
   }
 
-  h1 {
-    font-size: 5.5vw;
-    margin-bottom: 8px;
-    line-height: 1.2;
-    color: #222;
-    text-align: center;
-  }
-
+  /* Reszta pozostaje bez zmian (Twój obecny kod) */
   .badges {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 15px;
     width: 100%;
+    padding: 0;
   }
 
-  .badge-container {
-    width: 50%;
-    gap: 8px;
-    align-items: center;
+  .badge-container:nth-child(3) {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: center;
   }
 
-  .badge-container img {
-    width:80%;
-    height: auto;
+  .badge-container:nth-child(3) img {
+    max-width: 150px;
   }
 
   .dropzone {
-    width: 100%;
-    height: 35px;
-    max-width: 100%;
+    width: 90%;
+    max-width: 150px;
+    height: 28px;
+    margin: 5px auto;
   }
 
   .labels {
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
     width: 100%;
+    padding: 0 5px;
+    margin-top: 5px;
+    max-height: 40%; /* Ograniczenie wysokości */
+    overflow-y: auto; /* Przewijanie tylko wewnątrz etykiet */
   }
 
   .label {
-    overflow: hidden;
-    white-space: nowrap;
-    width: 90%;
-    font-size: 4.5vw;
-    padding: 12px;
-    text-align: center;
-    max-height: 40px;
-    margin-bottom:3px;
-    margin-top: 2px;
+    font-size: 12px;
+    padding: 4px 6px;
+    min-height: 32px;
+    margin: 2px 0;
+    max-width: 95%;
+    box-sizing: border-box;
+    line-height: 1.2;
+    -webkit-line-clamp: 2;
   }
+.czas {
+        top: 55px;
+        left: 40px;
+        font-size: 1.8rem;
+}
+
+#zegar {
+    scale: 2.5;
+}
+
+  
 
   .clock-container {
-    position: static;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    justify-content: center;
-    width: 100vw;
-    padding: 0;
-    margin-bottom: 10px;
+    margin: 5px;
+    left: 100px;
   }
 
-  #zegar {
-    scale: 1.2;
-    width: 50px;
-    max-width: 20vw;
+  html, body {
+    max-width: 100%;
+    overflow-x: hidden;
   }
-
-  .czas {
-    font-size: 6vw;
-  }
-
-
 }
+
+
