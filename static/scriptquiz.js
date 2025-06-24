@@ -1,6 +1,3 @@
-
-
-
 // Elementy DOM
 const questionElement = document.querySelector('.question');
 const answerButtons = document.querySelector('.answers-container');
@@ -17,7 +14,6 @@ const playerAvatar = document.getElementById('player-avatar');
 const playerNameElement = document.getElementById('player-name');
 const playerScoreElement = document.getElementById('player-score');
 
-
 // Zmienne quizu
 let questions = [];  // Będziemy ładować pytania z serwera
 let currentQuestionIndex = 0;
@@ -32,16 +28,16 @@ async function fetchQuestions() {
         
         // Przekształć dane z API do formatu oczekiwanego przez quiz
         questions = data.slice(0, 1).map(q => {
-    const answers = q.answers.map((text, index) => ({
-        text: text,
-        correct: (index + 1) === q.correct
-    }));
+            const answers = q.answers.map((text, index) => ({
+                text: text,
+                correct: (index + 1) === q.correct
+            }));
 
-    return {
-        question: q.question,
-        answers: answers
-    };
-});
+            return {
+                question: q.question,
+                answers: answers
+            };
+        });
         
         startQuiz();
     } catch (error) {
@@ -110,31 +106,42 @@ function selectAnswer(e) {
     const selectedBtn = e.target;
     const isCorrect = selectedBtn.dataset.correct === 'true';
 
+    // Podświetl wybraną odpowiedź
     if (isCorrect) {
-        selectedBtn.classList.add('correct');
-        score++;
-
+        selectedBtn.style.backgroundColor = '#cde667'; // zielony dla poprawnej
+        selectedBtn.style.color = 'white';
     } else {
-        selectedBtn.classList.add('incorrect');
-        feedbackImage.src = userAvatar;
+        selectedBtn.style.backgroundColor = '#da4252'; // czerwony dla błędnej
+        selectedBtn.style.color = 'white';
     }
 
+    // Podświetl poprawną odpowiedź (jeśli wybrano błędną)
+    if (!isCorrect) {
+        [...answerButtons.querySelectorAll('.answer-btn')].forEach(button => {
+            if (button.dataset.correct === 'true') {
+                button.style.backgroundColor = '#cde667'; // zielony
+                button.style.color = 'white';
+            }
+        });
+    }
+
+    // Zablokuj wszystkie przyciski po wyborze
     [...answerButtons.querySelectorAll('.answer-btn')].forEach(button => {
-        if (button.dataset.correct === 'true') {
-            button.classList.add('correct');
-        }
         button.disabled = true;
     });
 
-     sendQuizScore(score);
-}
+    if (isCorrect) {
+        score++;
+    }
 
-function showScore() {
-    fetch('/save_score', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ score: points })
-})}
+    // Pokaż przycisk "Dalej" i przejdź do następnego pytania po chwili
+
+
+    // Automatyczne przejście po 1.5 sekundy
+    setTimeout(() => {
+        handleNextButton();
+    }, 1500);
+}
 
 function handleNextButton() {
     currentQuestionIndex++;
@@ -143,8 +150,10 @@ function handleNextButton() {
     } else {
         showScore();
     }
+}
 
-    feedbackImage.src = userAvatar;
+function showScore() {
+    sendQuizScore(score);
 }
 
 function sendQuizScore(points) {
@@ -170,17 +179,14 @@ function sendQuizScore(points) {
     .catch(error => {
         console.error("Błąd zapisu wyniku:", error);
     });
-
-
-
 }
+
 const zegar = document.getElementById('zegar');
 let rotation = 0;
 
 setInterval(() => {
     rotation += 45;
     zegar.style.transform = `rotate(${rotation}deg)`;
-
 }, 1000);
 
 // Rozpocznij proces pobierania pytań i uruchomienia quizu
