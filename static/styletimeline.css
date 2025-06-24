@@ -17,6 +17,8 @@
     }
 
     body {
+      height: 100vh;
+      width: 100vw;
       min-height: 100vh;
       min-width: 100vw;
       margin: 0;
@@ -37,7 +39,7 @@
 
     .container {
       width: 90vw;
-      max-width: 350px;
+      max-width: 450px;
       height: 100%;
       aspect-ratio: 1 / 1.3;
       display: flex;
@@ -82,11 +84,13 @@
     }
 
     .timeline-img {
-      position: absolute;
-      left: 0;
-      width: 40%;
+      position: relative;
+      top: 50%;
+      width: 50%;
       height: auto;
-      transform: rotate(270deg) scale(2.5);
+      transform: rotate(270deg) scale(0.1);
+      transform-origin: top left;
+      left: 16%;
       scale: 1.1;
     }
 
