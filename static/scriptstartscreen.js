@@ -4,4 +4,9 @@
   startBtn.addEventListener("click", () => {
     window.location.href = "/logowanie";
   });
+
+
+  
 });
+
+
