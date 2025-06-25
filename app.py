@@ -29,6 +29,7 @@ class Player(db.Model):
     avatar = db.Column(db.String(120))
     score = db.Column(db.Integer, default=0)
     current_step = db.Column(db.String(50), default='start')  
+    
 
 class QuizQuestion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -511,38 +512,6 @@ def get_timeline_correct_order():
         events = timeline.events.order_by(TimelineEvent.order).all()
     
     return jsonify([e.date for e in events])
-
-@app.route("/update_timeline_score", methods=["POST"])
-def update_timeline_score():
-    if "player_id" not in session:
-        return jsonify({"error": "Brak dostępu"}), 401
-
-    data = request.get_json()
-    score = int(data.get("score", 0))
-    timeline_id = data.get("timeline_id", "timeline-1")
-
-    player = Player.query.get(session["player_id"])
-    if not player:
-        return jsonify({"error": "Gracz nie znaleziony"}), 404
-    
-    player.score += score
-    db.session.commit()
-    
-    # Znajdź następny timeline
-    current_timeline = Timeline.query.filter_by(identifier=timeline_id).first()
-    next_timeline = None
-    
-    if current_timeline:
-        next_timeline = Timeline.query.filter(
-            Timeline.order > current_timeline.order,
-            Timeline.is_active == True
-        ).order_by(Timeline.order).first()
-    
-    return jsonify({
-        "message": "Wynik zapisany",
-        "new_score": player.score,
-        "next_timeline": next_timeline.identifier if next_timeline else None
-    })
 # Główne endpointy gry
 @app.route("/")
 def startscreen():
@@ -695,7 +664,7 @@ def update_score():
 @app.route("/update_timeline_score", methods=["POST"])
 def update_timeline_score():
     if "player_id" not in session:
-        return jsonify({"error": "Brak dostępu – gracz nie zalogowany"}), 401
+        return jsonify({"error": "Brak dostępu"}), 401
 
     data = request.get_json()
     score = int(data.get("score", 0))
@@ -705,19 +674,23 @@ def update_timeline_score():
     if not player:
         return jsonify({"error": "Gracz nie znaleziony"}), 404
     
+    # Aktualizacja wyniku gracza
     player.score += score
+    
+    # Zapisanie ostatniego ukończonego timeline (w modelu Player)
+    player.last_completed_timeline = timeline_id
+    
     db.session.commit()
     
-    # Znajdź następny timeline
-    current_timeline = Timeline.query.filter_by(identifier=timeline_id).first()
-    next_timeline = None
+    # Pobierz numer obecnego timeline (np. "timeline-3" → 3)
+    current_number = int(timeline_id.split("-")[1]) if timeline_id.startswith("timeline-") else 1
     
-    if current_timeline:
-        next_timeline = Timeline.query.filter(
-            Timeline.order > current_timeline.order,
-            Timeline.is_active == True
-        ).order_by(Timeline.order).first()
-    
+    # Znajdź następny timeline (o 1 większy)
+    next_timeline = Timeline.query.filter(
+        Timeline.identifier == f"timeline-{current_number + 1}",
+        Timeline.is_active == True
+    ).first()
+
     return jsonify({
         "message": "Wynik zapisany",
         "new_score": player.score,
