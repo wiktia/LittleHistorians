@@ -1,0 +1,68 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2><i class="fas fa-stream"></i> Zarządzanie osiami czasu</h2>
+    <a href="{{ url_for('add_timeline') }}" class="btn btn-success">
+        <i class="fas fa-plus"></i> Dodaj nową oś
+    </a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>ID</th>
+                <th>Tytuł</th>
+                <th>Identyfikator</th>
+                <th>Wydarzeń</th>
+                <th>Status</th>
+                <th>Akcje</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for timeline in timelines %}
+            <tr>
+                <td>{{ timeline.id }}</td>
+                <td>{{ timeline.title }}</td>
+                <td><code>{{ timeline.identifier }}</code></td>
+                <td>{{ timeline.events|length }}</td>
+                <td>
+                    {% if timeline.is_active %}
+                        <span class="badge bg-success">Aktywna</span>
+                    {% else %}
+                        <span class="badge bg-secondary">Nieaktywna</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="btn-group btn-group-sm">
+                        <a href="{{ url_for('edit_timeline', identifier=timeline.identifier) }}" 
+                           class="btn btn-primary" title="Edytuj">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="{{ url_for('add_timeline_event', id=timeline.id) }}" 
+                           class="btn btn-success" title="Dodaj wydarzenie">
+                            <i class="fas fa-plus-circle"></i>
+                        </a>
+                        <form method="POST" action="{{ url_for('delete_timeline', id=timeline.id) }}">
+                            <button type="submit" class="btn btn-danger" 
+                                    onclick="return confirm('Usunąć tę oś czasu i wszystkie jej wydarzenia?')"
+                                    title="Usuń">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" class="text-center py-4 text-muted">
+                    <i class="fas fa-info-circle fa-2x mb-2"></i><br>
+                    Brak osi czasu w systemie
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
