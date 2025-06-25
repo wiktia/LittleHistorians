@@ -1,0 +1,49 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2 class="my-4">Dodaj wydarzenie do osi czasu: {{ timeline.title }}</h2>
+    
+    <form method="POST">
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Tytuł*</label>
+                            <input type="text" class="form-control" id="title" name="title" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="date" class="form-label">Data*</label>
+                            <input type="text" class="form-control" id="date" name="date" required>
+                            <small class="text-muted">Format: RRRR lub RRRR-MM-DD</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="description" class="form-label">Opis*</label>
+                    <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="order" class="form-label">Kolejność*</label>
+                    <input type="number" class="form-control" id="order" name="order" 
+                           value="{{ (timeline.events|length + 1) if timeline.events else 1 }}" min="1" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-plus"></i> Dodaj wydarzenie
+            </button>
+            <a href="{{ url_for('edit_timeline', identifier=timeline.identifier) }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Powrót do osi czasu
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

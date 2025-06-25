@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, flash
 from flask_sqlalchemy import SQLAlchemy
 import os
+import random
 
 app = Flask(__name__)
 app.secret_key = "tajny_klucz_sesji"
@@ -15,10 +16,10 @@ db = SQLAlchemy(app)
 # Modele
 class GameStep(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), nullable=False)  # Nazwa wyświetlana np. "Quiz 1"
-    game_type = db.Column(db.String(50), nullable=False)  # Typ np. "quiz", "puzzle"
-    step_identifier = db.Column(db.String(50))  # Unikalny identyfikator np. "quiz-1", "puzzle-3"
-    order = db.Column(db.Integer, nullable=False)  # Kolejność wyświetlania
+    name = db.Column(db.String(50), nullable=False)  
+    game_type = db.Column(db.String(50), nullable=False)  
+    step_identifier = db.Column(db.String(50))  
+    order = db.Column(db.Integer, nullable=False)  
     config = db.Column(db.JSON)  
     is_active = db.Column(db.Boolean, default=True)
 
@@ -27,7 +28,7 @@ class Player(db.Model):
     name = db.Column(db.String(80), nullable=False)
     avatar = db.Column(db.String(120))
     score = db.Column(db.Integer, default=0)
-    current_step = db.Column(db.String(50), default='start')  # Przechowuje step_identifier
+    current_step = db.Column(db.String(50), default='start')  
 
 class QuizQuestion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -38,24 +39,60 @@ class QuizQuestion(db.Model):
     answer4 = db.Column(db.String(200))
     correct = db.Column(db.Integer, nullable=False)  
 
-
-class Event(db.Model):
+class Timeline(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    description = db.Column(db.String(200))
-    date = db.Column(db.String(10))   
+    identifier = db.Column(db.String(50), unique=True)  # np. timeline-1, timeline-2
+    title = db.Column(db.String(100))
+    description = db.Column(db.Text)
+    is_active = db.Column(db.Boolean, default=True)
+    order = db.Column(db.Integer)
 
-# Utwórz tabele
+class TimelineEvent(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    timeline_id = db.Column(db.Integer, db.ForeignKey('timeline.id'))
+    title = db.Column(db.String(100))
+    description = db.Column(db.Text)
+    date = db.Column(db.String(50))  # format daty dostosowany do potrzeb
+    image_url = db.Column(db.String(255))
+    order = db.Column(db.Integer)  # kolejność w osi czasu
+
+    timeline = db.relationship('Timeline', backref='events')
+
+# Utwórz tabele i inicjalizuj dane
 with app.app_context():
     db.create_all()
 
-    if not Event.query.first():
-        sample_events = [
-            Event(description="Wydarzenie 1", date="--"),
-            Event(description="Wydarzenie 2", date="--"),
-            Event(description="Wydarzenie 3", date="--")
+    # Inicjalizacja timeline'ów jeśli brak
+    if not Timeline.query.first():
+        default_timelines = [
+            Timeline(identifier='timeline-1', title='Oś czasu 1', description='Pierwsza oś czasu', order=1, is_active=True),
+            Timeline(identifier='timeline-2', title='Oś czasu 2', description='Druga oś czasu', order=2, is_active=True)
         ]
-        db.session.add_all(sample_events)
-        db.session.commit()    
+        db.session.add_all(default_timelines)
+        db.session.commit()
+
+        # Domyślne wydarzenia dla timeline-1
+        timeline1 = Timeline.query.filter_by(identifier='timeline-1').first()
+        if timeline1:
+            events = [
+                TimelineEvent(timeline_id=timeline1.id, title='Wydarzenie 1', description='Opis wydarzenia 1', date='1900', order=1),
+                TimelineEvent(timeline_id=timeline1.id, title='Wydarzenie 2', description='Opis wydarzenia 2', date='1950', order=2),
+                TimelineEvent(timeline_id=timeline1.id, title='Wydarzenie 3', description='Opis wydarzenia 3', date='2000', order=3)
+            ]
+            db.session.add_all(events)
+        
+        # Domyślne wydarzenia dla timeline-2
+        timeline2 = Timeline.query.filter_by(identifier='timeline-2').first()
+        if timeline2:
+            events = [
+                TimelineEvent(timeline_id=timeline2.id, title='Wydarzenie A', description='Opis wydarzenia A', date='1800', order=1),
+                TimelineEvent(timeline_id=timeline2.id, title='Wydarzenie B', description='Opis wydarzenia B', date='1850', order=2),
+                TimelineEvent(timeline_id=timeline2.id, title='Wydarzenie C', description='Opis wydarzenia C', date='1900', order=3)
+            ]
+            db.session.add_all(events)
+        
+        db.session.commit()
+    
     if not GameStep.query.first():
         # Stałe kroki (nieusuwalne)
         fixed_steps = [
@@ -69,11 +106,12 @@ with app.app_context():
             GameStep(name="Quiz 1", game_type='quiz', step_identifier='quiz-1', order=2, is_active=True),
             GameStep(name="Puzzle 1", game_type='puzzle', step_identifier='puzzle-1', order=3, is_active=True),
             GameStep(name="Tekst na obraz", game_type='text_to_image', step_identifier='text_to_image-1', order=4, is_active=True),
-            GameStep(name="Oś czasu", game_type='timeline', step_identifier='timeline-1', order=5, is_active=True)
+            GameStep(name="Oś czasu 1", game_type='timeline', step_identifier='timeline-1', order=5, is_active=True),
+            GameStep(name="Oś czasu 2", game_type='timeline', step_identifier='timeline-2', order=6, is_active=True)
         ]
         
         db.session.add_all(fixed_steps + game_steps)
-        db.session.commit()   
+        db.session.commit()
 
 # Funkcje pomocnicze
 def get_all_steps():
@@ -84,15 +122,28 @@ def get_next_step(current_identifier):
     if not current_step:
         return 'end'
     
-    # Znajdź następny aktywny krok (pomijając stałe kroki jeśli trzeba)
+    # Jeśli aktualny krok to timeline, sprawdź czy jest następny timeline
+    if current_identifier.startswith('timeline'):
+        current_timeline_id = current_identifier
+        current_timeline = Timeline.query.filter_by(identifier=current_timeline_id).first()
+        
+        if current_timeline:
+            next_timeline = Timeline.query.filter(
+                Timeline.order > current_timeline.order,
+                Timeline.is_active == True
+            ).order_by(Timeline.order).first()
+            
+            if next_timeline:
+                return next_timeline.identifier
+    
+    # Standardowe wyszukiwanie następnego kroku
     next_step = GameStep.query.filter(
         GameStep.order > current_step.order,
         GameStep.is_active == True,
-        ~GameStep.step_identifier.in_(['start', 'login'])  # Pomijamy start i login w środku gry
+        ~GameStep.step_identifier.in_(['start', 'login'])
     ).order_by(GameStep.order).first()
     
     return next_step.step_identifier if next_step else 'end'
-
 
 def get_step_route(step_identifier):
     # Wydziel typ gry z identyfikatora (np. "quiz-1" → "quiz")
@@ -113,7 +164,7 @@ def get_step_route(step_identifier):
 @app.route('/admin', methods=['GET', 'POST'])
 def admin_login():
     if request.method == 'POST':
-        if request.form.get('password') == 'maslo': #trzeba tu zmienić na jakieś szyfrowanie czy coś 
+        if request.form.get('password') == 'maslo': # TODO: zmienić na bezpieczne hasło
             session['admin_logged_in'] = True
             return redirect(url_for('admin_dashboard'))
         else:
@@ -126,7 +177,8 @@ def admin_dashboard():
         return redirect(url_for('admin_login'))
     
     questions = QuizQuestion.query.all()
-    return render_template('admin/dashboard.html', questions=questions)
+    timelines = Timeline.query.count()
+    return render_template('admin/dashboard.html', questions=questions, timelines=timelines)
 
 @app.route('/admin/steps')
 def manage_steps():
@@ -146,7 +198,6 @@ def edit_step(id):
         step.game_type = request.form['game_type']
         step.order = int(request.form['order'])
         step.is_active = 'is_active' in request.form
-        # Tutaj obsługa config jeśli potrzebujesz
         db.session.commit()
         flash('Krok zaktualizowany!', 'success')
         return redirect(url_for('manage_steps'))
@@ -258,6 +309,105 @@ def delete_question(id):
     flash('Pytanie usunięte pomyślnie!', 'success')
     return redirect(url_for('admin_dashboard'))
 
+# Timeline management
+@app.route('/admin/timelines')
+def manage_timelines():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+    
+    timelines = Timeline.query.order_by(Timeline.order).all()
+    return render_template('admin/timelines.html', timelines=timelines)
+
+@app.route('/admin/timeline/<string:identifier>', methods=['GET', 'POST'])
+def edit_timeline(identifier):
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+    
+    timeline = Timeline.query.filter_by(identifier=identifier).first_or_404()
+    
+    if request.method == 'POST':
+        timeline.title = request.form.get('title')
+        timeline.description = request.form.get('description')
+        timeline.is_active = 'is_active' in request.form
+        
+        # Aktualizacja wydarzeń
+        for event in timeline.events:
+            event.title = request.form.get(f'event_title_{event.id}')
+            event.description = request.form.get(f'event_description_{event.id}')
+            event.date = request.form.get(f'event_date_{event.id}')
+            event.order = int(request.form.get(f'event_order_{event.id}', 0))
+        
+        db.session.commit()
+        flash('Oś czasu zaktualizowana!', 'success')
+        return redirect(url_for('manage_timelines'))
+    
+    return render_template('admin/edit_timeline.html', timeline=timeline)
+    
+@app.route('/admin/timeline/add', methods=['GET', 'POST'])
+def add_timeline():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+    
+    if request.method == 'POST':
+        identifier = request.form.get('identifier')
+        if Timeline.query.filter_by(identifier=identifier).first():
+            flash('Oś czasu o tym identyfikatorze już istnieje!', 'danger')
+            return redirect(url_for('add_timeline'))
+        
+        new_timeline = Timeline(
+            identifier=identifier,
+            title=request.form.get('title'),
+            description=request.form.get('description'),
+            order=int(request.form.get('order', 0)),
+            is_active='is_active' in request.form
+        )
+        
+        db.session.add(new_timeline)
+        db.session.commit()
+        flash('Oś czasu dodana pomyślnie!', 'success')
+        return redirect(url_for('manage_timelines'))
+    
+    return render_template('admin/add_timeline.html')
+
+@app.route('/admin/timeline/<int:id>/add_event', methods=['GET', 'POST'])
+def add_timeline_event(id):
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+    
+    timeline = Timeline.query.get_or_404(id)
+    
+    if request.method == 'POST':
+        new_event = TimelineEvent(
+            timeline_id=id,
+            title=request.form.get('title'),
+            description=request.form.get('description'),
+            date=request.form.get('date'),
+            order=int(request.form.get('order', 0)))
+        
+        db.session.add(new_event)
+        db.session.commit()
+        flash('Wydarzenie dodane pomyślnie!', 'success')
+        return redirect(url_for('edit_timeline', identifier=timeline.identifier))
+    
+    return render_template('admin/add_timeline_event.html', timeline=timeline)
+
+@app.route('/admin/timeline/<int:id>/delete', methods=['POST'])
+def delete_timeline(id):
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+    
+    timeline = Timeline.query.get_or_404(id)
+    
+    # Najpierw usuń powiązane wydarzenia
+    TimelineEvent.query.filter_by(timeline_id=id).delete()
+    
+    # Następnie usuń sam timeline
+    db.session.delete(timeline)
+    db.session.commit()
+    
+    flash('Oś czasu i jej wydarzenia zostały usunięte!', 'success')
+    return redirect(url_for('manage_timelines'))
+
 @app.route('/admin/logout')
 def admin_logout():
     session.pop('admin_logged_in', None)
@@ -282,6 +432,7 @@ def get_quiz_questions():
             'correct': q.correct
         })
     return jsonify(output)
+
 @app.route('/api/quiz_question_by_step')
 def get_quiz_question_by_step():
     step = request.args.get('step')
@@ -310,23 +461,88 @@ def get_quiz_question_by_step():
         'correct': question.correct
     }])
 
-@app.route('/admin/timeline', methods=['GET', 'POST'])
-def edit_timeline():
+# API dla timeline'ów
+@app.route('/api/timelines')
+def get_timelines():
+    timelines = Timeline.query.order_by(Timeline.order).all()
+    return jsonify([{
+        'id': t.id,
+        'identifier': t.identifier,
+        'title': t.title,
+        'description': t.description,
+        'is_active': t.is_active
+    } for t in timelines])
 
-    # Pobierz istniejące wydarzenia lub stwórz domyślne jeśli brak
-    timeline_events = Event.query.order_by(Event.date.desc()).limit(3).all()
+@app.route('/api/timeline_events')
+def get_timeline_events():
+    timeline_id = request.args.get('timeline_id')
+    if not timeline_id:
+        return jsonify({'error': 'Brak parametru timeline_id'}), 400
+    
+    # Możliwe jest przekazanie ID jako number (1) lub identifier (timeline-1)
+    if timeline_id.isdigit():
+        events = TimelineEvent.query.filter_by(timeline_id=timeline_id).order_by(TimelineEvent.order).all()
+    else:
+        timeline = Timeline.query.filter_by(identifier=timeline_id).first()
+        if not timeline:
+            return jsonify({'error': 'Nie znaleziono osi czasu'}), 404
+        events = timeline.events.order_by(TimelineEvent.order).all()
+    
+    return jsonify([{
+        'id': e.id,
+        'title': e.title,
+        'description': e.description,
+        'date': e.date,
+        'image_url': e.image_url
+    } for e in events])
 
-    if request.method == 'POST':
-        for i, event in enumerate(timeline_events):
-            event.description = request.form.get(f'event_text_{i}')
-            event.date = request.form.get(f'event_date_{i}')
-        db.session.commit()
-        flash("Zapisano zmiany!", "success")
-        return redirect('/admin/timeline')
+@app.route('/api/timeline_correct_order')
+def get_timeline_correct_order():
+    timeline_id = request.args.get('timeline_id')
+    if not timeline_id:
+        return jsonify({'error': 'Brak parametru timeline_id'}), 400
+    
+    if timeline_id.isdigit():
+        events = TimelineEvent.query.filter_by(timeline_id=timeline_id).order_by(TimelineEvent.order).all()
+    else:
+        timeline = Timeline.query.filter_by(identifier=timeline_id).first()
+        if not timeline:
+            return jsonify({'error': 'Nie znaleziono osi czasu'}), 404
+        events = timeline.events.order_by(TimelineEvent.order).all()
+    
+    return jsonify([e.date for e in events])
 
-    return render_template('admin/edit_timeline.html', events=timeline_events)
+@app.route("/update_timeline_score", methods=["POST"])
+def update_timeline_score():
+    if "player_id" not in session:
+        return jsonify({"error": "Brak dostępu"}), 401
 
+    data = request.get_json()
+    score = int(data.get("score", 0))
+    timeline_id = data.get("timeline_id", "timeline-1")
 
+    player = Player.query.get(session["player_id"])
+    if not player:
+        return jsonify({"error": "Gracz nie znaleziony"}), 404
+    
+    player.score += score
+    db.session.commit()
+    
+    # Znajdź następny timeline
+    current_timeline = Timeline.query.filter_by(identifier=timeline_id).first()
+    next_timeline = None
+    
+    if current_timeline:
+        next_timeline = Timeline.query.filter(
+            Timeline.order > current_timeline.order,
+            Timeline.is_active == True
+        ).order_by(Timeline.order).first()
+    
+    return jsonify({
+        "message": "Wynik zapisany",
+        "new_score": player.score,
+        "next_timeline": next_timeline.identifier if next_timeline else None
+    })
 # Główne endpointy gry
 @app.route("/")
 def startscreen():
@@ -338,7 +554,6 @@ def logowanie():
 
 @app.route("/start", methods=["POST"])
 def start():
-    print(">>> [DEBUG start] sesja przed:", session)
     name = request.form.get("name")
     avatar = request.form.get("avatar")
 
@@ -355,11 +570,8 @@ def start():
     player.current_step = 'login'
     db.session.commit()
 
-    # ustawiamy sesję i od razu lecimy do puzzle
     session['player_id'] = player.id
-    print(">>> [DEBUG start] sesja po:", session)
     return redirect(url_for('next_step'))
-
 
 @app.route("/puzzle")
 def puzzle():
@@ -373,19 +585,34 @@ def text_to_image():
         return redirect(url_for("logowanie"))
     return render_template("text_to_image.html")
 
+def get_timeline_id(identifier):
+    timeline = Timeline.query.filter_by(identifier=identifier).first()
+    return timeline.id if timeline else 1  # domyślnie pierwszy timeline
+
 @app.route('/timeline')
 def timeline():
-    timeline_events = Event.query.order_by(Event.date.desc()).limit(3).all()
-
-    events = timeline_events.copy()
-    import random
-    random.shuffle(events)
-
+    if "player_id" not in session:
+        return redirect(url_for("logowanie"))
+    
+    # Pobierz identyfikator aktualnego timeline'u z parametru URL
+    timeline_id = request.args.get('timeline_id', 'timeline-1')
+    
+    # Pobierz wydarzenia dla wybranego timeline'u
+    timeline_events = TimelineEvent.query.filter_by(timeline_id=get_timeline_id(timeline_id)).order_by(TimelineEvent.order).limit(3).all()
+    
+    if not timeline_events or len(timeline_events) < 3:
+        return "Niewystarczająca liczba wydarzeń dla tej osi czasu", 404
+    
+    # Przygotuj dane do szablonu
+    correct_dates = [e.date for e in timeline_events]
+    shuffled_events = timeline_events.copy()
+    random.shuffle(shuffled_events)
+    
     return render_template('timeline.html',
-                           events=events,
-                           slot1_date=timeline_events[0].date,
-                           slot2_date=timeline_events[1].date,
-                           slot3_date=timeline_events[2].date)
+                         events=shuffled_events,
+                         slot1_date=correct_dates[0],
+                         slot2_date=correct_dates[1],
+                         slot3_date=correct_dates[2])
 
 @app.route("/quiz")
 def quiz():
@@ -408,11 +635,9 @@ def endscreen():
         return "Gracz nie istnieje", 404
     
     players = Player.query.order_by(Player.score.desc()).all()
-
-    
     rank = next((index + 1 for index, p in enumerate(players) if p.id == player.id), None)
 
-    return render_template("endscreen.html", player=player,  rank=rank)
+    return render_template("endscreen.html", player=player, rank=rank)
 
 @app.route("/save_score", methods=["POST"])
 def save_score():
@@ -466,6 +691,39 @@ def load_next_step():
 @app.route("/update_score", methods=["POST"])
 def update_score():
     return save_score()
+
+@app.route("/update_timeline_score", methods=["POST"])
+def update_timeline_score():
+    if "player_id" not in session:
+        return jsonify({"error": "Brak dostępu – gracz nie zalogowany"}), 401
+
+    data = request.get_json()
+    score = int(data.get("score", 0))
+    timeline_id = data.get("timeline_id", "timeline-1")
+
+    player = Player.query.get(session["player_id"])
+    if not player:
+        return jsonify({"error": "Gracz nie znaleziony"}), 404
+    
+    player.score += score
+    db.session.commit()
+    
+    # Znajdź następny timeline
+    current_timeline = Timeline.query.filter_by(identifier=timeline_id).first()
+    next_timeline = None
+    
+    if current_timeline:
+        next_timeline = Timeline.query.filter(
+            Timeline.order > current_timeline.order,
+            Timeline.is_active == True
+        ).order_by(Timeline.order).first()
+    
+    return jsonify({
+        "message": "Wynik zapisany",
+        "new_score": player.score,
+        "next_timeline": next_timeline.identifier if next_timeline else None
+    })
+
 @app.route("/admin/data")
 def show_data():
     if not session.get('admin_logged_in'):
@@ -473,6 +731,7 @@ def show_data():
 
     players = Player.query.all()
     questions = QuizQuestion.query.all()
+    timelines = Timeline.query.all()
 
     return jsonify({
         "players": [
@@ -494,8 +753,18 @@ def show_data():
                 "answer4": q.answer4,
                 "correct": q.correct
             } for q in questions
+        ],
+        "timelines": [
+            {
+                "id": t.id,
+                "identifier": t.identifier,
+                "title": t.title,
+                "description": t.description,
+                "events_count": len(t.events)
+            } for t in timelines
         ]
     })
+
 @app.route('/admin/clear_players', methods=['POST'])
 def clear_players():
     if not session.get('admin_logged_in'):
@@ -516,4 +785,3 @@ def admin_ranking():
 
 if __name__ == "__main__":
     app.run(debug=True)
-

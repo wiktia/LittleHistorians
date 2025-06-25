@@ -27,7 +27,7 @@ async function fetchSingleQuestion() {
 
         if (availableQuestions.length === 0) {
             // Brak nowych pytań - koniec quizu
-            questionElement.textContent = "To już koniec quizu!";
+            questionElement.textContent = "--";
             answerButtons.innerHTML = '';
             progressBar.style.width = '100%';
             
