@@ -215,20 +215,46 @@
     }
 
 @media (max-width: 600px) {
-  /* Blokada przewijania - główne zmiany */
+  /* Główne ustawienia strony */
   body {
-    height: 100vh; /* Zmiana z min-height */
-    overflow: hidden; /* Zmiana z auto */
-    padding-top: 50px; /* Dostosowane do paska postępu */
+    height: 100vh;
+    overflow: hidden;
+    padding-top: 50px;
+    margin: 0;
   }
 
+  /* Kontener główny */
   .container {
-    height: calc(100vh - 60px); /* Dokładne dopasowanie */
-    overflow: hidden; /* Blokada przewijania wewnątrz */
-    margin: 0 auto; /* Uproszczone marginesy */
+    height: calc(100vh - 60px);
+    overflow: hidden;
+    margin-top: 60px;
+    width: 95vw;
   }
 
-  /* Reszta pozostaje bez zmian (Twój obecny kod) */
+  /* Zegar */
+  .clock-container {
+    position: absolute;
+    top: -620px;
+    left: 240px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    z-index: 10;
+  }
+
+  #zegar {
+    width: 30px;
+    height: auto;
+    transform: scale(1.8);
+  }
+
+  .czas {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #2A1D16;
+  }
+
+  /* Sekcja odznak - układ domyślny */
   .badges {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -247,19 +273,25 @@
     max-width: 150px;
   }
 
+  /* Pola dropzone */
   .dropzone {
     width: 90%;
     max-width: 150px;
     height: 28px;
     margin: 5px auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
   }
 
+  /* Sekcja etykiet */
   .labels {
     width: 100%;
     padding: 0 5px;
     margin-top: 5px;
-    max-height: 40%; /* Ograniczenie wysokości */
-    overflow-y: auto; /* Przewijanie tylko wewnątrz etykiet */
+    max-height: 40%;
+    overflow-y: auto;
   }
 
   .label {
@@ -271,28 +303,51 @@
     box-sizing: border-box;
     line-height: 1.2;
     -webkit-line-clamp: 2;
-  }
-.czas {
-        top: 55px;
-        left: 40px;
-        font-size: 1.8rem;
-}
-
-#zegar {
-    scale: 2.5;
-}
-
-  
-
-  .clock-container {
-    margin: 5px;
-    left: 100px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
+  /* Nowy układ po dopasowaniu odpowiedzi - dwa rzędy */
+  .badges:has(.dropzone.matched) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 15px;
+    align-items: start;
+  }
+
+  .badges:has(.dropzone.matched) .badge-container {
+    width: 100%;
+    max-width: none;
+    margin-bottom: 0;
+  }
+
+  .badges:has(.dropzone.matched) .badge-container:nth-child(3) {
+    grid-column: span 2;
+    order: 0;
+    margin-bottom: 0;
+  }
+
+  .dropzone.matched {
+    width: 90%;
+    margin: 0 auto;
+    min-height: 50px;
+    padding: 8px 10px;
+    background-color: rgba(123, 75, 42, 0.9);
+    border: 2px solid #5a3a26;
+    white-space: normal;
+    line-height: 1.4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    word-break: break-word;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  }
+
+  /* Zabezpieczenia */
   html, body {
     max-width: 100%;
     overflow-x: hidden;
   }
 }
-
-
