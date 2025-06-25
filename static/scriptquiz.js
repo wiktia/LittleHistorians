@@ -16,6 +16,26 @@ let usedQuestions = JSON.parse(sessionStorage.getItem('usedQuizQuestions')) || [
 let currentQuestionId = null;
 const userAvatar = playerAvatar ? playerAvatar.src : '';
 
+// Style dla odpowiedzi (dodawane dynamicznie)
+const style = document.createElement('style');
+style.textContent = `
+    .answer-btn.correct {
+        background-color: #4CAF50;
+        color: white;
+        border: 2px solid #45a049;
+    }
+    .answer-btn.incorrect {
+        background-color: #f44336;
+        color: white;
+        border: 2px solid #d32f2f;
+    }
+    .answer-btn[disabled] {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+`;
+document.head.appendChild(style);
+
 async function fetchSingleQuestion() {
     try {
         // Pobierz wszystkie dostępne pytania
@@ -61,14 +81,14 @@ function shuffleArray(array) {
         const j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]];
     }
+    return array;
 }
 
 function showQuestion() {
     resetState();
     questionElement.textContent = currentQuestion.question;
 
-    const answers = [...currentQuestion.answers];
-    shuffleArray(answers);
+    const answers = shuffleArray([...currentQuestion.answers]);
 
     answers.forEach(answer => {
         const button = document.createElement('button');
@@ -85,38 +105,42 @@ function showQuestion() {
 }
 
 function resetState() {
-    answerButtons.innerHTML = '';
+    // Czyścimy kontener z odpowiedziami
+    while (answerButtons.firstChild) {
+        answerButtons.removeChild(answerButtons.firstChild);
+    }
 }
 
 function selectAnswer(e) {
     const selectedBtn = e.target;
     const isCorrect = selectedBtn.dataset.correct === 'true';
 
+    // Podświetlamy wybraną odpowiedź
     if (isCorrect) {
         selectedBtn.classList.add('correct');
         score = 1;
     } else {
         selectedBtn.classList.add('incorrect');
-        feedbackImage.src = userAvatar;
+        if (feedbackImage) feedbackImage.src = userAvatar;
         score = 0;
     }
 
-    // Podświetl poprawną odpowiedź
-    [...answerButtons.querySelectorAll('.answer-btn')].forEach(button => {
+    // Podświetlamy poprawną odpowiedź (nawet jeśli wybrano złą)
+    document.querySelectorAll('.answer-btn').forEach(button => {
         if (button.dataset.correct === 'true') {
             button.classList.add('correct');
         }
         button.disabled = true;
     });
 
-    // Dodaj bieżące pytanie do listy użytych
+    // Dodajemy bieżące pytanie do listy użytych
     usedQuestions.push(currentQuestionId);
     sessionStorage.setItem('usedQuizQuestions', JSON.stringify(usedQuestions));
     
     // Po chwili przechodzimy dalej
     setTimeout(() => {
         sendQuizScore(score);
-    }, 1000);
+    }, 1500); // Zwiększony czas na pokazanie podświetlenia
 }
 
 function sendQuizScore(points) {
@@ -125,23 +149,25 @@ function sendQuizScore(points) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ score: points })
     })
-        .then(response => response.json())
-        .then(data => {
-            window.location.href = "/next";  // przekieruj dalej
-        })
-        .catch(error => {
-            console.error("Błąd zapisu wyniku:", error);
-            window.location.href = "/next";  // i tak przekieruj
-        });
+    .then(response => response.json())
+    .then(data => {
+        window.location.href = "/next";
+    })
+    .catch(error => {
+        console.error("Błąd zapisu wyniku:", error);
+        window.location.href = "/next";
+    });
+}
+
+// Animacja zegara
+const zegar = document.getElementById('zegar');
+if (zegar) {
+    let rotation = 0;
+    setInterval(() => {
+        rotation += 45;
+        zegar.style.transform = `rotate(${rotation}deg)`;
+    }, 1000);
 }
 
 // Start quizu
 fetchSingleQuestion();
-
-const zegar = document.getElementById('zegar');
-let rotation = 0;
-
-setInterval(() => {
-    rotation += 45;
-    zegar.style.transform = `rotate(${rotation}deg)`;
-}, 1000);

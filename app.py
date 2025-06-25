@@ -660,10 +660,34 @@ def save_score():
 def next_step():
     if "player_id" not in session:
         return redirect(url_for("logowanie"))
-    
+
     player = Player.query.get(session['player_id'])
+    
+    # Sprawdź czy to już czas na wyświetlenie timeline2
+    if player.current_step == 'timeline-1' or (player.current_step == 'login' and 'force_timeline2' not in session):
+        session['force_timeline2'] = True
+        return render_template('timeline2.html', 
+                           events=[
+                               {'title': 'Wydarzenie A', 'description': 'Opis A', 'date': '1800'},
+                               {'title': 'Wydarzenie B', 'description': 'Opis B', 'date': '1850'},
+                               {'title': 'Wydarzenie C', 'description': 'Opis C', 'date': '1900'}
+                           ],
+                           timeline_id='timeline2')
+
+    # Standardowa obsługa następnego kroku
     next_step_identifier = get_next_step(player.current_step)
     
+    # Jeśli następny krok to koniec, a timeline2 jeszcze nie był pokazany
+    if next_step_identifier == 'end' and 'force_timeline2' in session:
+        session.pop('force_timeline2', None)
+        return render_template('timeline2.html', 
+                           events=[
+                               {'title': 'Wydarzenie A', 'description': 'Opis A', 'date': '1800'},
+                               {'title': 'Wydarzenie B', 'description': 'Opis B', 'date': '1850'},
+                               {'title': 'Wydarzenie C', 'description': 'Opis C', 'date': '1900'}
+                           ],
+                           timeline_id='timeline2')
+
     # Get the image index from the current step (if applicable)
     image_index = None
     if player.current_step and '-' in player.current_step:
