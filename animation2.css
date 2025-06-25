@@ -32,17 +32,18 @@ body {
   top: 32%;
   position: absolute;
   opacity: 0.7;
-  background: rgba(252, 39, 42, 0.36);
+  background: rgba(132, 254, 11, 0.36);
   border-radius: 9999px;
 }
 
 .Obrazek {
+  
   width: 60%;
   max-width: 280px;
   height: auto;
-  aspect-ratio: 302 / 261;
-  border-radius: 30px;
- 
+
+  aspect-ratio: 5/ 4;
+
   z-index: 2;
   margin-bottom: 1.5rem; 
   position: relative;
@@ -60,6 +61,7 @@ body {
   .Obrazek {
     width: 80%;
     bottom:40%;
+    left:5%;
    
   }
   
