@@ -4,7 +4,6 @@ import os
 import random
 from datetime import datetime
 
-# Inicjalizacja aplikacji Flask
 app = Flask(__name__)
 app.secret_key = "tajny_klucz_sesji"
 
@@ -30,7 +29,6 @@ class Player(db.Model):
     name = db.Column(db.String(80), nullable=False)
     avatar = db.Column(db.String(120))
     score = db.Column(db.Integer, default=0)
-    current_step = db.Column(db.String(50), default='start')
     start_time = db.Column(db.DateTime, default=datetime.now)
     current_step = db.Column(db.String(50), default='start')  
     
@@ -180,6 +178,7 @@ def admin_login():
 def admin_dashboard():
     if not session.get('admin_logged_in'):
         return redirect(url_for('admin_login'))
+    
     questions = QuizQuestion.query.all()
     timelines = Timeline.query.count()
     return render_template('admin/dashboard.html', questions=questions, timelines=timelines)
@@ -271,8 +270,8 @@ def add_question():
             question=request.form['question'],
             answer1=request.form['answer1'],
             answer2=request.form['answer2'],
-            answer3=request.form.get('answer3'),
-            answer4=request.form.get('answer4'),
+            answer3=request.form.get('answer3', None),
+            answer4=request.form.get('answer4', None),
             correct=int(request.form['correct'])
         )
         db.session.add(new_question)
@@ -293,8 +292,8 @@ def edit_question(id):
         question.question = request.form['question']
         question.answer1 = request.form['answer1']
         question.answer2 = request.form['answer2']
-        question.answer3 = request.form.get('answer3')
-        question.answer4 = request.form.get('answer4')
+        question.answer3 = request.form.get('answer3', None)
+        question.answer4 = request.form.get('answer4', None)
         question.correct = int(request.form['correct'])
         db.session.commit()
         flash('Pytanie zaktualizowane pomyślnie!', 'success')
@@ -417,16 +416,18 @@ def admin_logout():
     session.pop('admin_logged_in', None)
     return redirect(url_for('admin_login'))
 
-# API dla aplikacji
+# API dla quizu
 @app.route('/api/quiz_questions')
 def get_quiz_questions():
     questions = QuizQuestion.query.all()
     output = []
     for q in questions:
         answers = [q.answer1, q.answer2]
-        if q.answer3: answers.append(q.answer3)
-        if q.answer4: answers.append(q.answer4)
-        
+        if q.answer3:
+            answers.append(q.answer3)
+        if q.answer4:
+            answers.append(q.answer4)
+            
         output.append({
             'id': q.id,
             'question': q.question,
@@ -434,19 +435,6 @@ def get_quiz_questions():
             'correct': q.correct
         })
     return jsonify(output)
-
-@app.route("/api/get_start_time")
-def get_start_time():
-    if "player_id" not in session:
-        return jsonify({"error": "Brak dostępu"}), 401
-    
-    player = Player.query.get(session["player_id"])
-    if not player:
-        return jsonify({"error": "Gracz nie znaleziony"}), 404
-    
-    return jsonify({
-        "start_time": player.start_time.isoformat() if player.start_time else None
-    })
 
 @app.route('/api/quiz_question_by_step')
 def get_quiz_question_by_step():
@@ -544,32 +532,37 @@ def start():
         flash("Proszę wypełnić wszystkie pola", "error")
         return redirect(url_for("logowanie"))
 
-    try:
-        player = Player(
-            name=name,
-            avatar=avatar,
-            current_step='puzzle',
-            start_time=datetime.now()
-        )
-        db.session.add(player)
-        db.session.commit()
-        session["player_id"] = player.id
-        return redirect(url_for("next_step"))
-    except Exception as e:
-        db.session.rollback()
-        print(f"Błąd podczas zapisu gracza: {e}")
-        return "Wystąpił błąd serwera", 500
     # Znajdź lub stwórz gracza
     player = Player.query.filter_by(name=name, avatar=avatar).first()
     if not player:
         player = Player(name=name, avatar=avatar, score=0)
         db.session.add(player)
 
+    # Zawsze aktualizuj czas startu przy rozpoczęciu gry
+    player.start_time = datetime.now()
     player.current_step = 'login'
     db.session.commit()
 
     session['player_id'] = player.id
     return redirect(url_for('next_step'))
+
+@app.route("/api/get_start_time")
+def get_start_time():
+    if "player_id" not in session:
+        return jsonify({"error": "Brak dostępu"}), 401
+
+    player = Player.query.get(session["player_id"])
+    if not player:
+        return jsonify({"error": "Gracz nie znaleziony"}), 404
+
+    # Upewnij się, że czas startu istnieje
+    if not player.start_time:
+        player.start_time = datetime.now()
+        db.session.commit()
+
+    return jsonify({
+        "start_time": player.start_time.isoformat()
+    })
 
 @app.route("/puzzle")
 def puzzle():
@@ -592,25 +585,27 @@ def timeline():
     if "player_id" not in session:
         return redirect(url_for("logowanie"))
     
-    # Pobierz identyfikator aktualnego timeline'u z parametru URL
-    timeline_id = request.args.get('timeline_id', 'timeline-1')
+    # Pobierz ID osi czasu z URL (np. ?timeline_id=timeline-1)
+    timeline_id = request.args.get('timeline_id')
     
-    # Pobierz wydarzenia dla wybranego timeline'u
-    timeline_events = TimelineEvent.query.filter_by(timeline_id=get_timeline_id(timeline_id)).order_by(TimelineEvent.order).limit(3).all()
+    # Sprawdź czy gracz już ukończył tę oś
+    if f"completed_{timeline_id}" in session:
+        return redirect(url_for('next_step'))  # Jeśli tak, od razu przejdź dalej
     
-    if not timeline_events or len(timeline_events) < 3:
-        return "Niewystarczająca liczba wydarzeń dla tej osi czasu", 404
+    # Pobierz 3 wydarzenia z bazy
+    events = TimelineEvent.query.filter_by(timeline_id=timeline_id).order_by(TimelineEvent.order).limit(3).all()
     
-    # Przygotuj dane do szablonu
-    correct_dates = [e.date for e in timeline_events]
-    shuffled_events = timeline_events.copy()
-    random.shuffle(shuffled_events)
+    # Zapisz w sesji, że oś została ukończona
+    session[f"completed_{timeline_id}"] = True
     
-    return render_template('timeline.html',
-                         events=shuffled_events,
-                         slot1_date=correct_dates[0],
-                         slot2_date=correct_dates[1],
-                         slot3_date=correct_dates[2])
+    return render_template('timeline.html', 
+                         events=events,
+                         timeline_id=timeline_id)
+    
+   ## obsluga czasu cala
+
+
+  
 
 @app.route("/quiz")
 def quiz():
@@ -640,7 +635,7 @@ def endscreen():
 @app.route("/save_score", methods=["POST"])
 def save_score():
     if "player_id" not in session:
-        return jsonify({"error": "Brak dostępu"}), 401
+        return jsonify({"error": "Brak dostępu – gracz nie zalogowany"}), 401
 
     data = request.get_json()
     score = int(data.get("score", 0))
@@ -650,7 +645,6 @@ def save_score():
         return jsonify({"error": "Gracz nie znaleziony"}), 404
     
     player.score += score
-    player.current_step = get_next_step(player.current_step)
     db.session.commit()
     
     return jsonify({
@@ -691,41 +685,6 @@ def load_next_step():
 def update_score():
     return save_score()
 
-@app.route("/update_timeline_score", methods=["POST"])
-def update_timeline_score():
-    if "player_id" not in session:
-        return jsonify({"error": "Brak dostępu"}), 401
-
-    data = request.get_json()
-    score = int(data.get("score", 0))
-    timeline_id = data.get("timeline_id", "timeline-1")
-
-    player = Player.query.get(session["player_id"])
-    if not player:
-        return jsonify({"error": "Gracz nie znaleziony"}), 404
-    
-    # Aktualizacja wyniku gracza
-    player.score += score
-    
-    # Zapisanie ostatniego ukończonego timeline (w modelu Player)
-    player.last_completed_timeline = timeline_id
-    
-    db.session.commit()
-    
-    # Pobierz numer obecnego timeline (np. "timeline-3" → 3)
-    current_number = int(timeline_id.split("-")[1]) if timeline_id.startswith("timeline-") else 1
-    
-    # Znajdź następny timeline (o 1 większy)
-    next_timeline = Timeline.query.filter(
-        Timeline.identifier == f"timeline-{current_number + 1}",
-        Timeline.is_active == True
-    ).first()
-
-    return jsonify({
-        "message": "Wynik zapisany",
-        "new_score": player.score,
-        "next_timeline": next_timeline.identifier if next_timeline else None
-    })
 
 @app.route("/admin/data")
 def show_data():
@@ -788,3 +747,9 @@ def admin_ranking():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+
+
+
+
+    

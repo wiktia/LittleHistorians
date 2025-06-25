@@ -92,28 +92,10 @@ function selectAnswer(e) {
     const selectedBtn = e.target;
     const isCorrect = selectedBtn.dataset.correct === 'true';
 
-    // Podświetl wybraną odpowiedź
     if (isCorrect) {
         selectedBtn.classList.add('correct');
         score = 1;
-        selectedBtn.style.backgroundColor = '#cde667'; // zielony dla poprawnej
-        selectedBtn.style.color = 'white';
     } else {
-        selectedBtn.style.backgroundColor = '#da4252'; // czerwony dla błędnej
-        selectedBtn.style.color = 'white';
-    }
-
-    // Podświetl poprawną odpowiedź (jeśli wybrano błędną)
-    if (!isCorrect) {
-        [...answerButtons.querySelectorAll('.answer-btn')].forEach(button => {
-            if (button.dataset.correct === 'true') {
-                button.style.backgroundColor = '#cde667'; // zielony
-                button.style.color = 'white';
-            }
-        });
-    }
-
-    // Zablokuj wszystkie przyciski po wyborze
         selectedBtn.classList.add('incorrect');
         feedbackImage.src = userAvatar;
         score = 0;
@@ -121,6 +103,9 @@ function selectAnswer(e) {
 
     // Podświetl poprawną odpowiedź
     [...answerButtons.querySelectorAll('.answer-btn')].forEach(button => {
+        if (button.dataset.correct === 'true') {
+            button.classList.add('correct');
+        }
         button.disabled = true;
     });
 
@@ -150,6 +135,8 @@ function sendQuizScore(points) {
         });
 }
 
+// Start quizu
+fetchSingleQuestion();
 
 const zegar = document.getElementById('zegar');
 let rotation = 0;
@@ -158,8 +145,3 @@ setInterval(() => {
     rotation += 45;
     zegar.style.transform = `rotate(${rotation}deg)`;
 }, 1000);
-
-// Rozpocznij proces pobierania pytań i uruchomienia quizu
-fetchQuestions();
-// Start quizu
-fetchSingleQuestion();
