@@ -62,7 +62,7 @@ function deselectPuzzle(img) {
 }
 
 function movePuzzle(img1, img2) {
-    // Zamień źródła obrazków
+    
     const tempSrc = img1.src;
     img1.src = img2.src;
     img2.src = tempSrc;
@@ -109,7 +109,7 @@ function checkWinCondition() {
         const decodedSrc = decodeURIComponent(img.src);
         const currentFilename = decodedSrc.split('/').pop();
         
-        // wyciąganie numeru z nazwy pliku
+        
         const match = currentFilename.match(/img\s*\((\d+)\)/i);
         const currentIndex = match ? match[1] : null;
         

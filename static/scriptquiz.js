@@ -1,48 +1,58 @@
+const quizId = 'quiz-1';
 // Elementy DOM
 const questionElement = document.querySelector('.question');
 const answerButtons = document.querySelector('.answers-container');
-const nextButton = document.createElement('button');
-nextButton.className = 'answer-btn';
-nextButton.style.marginTop = '20px';
-nextButton.textContent = 'Dalej';
-nextButton.style.display = 'none';
-answerButtons.parentElement.appendChild(nextButton);
-
 const progressBar = document.querySelector('.progress-bar-fill');
 const feedbackImage = document.getElementById('feedback-image') || { src: '' };
 const playerAvatar = document.getElementById('player-avatar');
 const playerNameElement = document.getElementById('player-name');
 const playerScoreElement = document.getElementById('player-score');
 
-// Zmienne quizu
-let questions = [];  // Będziemy ładować pytania z serwera
-let currentQuestionIndex = 0;
+let currentQuestion = null;
 let score = 0;
-let quizEnded = false;
+// Lista pytań już wyświetlonych w tej rozgrywce
+let usedQuestions = JSON.parse(sessionStorage.getItem('usedQuizQuestions')) || [];
+// Aktualne pytanie
+let currentQuestionId = null;
+const userAvatar = playerAvatar ? playerAvatar.src : '';
 
-// Pobierz pytania z serwera
-async function fetchQuestions() {
+async function fetchSingleQuestion() {
     try {
+        // Pobierz wszystkie dostępne pytania
         const response = await fetch('/api/quiz_questions');
-        const data = await response.json();
-        
-        // Przekształć dane z API do formatu oczekiwanego przez quiz
-        questions = data.slice(0, 1).map(q => {
-            const answers = q.answers.map((text, index) => ({
+        const allQuestions = await response.json();
+
+        // Filtruj pytania, które jeszcze nie były używane w tej rozgrywce
+        const availableQuestions = allQuestions.filter(q => !usedQuestions.includes(q.id));
+
+        if (availableQuestions.length === 0) {
+            // Brak nowych pytań - koniec quizu
+            questionElement.textContent = "--";
+            answerButtons.innerHTML = '';
+            progressBar.style.width = '100%';
+            
+            // Wyczyść listę użytych pytań dla nowej rozgrywki
+            sessionStorage.removeItem('usedQuizQuestions');
+            return;
+        }
+
+        // Wybierz losowe pytanie z dostępnych
+        const randomIndex = Math.floor(Math.random() * availableQuestions.length);
+        const q = availableQuestions[randomIndex];
+        currentQuestionId = q.id;
+
+        currentQuestion = {
+            question: q.question,
+            answers: q.answers.map((text, index) => ({
                 text: text,
                 correct: (index + 1) === q.correct
-            }));
+            }))
+        };
 
-            return {
-                question: q.question,
-                answers: answers
-            };
-        });
-        
-        startQuiz();
+        showQuestion();
     } catch (error) {
         console.error('Błąd pobierania pytań:', error);
-        questionElement.innerHTML = "Błąd ładowania quizu. Spróbuj odświeżyć stronę.";
+        questionElement.textContent = "Błąd ładowania pytań. Spróbuj odświeżyć stronę.";
     }
 }
 
@@ -53,31 +63,10 @@ function shuffleArray(array) {
     }
 }
 
-function startQuiz() {
-    if (questions.length === 0) {
-        questionElement.innerHTML = "Brak pytań w bazie danych.";
-        return;
-    }
-    
-    currentQuestionIndex = 0;
-    score = 0;
-    quizEnded = false;
-    nextButton.innerHTML = 'Dalej';
-    nextButton.style.display = 'none';
-    
-    // Pomieszaj kolejność pytań
-    shuffleArray(questions);
-    
-    showQuestion();
-}
-
 function showQuestion() {
     resetState();
+    questionElement.textContent = currentQuestion.question;
 
-    const currentQuestion = questions[currentQuestionIndex];
-    questionElement.innerHTML = `${currentQuestionIndex + 1}. ${currentQuestion.question}`;
-
-    // Pomieszaj odpowiedzi
     const answers = [...currentQuestion.answers];
     shuffleArray(answers);
 
@@ -92,14 +81,11 @@ function showQuestion() {
         answerButtons.appendChild(button);
     });
 
-    // Aktualizuj pasek postępu
-    const progressPercent = ((currentQuestionIndex + 1) / questions.length) * 100;
-    progressBar.style.width = progressPercent + '%';
+    progressBar.style.width = '100%';
 }
 
 function resetState() {
-    nextButton.style.display = 'none';
-    [...answerButtons.querySelectorAll('.answer-btn')].forEach(btn => btn.remove());
+    answerButtons.innerHTML = '';
 }
 
 function selectAnswer(e) {
@@ -108,6 +94,8 @@ function selectAnswer(e) {
 
     // Podświetl wybraną odpowiedź
     if (isCorrect) {
+        selectedBtn.classList.add('correct');
+        score = 1;
         selectedBtn.style.backgroundColor = '#cde667'; // zielony dla poprawnej
         selectedBtn.style.color = 'white';
     } else {
@@ -126,59 +114,40 @@ function selectAnswer(e) {
     }
 
     // Zablokuj wszystkie przyciski po wyborze
+        selectedBtn.classList.add('incorrect');
+        feedbackImage.src = userAvatar;
+        score = 0;
+    }
+
+    // Podświetl poprawną odpowiedź
     [...answerButtons.querySelectorAll('.answer-btn')].forEach(button => {
         button.disabled = true;
     });
 
-    if (isCorrect) {
-        score++;
-    }
-
-    // Pokaż przycisk "Dalej" i przejdź do następnego pytania po chwili
-
-
-    // Automatyczne przejście po 1.5 sekundy
+    // Dodaj bieżące pytanie do listy użytych
+    usedQuestions.push(currentQuestionId);
+    sessionStorage.setItem('usedQuizQuestions', JSON.stringify(usedQuestions));
+    
+    // Po chwili przechodzimy dalej
     setTimeout(() => {
-        handleNextButton();
-    }, 1500);
-}
-
-function handleNextButton() {
-    currentQuestionIndex++;
-    if (currentQuestionIndex < questions.length) {
-        showQuestion();
-    } else {
-        showScore();
-    }
-}
-
-function showScore() {
-    sendQuizScore(score);
+        sendQuizScore(score);
+    }, 1000);
 }
 
 function sendQuizScore(points) {
     fetch('/save_score', {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ score: points })
     })
-    .then(response => {
-        if (!response.ok) {
-            return response.text().then(text => {
-                throw new Error(`HTTP ${response.status}: ${text}`);
-            });
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log("Odpowiedź serwera:", data);
-        setTimeout(() => {
-            window.location.href = "/next";  
-        }, 1500);
-    })
-    .catch(error => {
-        console.error("Błąd zapisu wyniku:", error);
-    });
+        .then(response => response.json())
+        .then(data => {
+            window.location.href = "/next";  // przekieruj dalej
+        })
+        .catch(error => {
+            console.error("Błąd zapisu wyniku:", error);
+            window.location.href = "/next";  // i tak przekieruj
+        });
 }
 
 
@@ -192,3 +161,5 @@ setInterval(() => {
 
 // Rozpocznij proces pobierania pytań i uruchomienia quizu
 fetchQuestions();
+// Start quizu
+fetchSingleQuestion();

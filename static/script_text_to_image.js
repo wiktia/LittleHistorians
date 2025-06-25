@@ -66,7 +66,7 @@ function checkAnswers() {
   }
 
   console.log("Wynik:", correct, "poprawne odpowiedzi"); 
-  sendLabelScore(correct); // Wysyłamy zawsze, bez flagi scoreSent
+  sendLabelScore(correct); 
 }
 
 function sendLabelScore(points) {
@@ -88,10 +88,10 @@ function sendLabelScore(points) {
   })
   .then(data => {
     console.log("Odpowiedź JSON:", data); 
-    if (data.next_step) {
-      window.location.href = "/next";
+    if (data.next_step_url) {
+        window.location.href = data.next_step_url;
     }
-  })
+})
   .catch(error => {
     console.error("Błąd:", error); 
     alert("Wystąpił błąd: " + error.message);

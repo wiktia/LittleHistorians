@@ -109,9 +109,9 @@
       user-select: none;
     }
 
-    .slot-1953 { top: 10%; margin-top: 0px; }
-    .slot-1928 { top: 37%; margin-top: 10px; }
-    .slot-1925 { top: 54%; margin-top: 30px; }
+    .slot-1 { top: 10%; margin-top: 0px; }
+    .slot-2 { top: 37%; margin-top: 10px; }
+    .slot-3 { top: 54%; margin-top: 30px; }
 
     .labels {
       position: absolute;
@@ -122,9 +122,9 @@
       user-select: none;
     }
 
-    .label-1953 { top: 13%; }
-    .label-1928 { top: 44%; }
-    .label-1925 { top: 61%; }
+    .label-1 { top: 13%; }
+    .label-2 { top: 44%; }
+    .label-3 { top: 61%; }
 
     .options {
       display: flex;
