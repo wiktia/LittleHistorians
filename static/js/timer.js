@@ -30,11 +30,3 @@ document.addEventListener('DOMContentLoaded', function() {
     setInterval(updateTimer, 1000);
 });
 
-
-const zegar = document.getElementById('zegar');
-let rotation = 0;
-
-setInterval(() => {
-    rotation += 45;
-    zegar.style.transform = `rotate(${rotation}deg)`;
-}, 1000);
