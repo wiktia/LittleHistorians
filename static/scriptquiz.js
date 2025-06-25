@@ -8,34 +8,54 @@ const playerAvatar = document.getElementById('player-avatar');
 const playerNameElement = document.getElementById('player-name');
 const playerScoreElement = document.getElementById('player-score');
 
-let questions = [];
-let currentQuestionIndex = 0;
+let currentQuestion = null;
 let score = 0;
-let quizEnded = false;
+// Lista pytań już wyświetlonych w tej rozgrywce
+let usedQuestions = JSON.parse(sessionStorage.getItem('usedQuizQuestions')) || [];
+// Aktualne pytanie
+let currentQuestionId = null;
+const userAvatar = playerAvatar ? playerAvatar.src : '';
 
-// Pobierz pytania z serwera
-async function fetchQuestions() {
+async function fetchSingleQuestion() {
     try {
-        const response = await fetch(`/api/quiz_questions?quiz=${encodeURIComponent(quizId)}`);
-        const data = await response.json();
-        
-        questions = data.map(q => {
-            const answers = q.answers.map((text, index) => ({
+        // Pobierz wszystkie dostępne pytania
+        const response = await fetch('/api/quiz_questions');
+        const allQuestions = await response.json();
+
+        // Filtruj pytania, które jeszcze nie były używane w tej rozgrywce
+        const availableQuestions = allQuestions.filter(q => !usedQuestions.includes(q.id));
+
+        if (availableQuestions.length === 0) {
+            // Brak nowych pytań - koniec quizu
+            questionElement.textContent = "To już koniec quizu!";
+            answerButtons.innerHTML = '';
+            progressBar.style.width = '100%';
+            
+            // Wyczyść listę użytych pytań dla nowej rozgrywki
+            sessionStorage.removeItem('usedQuizQuestions');
+            return;
+        }
+
+        // Wybierz losowe pytanie z dostępnych
+        const randomIndex = Math.floor(Math.random() * availableQuestions.length);
+        const q = availableQuestions[randomIndex];
+        currentQuestionId = q.id;
+
+        currentQuestion = {
+            question: q.question,
+            answers: q.answers.map((text, index) => ({
                 text: text,
                 correct: (index + 1) === q.correct
-            }));
-            return {
-                question: q.question,
-                answers: answers
-            };
-        });
+            }))
+        };
 
-        startQuiz();
+        showQuestion();
     } catch (error) {
         console.error('Błąd pobierania pytań:', error);
-        questionElement.innerHTML = "Błąd ładowania quizu. Spróbuj odświeżyć stronę.";
+        questionElement.textContent = "Błąd ładowania pytań. Spróbuj odświeżyć stronę.";
     }
 }
+
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -43,24 +63,10 @@ function shuffleArray(array) {
     }
 }
 
-function startQuiz() {
-    if (questions.length === 0) {
-        questionElement.innerHTML = "Brak pytań w bazie danych.";
-        return;
-    }
-    currentQuestionIndex = 0;
-    score = 0;
-    quizEnded = false;
-    showQuestion();
-}
-
 function showQuestion() {
     resetState();
-
-    const currentQuestion = questions[currentQuestionIndex];
     questionElement.textContent = currentQuestion.question;
 
-    // Mieszamy odpowiedzi
     const answers = [...currentQuestion.answers];
     shuffleArray(answers);
 
@@ -75,12 +81,11 @@ function showQuestion() {
         answerButtons.appendChild(button);
     });
 
-    
     progressBar.style.width = '100%';
 }
 
 function resetState() {
-    [...answerButtons.querySelectorAll('.answer-btn')].forEach(btn => btn.remove());
+    answerButtons.innerHTML = '';
 }
 
 function selectAnswer(e) {
@@ -89,13 +94,14 @@ function selectAnswer(e) {
 
     if (isCorrect) {
         selectedBtn.classList.add('correct');
-        score = 1; 
+        score = 1;
     } else {
         selectedBtn.classList.add('incorrect');
-        feedbackImage.src = userAvatar;  // pokaz avatar gracza, jeśli źle
+        feedbackImage.src = userAvatar;
+        score = 0;
     }
 
-    // Podświetl prawidłową odpowiedź i zablokuj przyciski
+    // Podświetl poprawną odpowiedź
     [...answerButtons.querySelectorAll('.answer-btn')].forEach(button => {
         if (button.dataset.correct === 'true') {
             button.classList.add('correct');
@@ -103,27 +109,31 @@ function selectAnswer(e) {
         button.disabled = true;
     });
 
-    // Wyślij wynik i zakończ quiz
-    sendQuizScore(score);
+    // Dodaj bieżące pytanie do listy użytych
+    usedQuestions.push(currentQuestionId);
+    sessionStorage.setItem('usedQuizQuestions', JSON.stringify(usedQuestions));
+    
+    // Po chwili przechodzimy dalej
+    setTimeout(() => {
+        sendQuizScore(score);
+    }, 1000);
 }
 
 function sendQuizScore(points) {
     fetch('/save_score', {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ score: points })
     })
-    .then(response => response.json())
-    .then(data => {
-        window.location.href = "/next";  // przekieruj po zapisaniu
-    })
-    .catch(error => {
-        console.error("Error saving score:", error);
-        window.location.href = "/next";  // i tak przekieruj
-    });
+        .then(response => response.json())
+        .then(data => {
+            window.location.href = "/next";  // przekieruj dalej
+        })
+        .catch(error => {
+            console.error("Błąd zapisu wyniku:", error);
+            window.location.href = "/next";  // i tak przekieruj
+        });
 }
 
-const userAvatar = playerAvatar ? playerAvatar.src : '';
-
-// Start
-fetchQuestions();
+// Start quizu
+fetchSingleQuestion();
