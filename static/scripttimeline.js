@@ -145,20 +145,10 @@ function saveAndProceed(score) {
   // Zapisz w sessionStorage
   setLastCompletedTimeline(timelineId);
   
-  // Wyślij wynik na serwer
-  fetch('/update_timeline_score', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ 
-      score: score,
-      timeline_id: timelineId
-    })
-  })
-  .then(() => {
+
+
     // Przekieruj na /next po zapisaniu
     window.location.href = "/next";
-  })
-  .catch(error => {
-    console.error("Błąd zapisu wyniku:", error);
-  });
+  
+
 }

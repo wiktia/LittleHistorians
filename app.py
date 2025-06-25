@@ -661,41 +661,6 @@ def load_next_step():
 def update_score():
     return save_score()
 
-@app.route("/update_timeline_score", methods=["POST"])
-def update_timeline_score():
-    if "player_id" not in session:
-        return jsonify({"error": "Brak dostępu"}), 401
-
-    data = request.get_json()
-    score = int(data.get("score", 0))
-    timeline_id = data.get("timeline_id", "timeline-1")
-
-    player = Player.query.get(session["player_id"])
-    if not player:
-        return jsonify({"error": "Gracz nie znaleziony"}), 404
-    
-    # Aktualizacja wyniku gracza
-    player.score += score
-    
-    # Zapisanie ostatniego ukończonego timeline (w modelu Player)
-    player.last_completed_timeline = timeline_id
-    
-    db.session.commit()
-    
-    # Pobierz numer obecnego timeline (np. "timeline-3" → 3)
-    current_number = int(timeline_id.split("-")[1]) if timeline_id.startswith("timeline-") else 1
-    
-    # Znajdź następny timeline (o 1 większy)
-    next_timeline = Timeline.query.filter(
-        Timeline.identifier == f"timeline-{current_number + 1}",
-        Timeline.is_active == True
-    ).first()
-
-    return jsonify({
-        "message": "Wynik zapisany",
-        "new_score": player.score,
-        "next_timeline": next_timeline.identifier if next_timeline else None
-    })
 
 @app.route("/admin/data")
 def show_data():
