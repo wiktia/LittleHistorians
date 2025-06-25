@@ -77,7 +77,7 @@ body, html {
     border-radius: 18px; 
     transition: width 0.3s ease-in-out;
   }
-.xxxx-text{
+.czas{
   top: 70px;
   right: 200px;
   transform-origin: center;
@@ -244,7 +244,7 @@ white-space: nowrap;
         top: 15px;
     }
     
-    .xxxx-text {
+    .czas{
         top: 55px;
         right: 80px;
         font-size: 1.8rem;

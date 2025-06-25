@@ -181,13 +181,7 @@ function sendQuizScore(points) {
     });
 }
 
-const zegar = document.getElementById('zegar');
-let rotation = 0;
 
-setInterval(() => {
-    rotation += 45;
-    zegar.style.transform = `rotate(${rotation}deg)`;
-}, 1000);
 
 // Rozpocznij proces pobierania pytań i uruchomienia quizu
 fetchQuestions();

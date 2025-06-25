@@ -6,7 +6,9 @@
 <title>Quiz Muzealny</title>
 
   <link rel="stylesheet" href="{{ url_for('static', filename='stylequiz.css') }}">
+  <script src="{{ url_for('static', filename='js/timer.js') }}"></script>
   <script defer src="{{ url_for('static', filename='scriptquiz.js') }}"></script>
+  
 
 </head>
 <body>
@@ -28,7 +30,7 @@
             
         </div>
 <button id="next-button" class="answer-btn">Dalej</button>
-        <div class="xxxx-text">XX:XX</div>
+        <div class="czas">XX:XX</div>
         
         <div data-layer="Ellipse 1" class="Ellipse1"></div>
     </div>
