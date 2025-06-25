@@ -532,20 +532,23 @@ def start():
         flash("Proszę wypełnić wszystkie pola", "error")
         return redirect(url_for("logowanie"))
 
-    # Znajdź lub stwórz gracza
+    # Wyciągnij czysty numer awatara (np. "1.png" -> "1")
+    avatar_number = os.path.splitext(avatar)[0]
+    
+    # Zapisz tylko numer awatara w sesji
+    session['avatar'] = avatar_number
+
     player = Player.query.filter_by(name=name, avatar=avatar).first()
     if not player:
         player = Player(name=name, avatar=avatar, score=0)
         db.session.add(player)
 
-    # Zawsze aktualizuj czas startu przy rozpoczęciu gry
     player.start_time = datetime.now()
     player.current_step = 'login'
     db.session.commit()
 
     session['player_id'] = player.id
     return redirect(url_for('next_step'))
-
 @app.route("/api/get_start_time")
 def get_start_time():
     if "player_id" not in session:
@@ -661,11 +664,37 @@ def next_step():
     player = Player.query.get(session['player_id'])
     next_step_identifier = get_next_step(player.current_step)
     
+    # Get the image index from the current step (if applicable)
+    image_index = None
+    if player.current_step and '-' in player.current_step:
+        try:
+            image_index = player.current_step.split('-')[1]
+        except:
+            pass
+    
+    # Update player's current step in database
     player.current_step = next_step_identifier
     db.session.commit()
     
-    return redirect(url_for(get_step_route(next_step_identifier)))
+    # Redirect to animation screen first
+    return redirect(url_for('loading_screen', next_step=next_step_identifier, image_index=image_index))
 
+@app.route('/loading_screen')
+def loading_screen():
+    next_step = request.args.get('next_step')
+    
+    # Pobierz numer awatara z sesji
+    avatar_number = session.get('avatar', '')
+    
+    # Utwórz ścieżkę do obrazka z dopiskiem -like
+    if avatar_number and avatar_number.isdigit() and 1 <= int(avatar_number) <= 23 and int(avatar_number) % 2 != 0:
+        image_path = f"static/obrazki/{avatar_number}-like.png"
+    else:
+        image_path = None
+    
+    return render_template('animationpositive.html', 
+                        next_step_url=url_for(get_step_route(next_step)),
+                        image_path=image_path)
 @app.route("/load_next_step")
 def load_next_step():
     if "player_id" not in session:

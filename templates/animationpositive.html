@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+     <link rel="stylesheet" href="{{ url_for('static', filename='animation2.css') }}">
+    <script>
+        // Redirect to next step after 3 seconds
+        setTimeout(function() {
+            window.location.href = "{{ next_step_url }}";
+        }, 3000);
+    </script>
+</head>
+<body>
+<div data-layer="przejsciowy" class="Przejsciowy">
+    <div data-layer="Ellipse 1" class="Ellipse1"></div>
+    <div data-layer="Następnym razem się uda!" class="NastPnymRazemSiUda">
+        Bardzo dobrze Ci idzie!
+    </div>
+{% if image_path %}
+    <img src="{{ url_for('static', filename=image_path) }}" alt="Avatar like">
+{% endif %}
+</div>
+</body>
+</html>
