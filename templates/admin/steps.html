@@ -2,7 +2,7 @@
 
 {% block content %}
 <h2>Zarządzanie krokami gry</h2>
-<a href="{{ url_for('add_step') }}" class="btn btn-success mb-3">Dodaj nowy krok</a>
+<a href="{{ url_for('admin.add_step') }}" class="btn btn-success mb-3">Dodaj nowy krok</a>
 
 <table class="table table-bordered">
     <thead>
@@ -22,8 +22,8 @@
             <td>{{ step.order }}</td>
             <td>{{ "Aktywny" if step.is_active else "Nieaktywny" }}</td>
             <td>
-                <a href="{{ url_for('edit_step', id=step.id) }}" class="btn btn-sm btn-primary">Edytuj</a>
-                <form action="{{ url_for('delete_step', id=step.id) }}" method="POST" style="display: inline-block;">
+                <a href="{{ url_for('admin.edit_step', id=step.id) }}" class="btn btn-sm btn-primary">Edytuj</a>
+                <form action="{{ url_for('admin.delete_step', id=step.id) }}" method="POST" style="display: inline-block;">
                     <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Czy na pewno chcesz usunąć ten krok?')">Usuń</button>
                 </form>
             </td>

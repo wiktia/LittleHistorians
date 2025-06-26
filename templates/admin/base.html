@@ -11,7 +11,7 @@
     <div class="container py-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1>Panel administracyjny</h1>
-            <a href="{{ url_for('admin_logout') }}" class="btn btn-outline-danger">
+            <a href="{{ url_for('admin.admin_logout') }}" class="btn btn-outline-danger">
                 <i class="fas fa-sign-out-alt"></i> Wyloguj
             </a>
         </div>
@@ -20,19 +20,19 @@
             <div class="card-header">
                 <ul class="nav nav-tabs card-header-tabs">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('admin_dashboard') }}">Pytania quizowe</a>
+                        <a class="nav-link" href="{{ url_for('admin.admin_dashboard') }}">Pytania quizowe</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('manage_steps') }}">Kroki gry</a>
+                        <a class="nav-link" href="{{ url_for('admin.manage_steps') }}">Kroki gry</a>
                     </li>
                     <li class="nav-item">
-                       <a href="{{ url_for('manage_timelines') }}" class="btn btn-primary">Oś czasu</a>
+                       <a href="{{ url_for('admin.manage_timelines') }}" class="btn btn-primary">Oś czasu</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('admin_ranking') }}">Ranking</a>
+                        <a class="nav-link" href="{{ url_for('admin.admin_ranking') }}">Ranking</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('add_question') }}">Dodaj pytanie</a>
+                        <a class="nav-link" href="{{ url_for('admin.add_question') }}">Dodaj pytanie</a>
                     </li>
                 </ul>
             </div>

@@ -40,7 +40,7 @@
             <button type="submit" class="btn btn-success">
                 <i class="fas fa-plus"></i> Dodaj wydarzenie
             </button>
-            <a href="{{ url_for('edit_timeline', identifier=timeline.identifier) }}" class="btn btn-secondary">
+            <a href="{{ url_for('admin.edit_timeline', identifier=timeline.identifier) }}" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> Powrót do osi czasu
             </a>
         </div>

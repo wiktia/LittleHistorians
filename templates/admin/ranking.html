@@ -3,7 +3,7 @@
 {% block content %}
 <h1>Ranking graczy</h1>
 
-<form action="{{ url_for('clear_players') }}" method="post" onsubmit="return confirm('Na pewno usunąć wszystkich graczy?');">
+<form action="{{ url_for('admin.clear_players') }}" method="post" onsubmit="return confirm('Na pewno usunąć wszystkich graczy?');">
     <button type="submit" class="btn btn-danger mb-3">🗑 Wyczyść ranking (usuń graczy)</button>
 </form>
 
