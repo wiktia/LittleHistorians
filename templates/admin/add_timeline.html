@@ -7,31 +7,15 @@
     <form method="POST">
         <div class="card mb-4">
             <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label for="identifier" class="form-label">Identyfikator*</label>
-                            <input type="text" class="form-control" id="identifier" name="identifier" 
-                                   pattern="timeline-\d+" title="Format: timeline-1, timeline-2 itd." required>
-                            <small class="text-muted">Format: timeline-1, timeline-2 itd.</small>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label for="order" class="form-label">Kolejność*</label>
-                            <input type="number" class="form-control" id="order" name="order" value="1" min="1" required>
-                        </div>
-                    </div>
+                <div class="mb-3">
+                    <label for="identifier" class="form-label">Identyfikator*</label>
+                    <input type="text" class="form-control" id="identifier" name="identifier" required>
+                    <small class="text-muted">Unikalny identyfikator (np. timeline-1)</small>
                 </div>
                 
                 <div class="mb-3">
                     <label for="title" class="form-label">Tytuł*</label>
                     <input type="text" class="form-control" id="title" name="title" required>
-                </div>
-                
-                <div class="mb-3">
-                    <label for="description" class="form-label">Opis</label>
-                    <textarea class="form-control" id="description" name="description" rows="3"></textarea>
                 </div>
                 
                 <div class="form-check form-switch mb-3">

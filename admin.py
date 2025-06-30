@@ -31,57 +31,63 @@ def manage_steps():
     steps = GameStep.query.order_by(GameStep.order).all()
     return render_template('admin/steps.html', steps=steps)
 
-@admin_bp.route('/admin/step/edit/<int:id>', methods=['GET', 'POST'])
-def edit_step(id):
-    if not session.get('admin_logged_in'):
-        return redirect(url_for('admin.admin_login'))
-    
-    step = GameStep.query.get_or_404(id)
-    if request.method == 'POST':
-        step.game_type = request.form['game_type']
-        step.order = int(request.form['order'])
-        step.is_active = 'is_active' in request.form
-        db.session.commit()
-        flash('Krok zaktualizowany!', 'success')
-        return redirect(url_for('admin.manage_steps'))
-    
-    return render_template('admin/edit_step.html', step=step)
-
-@admin_bp.route('/admin/step/add', methods=['GET', 'POST'])
+# Dodaj nowy krok
+@admin_bp.route('/admin/steps/add', methods=['GET', 'POST'])
 def add_step():
     if not session.get('admin_logged_in'):
         return redirect(url_for('admin.admin_login'))
     
     if request.method == 'POST':
-        game_type = request.form['game_type']
-        step_number = request.form['step_number']
-        step_identifier = f"{game_type}-{step_number}"
-        
-        if GameStep.query.filter_by(step_identifier=step_identifier).first():
-            flash('Krok o tym identyfikatorze już istnieje!', 'danger')
-            return redirect(url_for('admin.add_step'))
-        
         try:
+            # Walidacja identyfikatora
+            step_identifier = request.form['step_identifier']
+            if GameStep.query.filter_by(step_identifier=step_identifier).first():
+                flash('Krok o tym identyfikatorze już istnieje!', 'danger')
+                return redirect(url_for('admin.add_step'))
+            
+            # Konwersja kolejności na int z obsługą błędów
             order = int(request.form['order'])
+            
+            new_step = GameStep(
+                step_identifier=step_identifier,
+                game_type=request.form['game_type'],
+                order=order,
+                is_active='is_active' in request.form
+            )
+            
+            db.session.add(new_step)
+            db.session.commit()
+            flash('Krok gry dodany pomyślnie!', 'success')
+            return redirect(url_for('admin.manage_steps'))
+        
         except ValueError:
-            flash('Pole "order" musi być liczbą całkowitą!', 'danger')
-            return redirect(url_for('admin.add_step'))
-        
-        new_step = GameStep(
-            name=f"{game_type.capitalize()} {step_number}",
-            game_type=game_type,
-            step_identifier=step_identifier,
-            order=order,
-            is_active='is_active' in request.form,
-            config={}
-        )
-        
-        db.session.add(new_step)
-        db.session.commit()
-        flash('Krok dodany pomyślnie!', 'success')
-        return redirect(url_for('admin.manage_steps'))
+            flash('Nieprawidłowa wartość dla pola "Kolejność" - musi być liczbą całkowitą', 'danger')
+        except KeyError as e:
+            flash(f'Brak wymaganego pola: {e}', 'danger')
+        except Exception as e:
+            flash(f'Błąd podczas dodawania kroku: {str(e)}', 'danger')
     
     return render_template('admin/add_step.html')
+
+# Edytuj krok (musisz dodać podobne zmiany jak w add_step)
+@admin_bp.route('/admin/steps/<int:id>/edit', methods=['GET', 'POST'])
+def edit_step(id):
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin.admin_login'))
+    
+    step = GameStep.query.get_or_404(id)
+    
+    if request.method == 'POST':
+        step.step_identifier = request.form['step_identifier']
+        step.game_type = request.form['game_type']
+        step.order = int(request.form['order'])
+        step.is_active = 'is_active' in request.form
+        
+        db.session.commit()
+        flash('Krok gry zaktualizowany!', 'success')
+        return redirect(url_for('admin.manage_steps'))
+    
+    return render_template('admin/edit_step.html', step=step)
 
 @admin_bp.route('/admin/step/delete/<int:id>', methods=['POST'])
 def delete_step(id):
@@ -169,39 +175,32 @@ def edit_timeline(identifier):
     timeline = Timeline.query.filter_by(identifier=identifier).first_or_404()
     
     if request.method == 'POST':
-        timeline.title = request.form.get('title')
-        timeline.description = request.form.get('description')
+        # Uproszczona aktualizacja - tylko podstawowe dane
+        timeline.title = request.form['title']
         timeline.is_active = 'is_active' in request.form
-        
-        # Aktualizacja wydarzeń
-        for event in timeline.events:
-            event.title = request.form.get(f'event_title_{event.id}')
-            event.description = request.form.get(f'event_description_{event.id}')
-            event.date = request.form.get(f'event_date_{event.id}')
-            event.order = int(request.form.get(f'event_order_{event.id}', 0))
-        
         db.session.commit()
+        
         flash('Oś czasu zaktualizowana!', 'success')
         return redirect(url_for('admin.manage_timelines'))
     
     return render_template('admin/edit_timeline.html', timeline=timeline)
-    
+
 @admin_bp.route('/admin/timeline/add', methods=['GET', 'POST'])
 def add_timeline():
     if not session.get('admin_logged_in'):
         return redirect(url_for('admin.admin_login'))
     
     if request.method == 'POST':
-        identifier = request.form.get('identifier')
+        identifier = request.form['identifier']
+        
+        # Sprawdź unikalność identyfikatora
         if Timeline.query.filter_by(identifier=identifier).first():
             flash('Oś czasu o tym identyfikatorze już istnieje!', 'danger')
             return redirect(url_for('admin.add_timeline'))
         
         new_timeline = Timeline(
             identifier=identifier,
-            title=request.form.get('title'),
-            description=request.form.get('description'),
-            order=int(request.form.get('order', 0)),
+            title=request.form['title'],
             is_active='is_active' in request.form
         )
         
@@ -212,43 +211,38 @@ def add_timeline():
     
     return render_template('admin/add_timeline.html')
 
-@admin_bp.route('/admin/timeline/<int:id>/add_event', methods=['GET', 'POST'])
-def add_timeline_event(id):
+@admin_bp.route('/admin/timeline/<string:identifier>/add_event', methods=['GET', 'POST'])
+def add_timeline_event(identifier):
     if not session.get('admin_logged_in'):
         return redirect(url_for('admin.admin_login'))
     
-    timeline = Timeline.query.get_or_404(id)
+    timeline = Timeline.query.filter_by(identifier=identifier).first_or_404()
     
     if request.method == 'POST':
         new_event = TimelineEvent(
-            timeline_id=id,
-            title=request.form.get('title'),
-            description=request.form.get('description'),
-            date=request.form.get('date'),
-            order=int(request.form.get('order', 0)))
+            timeline_id=timeline.id,
+            title=request.form['title'],
+            year=int(request.form['year']),  # Proste pole roku
+            order=0  # Domyślna kolejność
+        )
         
         db.session.add(new_event)
         db.session.commit()
         flash('Wydarzenie dodane pomyślnie!', 'success')
-        return redirect(url_for('admin.edit_timeline', identifier=timeline.identifier))
+        return redirect(url_for('admin.edit_timeline', identifier=identifier))
     
     return render_template('admin/add_timeline_event.html', timeline=timeline)
 
-@admin_bp.route('/admin/timeline/<int:id>/delete', methods=['POST'])
-def delete_timeline(id):
+@admin_bp.route('/admin/timeline/<string:identifier>/delete', methods=['POST'])
+def delete_timeline(identifier):
     if not session.get('admin_logged_in'):
         return redirect(url_for('admin.admin_login'))
     
-    timeline = Timeline.query.get_or_404(id)
-    
-    # Najpierw usuń powiązane wydarzenia
-    TimelineEvent.query.filter_by(timeline_id=id).delete()
-    
-    # Następnie usuń sam timeline
+    timeline = Timeline.query.filter_by(identifier=identifier).first_or_404()
     db.session.delete(timeline)
     db.session.commit()
     
-    flash('Oś czasu i jej wydarzenia zostały usunięte!', 'success')
+    flash('Oś czasu została usunięta!', 'success')
     return redirect(url_for('admin.manage_timelines'))
 
 @admin_bp.route('/admin/logout')

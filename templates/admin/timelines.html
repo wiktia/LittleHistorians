@@ -12,7 +12,6 @@
     <table class="table table-hover">
         <thead class="table-light">
             <tr>
-                <th>ID</th>
                 <th>Tytuł</th>
                 <th>Identyfikator</th>
                 <th>Wydarzeń</th>
@@ -23,7 +22,6 @@
         <tbody>
             {% for timeline in timelines %}
             <tr>
-                <td>{{ timeline.id }}</td>
                 <td>{{ timeline.title }}</td>
                 <td><code>{{ timeline.identifier }}</code></td>
                 <td>{{ timeline.events|length }}</td>
@@ -40,11 +38,11 @@
                            class="btn btn-primary" title="Edytuj">
                             <i class="fas fa-edit"></i>
                         </a>
-                        <a href="{{ url_for('admin.add_timeline_event', id=timeline.id) }}" 
+                        <a href="{{ url_for('admin.add_timeline_event', identifier=timeline.identifier) }}" 
                            class="btn btn-success" title="Dodaj wydarzenie">
                             <i class="fas fa-plus-circle"></i>
                         </a>
-                        <form method="POST" action="{{ url_for('admin.delete_timeline', id=timeline.id) }}">
+                        <form method="POST" action="{{ url_for('admin.delete_timeline', identifier=timeline.identifier) }}" class="d-inline">
                             <button type="submit" class="btn btn-danger" 
                                     onclick="return confirm('Usunąć tę oś czasu i wszystkie jej wydarzenia?')"
                                     title="Usuń">
@@ -56,7 +54,7 @@
             </tr>
             {% else %}
             <tr>
-                <td colspan="6" class="text-center py-4 text-muted">
+                <td colspan="5" class="text-center py-4 text-muted">
                     <i class="fas fa-info-circle fa-2x mb-2"></i><br>
                     Brak osi czasu w systemie
                 </td>

@@ -30,12 +30,11 @@ def get_next_step(current_identifier):
     current_step = GameStep.query.filter_by(step_identifier=current_identifier).first()
     if not current_step:
         return 'end'
-       
-    # Standardowe wyszukiwanie następnego kroku
+    
+    # Pobierz następny aktywny krok
     next_step = GameStep.query.filter(
         GameStep.order > current_step.order,
-        GameStep.is_active == True,
-        ~GameStep.step_identifier.in_(['start', 'login'])
+        GameStep.is_active == True
     ).order_by(GameStep.order).first()
     
     return next_step.step_identifier if next_step else 'end'
@@ -104,55 +103,55 @@ def get_quiz_question_by_step():
     }])
 
 # API dla timeline'ów
-@app.route('/api/timelines')
-def get_timelines():
-    timelines = Timeline.query.order_by(Timeline.order).all()
-    return jsonify([{
-        'id': t.id,
-        'identifier': t.identifier,
-        'title': t.title,
-        'description': t.description,
-        'is_active': t.is_active
-    } for t in timelines])
-
 @app.route('/api/timeline_events')
 def get_timeline_events():
     timeline_id = request.args.get('timeline_id')
     if not timeline_id:
-        return jsonify({'error': 'Brak parametru timeline_id'}), 400
+        return jsonify([])
     
-    # Możliwe jest przekazanie ID jako number (1) lub identifier (timeline-1)
-    if timeline_id.isdigit():
-        events = TimelineEvent.query.filter_by(timeline_id=timeline_id).order_by(TimelineEvent.order).all()
-    else:
-        timeline = Timeline.query.filter_by(identifier=timeline_id).first()
-        if not timeline:
-            return jsonify({'error': 'Nie znaleziono osi czasu'}), 404
-        events = timeline.events.order_by(TimelineEvent.order).all()
+    timeline_db_id = get_timeline_id(timeline_id)
+    if not timeline_db_id:
+        return jsonify([])
+    
+    events = TimelineEvent.query.filter_by(timeline_id=timeline_db_id).order_by(TimelineEvent.order).all()
     
     return jsonify([{
         'id': e.id,
         'title': e.title,
         'description': e.description,
-        'date': e.date,
-        'image_url': e.image_url
+        'year': e.year
     } for e in events])
 
 @app.route('/api/timeline_correct_order')
 def get_timeline_correct_order():
     timeline_id = request.args.get('timeline_id')
     if not timeline_id:
-        return jsonify({'error': 'Brak parametru timeline_id'}), 400
+        return jsonify([])
     
-    if timeline_id.isdigit():
-        events = TimelineEvent.query.filter_by(timeline_id=timeline_id).order_by(TimelineEvent.order).all()
-    else:
-        timeline = Timeline.query.filter_by(identifier=timeline_id).first()
-        if not timeline:
-            return jsonify({'error': 'Nie znaleziono osi czasu'}), 404
-        events = timeline.events.order_by(TimelineEvent.order).all()
+    timeline_db_id = get_timeline_id(timeline_id)
+    if not timeline_db_id:
+        return jsonify([])
     
-    return jsonify([e.date for e in events])
+    events = TimelineEvent.query.filter_by(timeline_id=timeline_db_id).order_by(TimelineEvent.order).all()
+    return jsonify([e.year for e in events])
+
+@app.route("/update_timeline_score", methods=["POST"])
+def update_timeline_score():
+    if "player_id" not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+        
+    data = request.get_json()
+    timeline_id = data.get("timeline_id")
+    score = data.get("score")
+    
+    player = Player.query.get(session["player_id"])
+    if player:
+        player.score += int(score)
+        db.session.commit()
+        return jsonify({"success": True})
+    
+    return jsonify({"error": "Player not found"}), 404
+
 # Główne endpointy gry
 @app.route("/")
 def startscreen():
@@ -219,32 +218,59 @@ def text_to_image():
     return render_template("text_to_image.html")
 
 def get_timeline_id(identifier):
+    if identifier.isdigit():
+        return int(identifier)
+    
     timeline = Timeline.query.filter_by(identifier=identifier).first()
-    return timeline.id if timeline else 1  # domyślnie pierwszy timeline
+    return timeline.id if timeline else None  # zwróć None zamiast 1
 
+    
+    
 @app.route('/timeline')
 def timeline():
     if "player_id" not in session:
+        print("Redirecting to login: no player_id in session")
         return redirect(url_for("logowanie"))
     
-    # Pobierz ID osi czasu z URL (np. ?timeline_id=timeline-1)
     timeline_id = request.args.get('timeline_id')
+    print(f"Requested timeline_id: {timeline_id}")
     
     # Sprawdź czy gracz już ukończył tę oś
-    if f"completed_{timeline_id}" in session:
-        return redirect(url_for('next_step'))  # Jeśli tak, od razu przejdź dalej
+    completion_key = f"completed_{timeline_id}"
+    print(f"Checking completion key: {completion_key}")
+    if completion_key in session:
+        print(f"Timeline {timeline_id} already completed. Redirecting to next_step.")
+        return redirect(url_for('next_step'))
     
-    # Pobierz 3 wydarzenia z bazy
-    events = TimelineEvent.query.filter_by(timeline_id=timeline_id).order_by(TimelineEvent.order).limit(3).all()
+    # Pobierz ID osi czasu w bazie
+    timeline_db_id = get_timeline_id(timeline_id)
+    print(f"Database timeline ID: {timeline_db_id}")
+    
+    if not timeline_db_id:
+        print(f"Timeline not found for identifier: {timeline_id}")
+        flash("Nie znaleziono osi czasu", "error")
+        return redirect(url_for('next_step'))
+    
+    # Pobierz wydarzenia
+    events = TimelineEvent.query.filter_by(timeline_id=timeline_db_id).order_by(TimelineEvent.order).limit(3).all()
+    print(f"Found {len(events)} events for timeline {timeline_id}")
+    
+    # Sprawdź czy są wystarczająco wydarzeń
+    if len(events) < 3:
+        print(f"Not enough events ({len(events)}) for timeline {timeline_id}")
+        flash("Ta oś czasu nie ma wystarczającej liczby wydarzeń", "error")
+        return redirect(url_for('next_step'))
     
     # Zapisz w sesji, że oś została ukończona
-    session[f"completed_{timeline_id}"] = True
+    session[completion_key] = True
+    print(f"Marked timeline {timeline_id} as completed")
     
     return render_template('timeline.html', 
                          events=events,
-                         timeline_id=timeline_id)
-    
-
+                         timeline_id=timeline_id,
+                         slot1_year=events[0].year,
+                         slot2_year=events[1].year,
+                         slot3_year=events[2].year)
 @app.route("/quiz")
 def quiz():
     if "player_id" not in session:

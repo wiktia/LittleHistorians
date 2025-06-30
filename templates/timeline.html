@@ -3,52 +3,49 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styletimeline.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styletimeline.css') }}">
   <script defer src="{{ url_for('static', filename='scripttimeline.js') }}"></script>
   <script src="{{ url_for('static', filename='js/timer.js') }}"></script>
 </head>
 <body data-timeline-id="{{ timeline_id }}">
    
   <div class="top-bar">
-        <div class="progress-bar-section"> 
-            <div class="progress-bar-fill" style="width: 20%;"></div> 
-        </div>
-        
-        <div class="clock-container">
-            <div class="czas">XX:XX</div>
-            <img data-layer="zegar" id="zegar" src="/static/obrazki/zegar2.png" alt="Zegar">
-        </div>
+    <div class="progress-bar-section"> 
+      <div class="progress-bar-fill" style="width: 20%;"></div> 
     </div>
-  <div class="container">
+    
+    <div class="clock-container">
+      <div class="czas">XX:XX</div>
+      <img data-layer="zegar" id="zegar" src="/static/obrazki/zegar2.png" alt="Zegar">
+    </div>
+  </div>
   
+  <div class="container">
     <div class="title">Dopasuj wydarzenia na osi czasu!</div>
 
     <div id="cards" class="options">
       {% for event in events %}
-      <div class="option card draggable" data-date="{{ event.date }}">{{ event.description }}</div>
+      <div class="option card draggable" data-year="{{ event.year }}">{{ event.title }}</div>
       {% endfor %}
     </div>
 
     <div class="timeline-wrapper">
       <img src="{{ url_for('static', filename='obrazki/ośczasu.png') }}" alt="oś czasu" class="timeline-img"/>
 
-      <div class="labels label-1">– {{ slot1_date }}</div>
-      <div class="event-slot slot-1 slot" data-correct="{{ slot1_date }}">?</div>
+      <!-- ZMIANA: slotX_year zamiast slotX_date -->
+      <div class="labels label-1">– {{ slot1_year }}</div>
+      <div class="event-slot slot-1 slot" data-correct="{{ slot1_year }}">?</div>
 
-      <div class="labels label-2">– {{ slot2_date }}</div>
-      <div class="event-slot slot-2 slot" data-correct="{{ slot2_date }}">?</div>
+      <div class="labels label-2">– {{ slot2_year }}</div>
+      <div class="event-slot slot-2 slot" data-correct="{{ slot2_year }}">?</div>
 
-      <div class="labels label-3">– {{ slot3_date }}</div>
-      <div class="event-slot slot-3 slot" data-correct="{{ slot3_date }}">?</div>
+      <div class="labels label-3">– {{ slot3_year }}</div>
+      <div class="event-slot slot-3 slot" data-correct="{{ slot3_year }}">?</div>
     </div>
 
     <div id="scoreDisplay"></div>
-
   </div>
 
- 
-    
-
-      <div data-layer="Ellipse 1" class="Ellipse1"></div>
+  <div data-layer="Ellipse 1" class="Ellipse1"></div>
 </body>
 </html>

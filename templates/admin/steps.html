@@ -8,6 +8,7 @@
     <thead>
         <tr>
             <th>ID</th>
+            <th>Identyfikator kroku</th>
             <th>Typ gry</th>
             <th>Kolejność</th>
             <th>Status</th>
@@ -18,6 +19,7 @@
         {% for step in steps %}
         <tr>
             <td>{{ step.id }}</td>
+            <td>{{ step.step_identifier }}</td>  <!-- Nowe pole -->
             <td>{{ step.game_type }}</td>
             <td>{{ step.order }}</td>
             <td>{{ "Aktywny" if step.is_active else "Nieaktywny" }}</td>

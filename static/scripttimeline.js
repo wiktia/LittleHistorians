@@ -4,37 +4,10 @@ const slots = document.querySelectorAll('.slot');
 
 let scoreAlreadySent = false;
 
-// Funkcje zarządzania timeline'ami
+// Pobierz ID aktualnej osi czasu
 const getCurrentTimelineId = () => {
-  const params = new URLSearchParams(window.location.search);
-  return params.get('timeline_id') || 'timeline-1';
+  return document.body.dataset.timelineId || 'timeline-1';
 };
-
-const getLastCompletedTimeline = () => {
-  return sessionStorage.getItem('lastCompletedTimeline');
-};
-
-const setLastCompletedTimeline = (id) => {
-  sessionStorage.setItem('lastCompletedTimeline', id);
-};
-
-// Sprawdź czy obecny timeline został już ukończony
-const checkIfTimelineCompleted = () => {
-  const current = getCurrentTimelineId();
-  const lastCompleted = getLastCompletedTimeline();
-  
-  if (!lastCompleted) return false;
-  
-  const currentNum = parseInt(current.split('-')[1]);
-  const lastNum = parseInt(lastCompleted.split('-')[1]);
-  
-  return currentNum <= lastNum;
-};
-
-// Przekieruj jeśli timeline już ukończony
-if (checkIfTimelineCompleted()) {
-  window.location.href = "/next";
-}
 
 // Funkcje drag & drop
 function enableDrag(card) {
@@ -109,11 +82,12 @@ function checkAllSlots() {
     return;
   }
 
-  // Oblicz wynik
+  // Oblicz wynik - PORÓWNUJEMY LICZBY (ROK)
   let score = 0;
   slots.forEach(slot => {
     const card = slot.querySelector('.card');
-    const isCorrect = card.dataset.date === slot.dataset.correct;
+
+    const isCorrect = parseInt(card.dataset.year) === parseInt(slot.dataset.correct);
     
     if (isCorrect) {
       score++;
@@ -138,12 +112,9 @@ function checkAllSlots() {
   }
 }
 
-// Zapisz wynik i przejdź dalej
+// Zapisz wynik i przejdź dalej - UPROSZCZONE
 function saveAndProceed(score) {
   const timelineId = getCurrentTimelineId();
-  
-  // Zapisz w sessionStorage
-  setLastCompletedTimeline(timelineId);
   
   // Wyślij wynik na serwer
   fetch('/update_timeline_score', {
@@ -154,19 +125,28 @@ function saveAndProceed(score) {
       timeline_id: timelineId
     })
   })
-  .then(() => {
-    // Przekieruj na /next po zapisaniu
-    window.location.href = "/next";
+  .then(response => {
+    if (response.ok) {
+      // Przekieruj na /next po zapisaniu
+      window.location.href = "/next";
+    } else {
+      console.error("Błąd zapisu wyniku:", response.statusText);
+      scoreAlreadySent = false; // Zezwól na ponowną próbę
+    }
   })
   .catch(error => {
-    console.error("Błąd zapisu wyniku:", error);
+    console.error("Błąd sieci:", error);
+    scoreAlreadySent = false; // Zezwól na ponowną próbę
   });
 }
 
-const zegar = document.getElementById('zegar');
-let rotation = 0;
 
-setInterval(() => {
-    rotation += 45;
-    zegar.style.transform = `rotate(${rotation}deg)`;
-}, 1000);
+    // Inicjalizacja zegara
+    const zegar = document.getElementById('zegar');
+    if (zegar) {
+        let rotation = 0;
+        setInterval(() => {
+            rotation += 45;
+            zegar.style.transform = `rotate(${rotation}deg)`;
+        }, 1000);
+    }

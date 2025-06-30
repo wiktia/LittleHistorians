@@ -6,7 +6,6 @@ db = SQLAlchemy()
 # Modele
 class GameStep(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), nullable=False)  
     game_type = db.Column(db.String(50), nullable=False)  
     step_identifier = db.Column(db.String(50))  
     order = db.Column(db.Integer, nullable=False)  
@@ -43,9 +42,7 @@ class TimelineEvent(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     timeline_id = db.Column(db.Integer, db.ForeignKey('timeline.id'))
     title = db.Column(db.String(100))
-    description = db.Column(db.Text)
-    date = db.Column(db.String(50))  # format daty dostosowany do potrzeb
-    image_url = db.Column(db.String(255))
-    order = db.Column(db.Integer)  # kolejność w osi czasu
+    year = db.Column(db.Integer)
+    order = db.Column(db.Integer)  
 
     timeline = db.relationship('Timeline', backref='events')
