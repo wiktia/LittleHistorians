@@ -161,13 +161,14 @@ function sendQuizScore(points) {
 
 // Animacja zegara
 const zegar = document.getElementById('zegar');
-if (zegar) {
-    let rotation = 0;
-    setInterval(() => {
-        rotation += 45;
-        zegar.style.transform = `rotate(${rotation}deg)`;
-    }, 1000);
-}
+let rotation = 0;
+
+setInterval(() => {
+    rotation = (rotation + 45) % 360;  // Obrót o 45 stopni, modulo 360 dla zapętlenia
+    zegar.style.transition = 'none';   // Wyłącz animację płynną (od razu zmiana)
+    zegar.style.transform = `rotate(${rotation}deg)`;
+}, 1000);
+
 
 // Start quizu
 fetchSingleQuestion();
