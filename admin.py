@@ -1,18 +1,28 @@
+import os
+from dotenv import load_dotenv
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, jsonify
-from models import db, GameStep, QuizQuestion, Timeline, TimelineEvent
-from models import Player
+from werkzeug.security import check_password_hash
+from models import db, GameStep, QuizQuestion, Timeline, TimelineEvent, Player
+
+
+load_dotenv(dotenv_path='config.env')
+
 admin_bp = Blueprint('admin', __name__)
 
-# Panel administracyjny
 @admin_bp.route('/admin', methods=['GET', 'POST'])
 def admin_login():
+    admin_password_hash = os.getenv('ADMIN_PASSWORD_HASH')
+
     if request.method == 'POST':
-        if request.form.get('password') == 'maslo': # TODO: zmienić na bezpieczne hasło
+        input_password = request.form.get('password')
+        if check_password_hash(admin_password_hash, input_password):
             session['admin_logged_in'] = True
             return redirect(url_for('admin.admin_dashboard'))
         else:
             flash('Nieprawidłowe hasło', 'danger')
     return render_template('admin/login.html')
+
+
 
 @admin_bp.route('/admin/dashboard')
 def admin_dashboard():
