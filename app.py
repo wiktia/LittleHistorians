@@ -174,8 +174,8 @@ def start():
     # Wyciągnij czysty numer awatara (np. "1.png" -> "1")
     avatar_number = os.path.splitext(avatar)[0]
     
-    # Zapisz tylko numer awatara w sesji
-    session['avatar'] = avatar_number
+    # Zapisz numer awatara w sesji jako liczbę
+    session['avatar'] = int(avatar_number) if avatar_number.isdigit() else None
 
     player = Player.query.filter_by(name=name, avatar=avatar).first()
     if not player:
@@ -188,6 +188,7 @@ def start():
 
     session['player_id'] = player.id
     return redirect(url_for('next_step'))
+
 @app.route("/api/get_start_time")
 def get_start_time():
     if "player_id" not in session:
@@ -253,6 +254,7 @@ def quiz():
 
 @app.route("/endscreen")  
 def endscreen():
+    avatar_number = session.get('avatar')
     player_id = session.get("player_id")
     if not player_id:
         return redirect(url_for("logowanie"))
@@ -263,8 +265,9 @@ def endscreen():
     
     players = Player.query.order_by(Player.score.desc()).all()
     rank = next((index + 1 for index, p in enumerate(players) if p.id == player.id), None)
+    image_path = f"obrazki/{avatar_number}.png"
 
-    return render_template("endscreen.html", player=player, rank=rank)
+    return render_template("endscreen.html", player=player, rank=rank, image_path=image_path)
 
 @app.route("/save_score", methods=["POST"])
 def save_score():
@@ -315,20 +318,17 @@ def next_step():
 @app.route('/loading_screen')
 def loading_screen():
     next_step = request.args.get('next_step')
+    avatar_number = session.get('avatar')
     
-    # Pobierz numer awatara z sesji
-    avatar_number = session.get('avatar', '')
-    
-    # Utwórz ścieżkę do obrazka z dopiskiem -like
-    if avatar_number and avatar_number.isdigit() and 1 <= int(avatar_number) <= 23 and int(avatar_number) % 2 != 0:
-        image_path = f"static/obrazki/{avatar_number}-like.png"
+    # Sprawdź czy avatar_number jest liczbą nieparzystą w zakresie 1-23
+    if isinstance(avatar_number, int) and 1 <= avatar_number <= 23 and avatar_number % 2 != 0:
+        image_path = f"obrazki/{avatar_number}-like.png"
     else:
         image_path = None
-    
+    print(f"Avatar number in session: {session.get('avatar')}")
     return render_template('animationpositive.html', 
                         next_step_url=url_for(get_step_route(next_step)),
                         image_path=image_path)
-
 
 if __name__ == "__main__":
     app.run(debug=True)

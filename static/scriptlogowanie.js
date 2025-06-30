@@ -28,6 +28,7 @@ const femaleAvatars = [
 ];
 
 // Funkcja ładująca avatary
+// Zmodyfikowana funkcja loadAvatars
 function loadAvatars(avatarList) {
   avatarContainer.innerHTML = "";
 
@@ -44,7 +45,8 @@ function loadAvatars(avatarList) {
 
       img.classList.add("selected-avatar");
       selectedAvatar = src;
-      avatarHiddenInput.value = src; // ustaw hidden input do formularza
+      // Zmiana: zapisujemy tylko nazwę pliku (np. "5.png"), a nie pełną ścieżkę
+      avatarHiddenInput.value = src.split('/').pop(); 
     });
 
     avatarContainer.appendChild(img);

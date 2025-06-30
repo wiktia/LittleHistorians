@@ -1,12 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-     <link rel="stylesheet" href="{{ url_for('static', filename='animation2.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='animation2.css') }}">
     <script>
-        // Redirect to next step after 3 seconds
-        setTimeout(function() {
+        // Redirect after 3s
+        setTimeout(function () {
             window.location.href = "{{ next_step_url }}";
-        }, 1500);
+        }, 5000);
+
+        // Losowe kolory dla Ellipse1
+        const colors = [
+            'rgba(255, 99, 132, 0.7)',   // różowy
+            'rgba(54, 162, 235, 0.7)',   // niebieski
+            'rgba(255, 206, 86, 0.7)',   // żółty
+            'rgba(75, 192, 192, 0.7)',   // turkusowy
+            'rgba(153, 102, 255, 0.7)',  // fioletowy
+            'rgba(255, 159, 64, 0.7)'    // pomarańczowy
+        ];
+
+        window.onload = function () {
+            const ellipse = document.querySelector('.Ellipse1');
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            ellipse.style.background = randomColor;
+        };
     </script>
 </head>
 <body>
@@ -15,9 +31,15 @@
     <div data-layer="Następnym razem się uda!" class="NastPnymRazemSiUda">
         Bardzo dobrze Ci idzie!
     </div>
-{% if image_path %}
-    <img src="{{ url_for('static', filename=image_path) }}" alt="Avatar like">
-{% endif %}
+    {% if image_path %}
+    <img src="{{ url_for('static', filename=image_path) }}" class="Obrazek" alt="Avatar like">
+    {% endif %}
 </div>
+
+
+<audio autoplay>
+  <source src="{{ url_for('static', filename='sounds/jeeej.mp3') }}" type="audio/mpeg">
+</audio>
+
 </body>
 </html>
