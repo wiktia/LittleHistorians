@@ -220,30 +220,32 @@ def text_to_image():
     return render_template("text_to_image.html")
 
 def get_timeline_id(identifier):
-    timeline = Timeline.query.filter_by(identifier=identifier).first()
-    return timeline.id if timeline else 1  # domyślnie pierwszy timeline
+    # If no identifier provided, default to first timeline
+    if identifier is None:
+        timeline = Timeline.query.order_by(Timeline.order).first()
+        return timeline.id if timeline else 1
+    
+    # If identifier is not a digit, find matching timeline
+    if not identifier.isdigit():
+        timeline = Timeline.query.filter_by(identifier=identifier).first()
+        return timeline.id if timeline else 1  # default to first timeline
+    
+    return int(identifier)
 
 @app.route('/timeline')
 def timeline():
     if "player_id" not in session:
         return redirect(url_for("logowanie"))
     
-    # Pobierz ID osi czasu z URL (np. ?timeline_id=timeline-1)
+    # Get timeline ID from URL (default to None if not provided)
     timeline_id = request.args.get('timeline_id')
     
-    # Sprawdź czy gracz już ukończył tę oś
-    if f"completed_{timeline_id}" in session:
-        return redirect(url_for('next_step'))  # Jeśli tak, od razu przejdź dalej
-    
-    # Pobierz 3 wydarzenia z bazy
-    events = TimelineEvent.query.filter_by(timeline_id=timeline_id).order_by(TimelineEvent.order).limit(3).all()
-    
-    # Zapisz w sesji, że oś została ukończona
-    session[f"completed_{timeline_id}"] = True
+    # Get 3 events from database
+    events = TimelineEvent.query.filter_by(timeline_id=get_timeline_id(timeline_id)).order_by(TimelineEvent.order).limit(3).all()
     
     return render_template('timeline.html', 
                          events=events,
-                         timeline_id=timeline_id)
+                         timeline_id=timeline_id or 'default')
     
 
 @app.route("/quiz")

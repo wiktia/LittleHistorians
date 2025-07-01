@@ -168,8 +168,20 @@ def manage_timelines():
     if not session.get('admin_logged_in'):
         return redirect(url_for('admin.admin_login'))
     
-    timelines = Timeline.query.order_by(Timeline.order).all()
-    return render_template('admin/timelines.html', timelines=timelines)
+    # Get the single timeline (or create if doesn't exist)
+    timeline = Timeline.query.first()
+    if not timeline:
+        timeline = Timeline(
+            identifier="main-timeline",
+            title="Główna oś czasu",
+            description="Jedyna oś czasu w grze",
+            order=1,
+            is_active=True
+        )
+        db.session.add(timeline)
+        db.session.commit()
+    
+    return redirect(url_for('admin.edit_timeline', identifier=timeline.identifier))
 
 @admin_bp.route('/admin/timeline/<string:identifier>', methods=['GET', 'POST'])
 def edit_timeline(identifier):
@@ -183,10 +195,9 @@ def edit_timeline(identifier):
         timeline.description = request.form.get('description')
         timeline.is_active = 'is_active' in request.form
         
-        # Aktualizacja wydarzeń
+        # Handle events (without images)
         for event in timeline.events:
             event.title = request.form.get(f'event_title_{event.id}')
-            event.description = request.form.get(f'event_description_{event.id}')
             event.date = request.form.get(f'event_date_{event.id}')
             event.order = int(request.form.get(f'event_order_{event.id}', 0))
         
@@ -195,32 +206,6 @@ def edit_timeline(identifier):
         return redirect(url_for('admin.manage_timelines'))
     
     return render_template('admin/edit_timeline.html', timeline=timeline)
-    
-@admin_bp.route('/admin/timeline/add', methods=['GET', 'POST'])
-def add_timeline():
-    if not session.get('admin_logged_in'):
-        return redirect(url_for('admin.admin_login'))
-    
-    if request.method == 'POST':
-        identifier = request.form.get('identifier')
-        if Timeline.query.filter_by(identifier=identifier).first():
-            flash('Oś czasu o tym identyfikatorze już istnieje!', 'danger')
-            return redirect(url_for('admin.add_timeline'))
-        
-        new_timeline = Timeline(
-            identifier=identifier,
-            title=request.form.get('title'),
-            description=request.form.get('description'),
-            order=int(request.form.get('order', 0)),
-            is_active='is_active' in request.form
-        )
-        
-        db.session.add(new_timeline)
-        db.session.commit()
-        flash('Oś czasu dodana pomyślnie!', 'success')
-        return redirect(url_for('admin.manage_timelines'))
-    
-    return render_template('admin/add_timeline.html')
 
 @admin_bp.route('/admin/timeline/<int:id>/add_event', methods=['GET', 'POST'])
 def add_timeline_event(id):
@@ -233,9 +218,10 @@ def add_timeline_event(id):
         new_event = TimelineEvent(
             timeline_id=id,
             title=request.form.get('title'),
-            description=request.form.get('description'),
             date=request.form.get('date'),
-            order=int(request.form.get('order', 0)))
+            order=int(request.form.get('order', 0)),
+            image_url=None  # Explicitly set to None
+        )
         
         db.session.add(new_event)
         db.session.commit()
@@ -243,23 +229,6 @@ def add_timeline_event(id):
         return redirect(url_for('admin.edit_timeline', identifier=timeline.identifier))
     
     return render_template('admin/add_timeline_event.html', timeline=timeline)
-
-@admin_bp.route('/admin/timeline/<int:id>/delete', methods=['POST'])
-def delete_timeline(id):
-    if not session.get('admin_logged_in'):
-        return redirect(url_for('admin.admin_login'))
-    
-    timeline = Timeline.query.get_or_404(id)
-    
-    # Najpierw usuń powiązane wydarzenia
-    TimelineEvent.query.filter_by(timeline_id=id).delete()
-    
-    # Następnie usuń sam timeline
-    db.session.delete(timeline)
-    db.session.commit()
-    
-    flash('Oś czasu i jej wydarzenia zostały usunięte!', 'success')
-    return redirect(url_for('admin.manage_timelines'))
 
 @admin_bp.route('/admin/logout')
 def admin_logout():

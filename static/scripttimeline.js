@@ -1,172 +1,156 @@
-const cardsContainer = document.getElementById('cards');
-const scoreDisplay = document.getElementById('scoreDisplay');
-const slots = document.querySelectorAll('.slot');
+document.addEventListener('DOMContentLoaded', function() {
+    const cardsContainer = document.getElementById('cards');
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    const slots = document.querySelectorAll('.slot');
+    const timelineId = document.body.getAttribute('data-timeline-id');
+    let scoreAlreadySent = false;
 
-let scoreAlreadySent = false;
+    // Initialize draggable cards
+    function initializeCards() {
+        const cards = document.querySelectorAll('.card');
+        cards.forEach(card => {
+            card.addEventListener('dragstart', dragStart);
+            card.addEventListener('dragend', dragEnd);
+        });
 
-// Funkcje zarządzania timeline'ami
-const getCurrentTimelineId = () => {
-  const params = new URLSearchParams(window.location.search);
-  return params.get('timeline_id') || 'timeline-1';
-};
+        // Initialize slots
+        slots.forEach(slot => {
+            slot.addEventListener('dragover', dragOver);
+            slot.addEventListener('drop', drop);
+            slot.addEventListener('dragleave', dragLeave);
+            slot.addEventListener('dragenter', dragEnter);
+        });
 
-const getLastCompletedTimeline = () => {
-  return sessionStorage.getItem('lastCompletedTimeline');
-};
-
-const setLastCompletedTimeline = (id) => {
-  sessionStorage.setItem('lastCompletedTimeline', id);
-};
-
-// Sprawdź czy obecny timeline został już ukończony
-const checkIfTimelineCompleted = () => {
-  const current = getCurrentTimelineId();
-  const lastCompleted = getLastCompletedTimeline();
-  
-  if (!lastCompleted) return false;
-  
-  const currentNum = parseInt(current.split('-')[1]);
-  const lastNum = parseInt(lastCompleted.split('-')[1]);
-  
-  return currentNum <= lastNum;
-};
-
-// Przekieruj jeśli timeline już ukończony
-if (checkIfTimelineCompleted()) {
-  window.location.href = "/next";
-}
-
-// Funkcje drag & drop
-function enableDrag(card) {
-  card.classList.add('draggable');
-  card.setAttribute('draggable', true);
-  card.classList.remove('disabled');
-
-  card.addEventListener('dragstart', e => {
-    e.dataTransfer.setData('text/plain', card.dataset.id);
-    setTimeout(() => card.style.display = "none", 0);
-  });
-
-  card.addEventListener('dragend', () => {
-    card.style.display = "block";
-  });
-}
-
-// Inicjalizacja kart
-document.querySelectorAll('.draggable').forEach((card, index) => {
-  card.dataset.id = `card-${index}`;
-  enableDrag(card);
-});
-
-// Obsługa slotów
-slots.forEach(slot => {
-  slot.addEventListener('dragover', e => e.preventDefault());
-  
-  slot.addEventListener('drop', e => {
-    e.preventDefault();
-    const cardId = e.dataTransfer.getData('text/plain');
-    const card = document.querySelector(`[data-id='${cardId}']`);
-    
-    if (!card) return;
-
-    if (slot.querySelector('.card')) {
-      const existingCard = slot.querySelector('.card');
-      cardsContainer.appendChild(existingCard);
-      enableDrag(existingCard);
+        // Allow dropping back to cards container
+        cardsContainer.addEventListener('dragover', dragOver);
+        cardsContainer.addEventListener('drop', dropToContainer);
     }
 
-    slot.innerHTML = '';
-    slot.appendChild(card);
-    checkAllSlots();
-  });
-});
-
-// Obsługa powrotu kart do kontenera
-cardsContainer.addEventListener('dragover', e => e.preventDefault());
-cardsContainer.addEventListener('drop', e => {
-  e.preventDefault();
-  const cardId = e.dataTransfer.getData('text/plain');
-  const card = document.querySelector(`[data-id='${cardId}']`);
-  
-  if (!card) return;
-  
-  cardsContainer.appendChild(card);
-  slots.forEach(slot => {
-    if (slot.querySelector(`[data-id='${cardId}']`)) {
-      slot.innerHTML = '?';
+    // Drag and drop functions
+    function dragStart(e) {
+        e.dataTransfer.setData('text/plain', this.dataset.id);
+        setTimeout(() => this.classList.add('dragging'), 0);
     }
-  });
-  
-  checkAllSlots();
-});
 
-// Sprawdź ukończenie timeline'a
-function checkAllSlots() {
-  const allFilled = Array.from(slots).every(slot => slot.querySelector('.card'));
-  
-  if (!allFilled) {
-    scoreDisplay.innerText = '';
-    return;
-  }
-
-  // Oblicz wynik
-  let score = 0;
-  slots.forEach(slot => {
-    const card = slot.querySelector('.card');
-    const isCorrect = card.dataset.date === slot.dataset.correct;
-    
-    if (isCorrect) {
-      score++;
-      card.style.backgroundColor = '#5CB85C';
-    } else {
-      card.style.backgroundColor = '#D9534F';
+    function dragEnd() {
+        this.classList.remove('dragging');
     }
-  });
 
-  scoreDisplay.innerText = `Zdobyto ${score} / ${slots.length} punktów`;
+    function dragOver(e) {
+        e.preventDefault();
+    }
 
-  // Zablokuj edycję
-  document.querySelectorAll('.card').forEach(card => {
-    card.classList.add('disabled');
-    card.setAttribute('draggable', false);
-  });
+    function dragEnter(e) {
+        e.preventDefault();
+        this.classList.add('hovered');
+    }
 
-  // Zapisz wynik tylko raz
-  if (!scoreAlreadySent) {
-    saveAndProceed(score);
-    scoreAlreadySent = true;
-  }
-}
+    function dragLeave() {
+        this.classList.remove('hovered');
+    }
 
-// Zapisz wynik i przejdź dalej
-function saveAndProceed(score) {
-  const timelineId = getCurrentTimelineId();
-  
-  // Zapisz w sessionStorage
-  setLastCompletedTimeline(timelineId);
-  
-  // Wyślij wynik na serwer
-  fetch('/update_timeline_score', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ 
-      score: score,
-      timeline_id: timelineId
-    })
-  })
-  .then(() => {
-    // Przekieruj na /next po zapisaniu
-    window.location.href = "/next";
-  })
-  .catch(error => {
-    console.error("Błąd zapisu wyniku:", error);
-  });
-}
+    function drop(e) {
+        e.preventDefault();
+        this.classList.remove('hovered');
+        
+        const cardId = e.dataTransfer.getData('text/plain');
+        const card = document.querySelector(`[data-id="${cardId}"]`);
+        
+        if (!card) return;
 
-const zegar = document.getElementById('zegar');
-let rotation = 0;
+        // If slot already has a card, return it to container
+        if (this.querySelector('.card')) {
+            const existingCard = this.querySelector('.card');
+            cardsContainer.appendChild(existingCard);
+        }
 
-setInterval(() => {
-    rotation += 45;
-    zegar.style.transform = `rotate(${rotation}deg)`;
-}, 1000);
+        // Add the new card to the slot
+        this.innerHTML = '';
+        this.appendChild(card);
+        
+        checkAllSlots();
+    }
+
+    function dropToContainer(e) {
+        e.preventDefault();
+        const cardId = e.dataTransfer.getData('text/plain');
+        const card = document.querySelector(`[data-id="${cardId}"]`);
+        
+        if (!card) return;
+        
+        cardsContainer.appendChild(card);
+        
+        // Clear the slot if this card was in one
+        slots.forEach(slot => {
+            if (slot.contains(card)) {
+                slot.innerHTML = '?';
+            }
+        });
+        
+        checkAllSlots();
+    }
+
+    // Check if all slots are filled and calculate score
+    function checkAllSlots() {
+        const allFilled = Array.from(slots).every(slot => slot.querySelector('.card'));
+        
+        if (!allFilled) {
+            scoreDisplay.textContent = '';
+            return;
+        }
+
+        // Calculate score
+        let score = 0;
+        slots.forEach(slot => {
+            const card = slot.querySelector('.card');
+            if (card.dataset.date === slot.dataset.correct) {
+                score++;
+                slot.style.backgroundColor = 'rgba(76, 175, 80, 0.3)';
+            } else {
+                slot.style.backgroundColor = 'rgba(244, 67, 54, 0.3)';
+            }
+        });
+
+        scoreDisplay.textContent = `Zdobyto ${score} / ${slots.length} punktów`;
+
+        // Disable further dragging
+        document.querySelectorAll('.card').forEach(card => {
+            card.removeEventListener('dragstart', dragStart);
+            card.removeEventListener('dragend', dragEnd);
+            card.draggable = false;
+        });
+
+        // Save score and proceed (only once)
+        if (!scoreAlreadySent) {
+            saveAndProceed(score);
+            scoreAlreadySent = true;
+        }
+    }
+
+    // Send score to server and proceed to next step
+    function saveAndProceed(score) {
+        fetch('/save_score', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                score: score,
+                timeline_id: timelineId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.next_step_url) {
+                setTimeout(() => {
+                    window.location.href = data.next_step_url;
+                }, 2000); // 2 second delay before redirect
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+
+    initializeCards();
+});

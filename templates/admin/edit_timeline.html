@@ -1,101 +1,53 @@
-{% extends "admin/base.html" %}
+{% extends 'admin/base.html' %}
 
 {% block content %}
-<div class="container">
-    <h2 class="my-4">Edycja osi czasu: {{ timeline.title }}</h2>
+<h2>Edytuj Oś Czasu</h2>
+<form method="POST" enctype="multipart/form-data">
+    <div class="form-group">
+        <label>Tytuł:</label>
+        <input type="text" name="title" value="{{ timeline.title }}" class="form-control">
+    </div>
+    <div class="form-group">
+        <label>Opis:</label>
+        <textarea name="description" class="form-control">{{ timeline.description }}</textarea>
+    </div>
+    <div class="form-check">
+        <input type="checkbox" name="is_active" id="is_active" class="form-check-input" 
+               {% if timeline.is_active %}checked{% endif %}>
+        <label for="is_active" class="form-check-label">Aktywna</label>
+    </div>
     
-    <form method="POST">
-        <div class="card mb-4">
-            <div class="card-header">Podstawowe informacje</div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label class="form-label">Identyfikator</label>
-                            <input type="text" class="form-control" value="{{ timeline.identifier }}" readonly>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label for="title" class="form-label">Tytuł</label>
-                            <input type="text" class="form-control" id="title" name="title" 
-                                   value="{{ timeline.title }}" required>
-                        </div>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label for="description" class="form-label">Opis</label>
-                    <textarea class="form-control" id="description" name="description" 
-                              rows="3">{{ timeline.description }}</textarea>
-                </div>
-                <div class="form-check form-switch mb-3">
-                    <input class="form-check-input" type="checkbox" id="is_active" name="is_active"
-                           {% if timeline.is_active %}checked{% endif %}>
-                    <label class="form-check-label" for="is_active">Oś czasu aktywna</label>
-                </div>
+    <h3 class="mt-4">Wydarzenia</h3>
+    <div class="events-container">
+        {% for event in timeline.events|sort(attribute='order') %}
+        <div class="event-card mb-4 p-3 border">
+            <div class="form-group">
+                <label>Tytuł wydarzenia:</label>
+                <input type="text" name="event_title_{{ event.id }}" 
+                       value="{{ event.title }}" class="form-control">
             </div>
-        </div>
+            <div class="form-group">
+                <label>Data:</label>
+                <input type="text" name="event_date_{{ event.id }}" 
+                       value="{{ event.date }}" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>Kolejność:</label>
+                <input type="number" name="event_order_{{ event.id }}" 
+                       value="{{ event.order }}" class="form-control">
+            </div>
 
-        <div class="card mb-4">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <span>Wydarzenia</span>
-                <a href="{{ url_for('admin.add_timeline_event', id=timeline.id) }}" class="btn btn-sm btn-success">
-                    <i class="fas fa-plus"></i> Dodaj wydarzenie
-                </a>
-            </div>
-            <div class="card-body">
-                {% if timeline.events %}
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th width="80">Kolejność</th>
-                                <th>Tytuł</th>
-                                <th>Data</th>
-                                <th>Opis</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for event in timeline.events %}
-                            <tr>
-                                <td>
-                                    <input type="number" class="form-control" name="event_order_{{ event.id }}" 
-                                           value="{{ event.order }}" min="1" style="width: 70px;">
-                                </td>
-                                <td>
-                                    <input type="text" class="form-control" name="event_title_{{ event.id }}" 
-                                           value="{{ event.title }}" required>
-                                </td>
-                                <td>
-                                    <input type="text" class="form-control" name="event_date_{{ event.id }}" 
-                                           value="{{ event.date }}" required>
-                                </td>
-                                <td>
-                                    <textarea class="form-control" name="event_description_{{ event.id }}" 
-                                              rows="1">{{ event.description }}</textarea>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                <div class="alert alert-info">
-                    Brak wydarzeń dla tej osi czasu. 
-                    <a href="{{ url_for('admin.add_timeline_event', id=timeline.id) }}">Dodaj pierwsze wydarzenie</a>
-                </div>
-                {% endif %}
-            </div>
         </div>
+        {% endfor %}
+    </div>
+    
+    <button type="submit" class="btn btn-primary">Zapisz zmiany</button>
+    <a href="{{ url_for('admin.manage_timelines') }}" class="btn btn-secondary">Anuluj</a>
+</form>
 
-        <div class="d-flex justify-content-between">
-            <button type="submit" class="btn btn-primary">
-                <i class="fas fa-save"></i> Zapisz zmiany
-            </button>
-            <a href="{{ url_for('admin.manage_timelines') }}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Powrót do listy
-            </a>
-        </div>
-    </form>
+<div class="mt-4">
+    <a href="{{ url_for('admin.add_timeline_event', id=timeline.id) }}" class="btn btn-success">
+        Dodaj nowe wydarzenie
+    </a>
 </div>
 {% endblock %}
